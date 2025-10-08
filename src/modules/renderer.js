@@ -166,7 +166,7 @@ export class Renderer {
         const tooltip = control.tooltip || '';
         
         html += `<div style="display: flex; align-items: center; margin-bottom: 12px; font-size: 12px; position: relative;" title="${tooltip}">`;
-        html += `<span style="width: 80px; color: rgba(255,255,255,0.8); cursor: help;">${shortLabel}</span>`;
+        html += `<span style="width: 80px; color: rgba(255,255,255,0.8); cursor: default;">${shortLabel}</span>`;
         
         // Check if this is a toggle control
         if (control.isToggle) {
