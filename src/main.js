@@ -65,9 +65,10 @@ export class Simulation {
     // Initialize control panel immediately
     this.renderer.ensureControlPanelExists(this.controls);
     
-    // Initialize pin button and palette buttons after control panel is created
+    // Initialize pin button, palette buttons, and faucet button after control panel is created
     this.interactions.initializePinButton();
     this.interactions.initializePaletteButtons();
+    this.interactions.initializeFaucetButton();
     
     this.animate();
   }
@@ -276,6 +277,7 @@ export class Simulation {
         this.controls.setValue('damping', 0.995);
         this.controls.setValue('surfaceTension', 0.2); // Lower for more bounce
         this.controls.setValue('plateauForceStrength', 0.03);
+        this.controls.setValue('coalescenceRate', 0.00012);
         this.controls.setValue('compressionForce', 0.08);
         this.controls.setValue('gravity', 0.06);
         this.compress();
@@ -292,6 +294,7 @@ export class Simulation {
         this.controls.setValue('damping', 0.98);
         this.controls.setValue('surfaceTension', 0.3);
         this.controls.setValue('plateauForceStrength', 0.1);
+        this.controls.setValue('coalescenceRate', 0.00012);
         this.controls.setValue('compressionForce', 0.1);
         this.controls.setValue('gravity', 0.05);
         this.compress();
@@ -309,7 +312,7 @@ export class Simulation {
         this.controls.setValue('plateauForceStrength', 0.270000);
         this.controls.setValue('gravity', 0.040000);
         this.controls.setValue('damping', 0.990000);
-        this.controls.setValue('coalescenceRate', 0.000010);
+        this.controls.setValue('coalescenceRate', 0.00012);
         this.controls.setValue('bubbleCount', 300);
         this.controls.setValue('averageSize', 1.000000);
         this.controls.setValue('sizeVariation', 0.800000);
@@ -330,7 +333,7 @@ export class Simulation {
         this.controls.setValue('plateauForceStrength', 0.020000);
         this.controls.setValue('gravity', 0.040000);
         this.controls.setValue('damping', 0.990000);
-        this.controls.setValue('coalescenceRate', 0.000010);
+        this.controls.setValue('coalescenceRate', 0.00012);
         this.controls.setValue('bubbleCount', 300);
         this.controls.setValue('averageSize', 1.000000);
         this.controls.setValue('sizeVariation', 0.800000);

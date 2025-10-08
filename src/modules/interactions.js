@@ -597,4 +597,39 @@ export class Interactions {
     });
   }
 
+  /**
+   * Initialize faucet button and color picker
+   */
+  initializeFaucetButton() {
+    const faucetBtn = document.getElementById('faucetBtn');
+    const colorPicker = document.getElementById('bubbleColorPicker');
+    
+    if (faucetBtn && colorPicker) {
+      // Clicking faucet button opens color picker
+      faucetBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        colorPicker.click();
+      });
+      
+      // When color is chosen, update spawn color
+      colorPicker.addEventListener('change', (e) => {
+        const hexColor = e.target.value;
+        // Convert hex to rgb format
+        const r = parseInt(hexColor.slice(1, 3), 16);
+        const g = parseInt(hexColor.slice(3, 5), 16);
+        const b = parseInt(hexColor.slice(5, 7), 16);
+        const rgbColor = `rgb(${r}, ${g}, ${b})`;
+        
+        // Store chosen color for spawn
+        if (this.simulation && this.simulation.physics) {
+          this.simulation.physics.customSpawnColor = rgbColor;
+        }
+        
+        // Visual feedback - change faucet button background
+        faucetBtn.style.background = `linear-gradient(135deg, ${hexColor}, rgba(255,255,255,0.2))`;
+      });
+    }
+  }
+
 }

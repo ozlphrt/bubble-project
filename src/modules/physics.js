@@ -491,12 +491,36 @@ export class Physics {
     // Remove merged bubbles
     const updatedBubbles = bubbles.filter(bubble => !bubblesToRemove.includes(bubble));
     
-    // Add new bubbles from corners for each merge
-    if (canvas && bubblesToRemove.length > 0) {
-      for (let i = 0; i < bubblesToRemove.length; i++) {
-        const newBubble = this.createBubbleFromCorner(canvas, updatedBubbles);
-        if (newBubble) {
-          updatedBubbles.push(newBubble);
+    // Calculate canvas density (bubbles per unit area)
+    if (canvas) {
+      const canvasArea = canvas.width * canvas.height;
+      const totalBubbleArea = updatedBubbles.reduce((sum, b) => sum + Math.PI * b.radius * b.radius, 0);
+      const density = totalBubbleArea / canvasArea;
+      
+      // Dynamic spawn rate based on density
+      // Low density (lots of gaps) -> spawn more bubbles
+      // High density (crowded) -> spawn fewer bubbles
+      const targetDensity = 0.3; // Target ~30% coverage
+      const densityRatio = density / targetDensity;
+      
+      // Determine how many bubbles to spawn
+      let spawnCount = bubblesToRemove.length; // Base: replace merged bubbles
+      
+      if (densityRatio < 0.7) {
+        // Low density - spawn extra bubbles to fill gaps
+        spawnCount = Math.min(bubblesToRemove.length + 2, 3);
+      } else if (densityRatio > 1.3) {
+        // High density - spawn fewer bubbles
+        spawnCount = Math.max(1, Math.floor(bubblesToRemove.length * 0.5));
+      }
+      
+      // Add new bubbles from top-left corner
+      if (bubblesToRemove.length > 0) {
+        for (let i = 0; i < spawnCount; i++) {
+          const newBubble = this.createBubbleFromCorner(canvas, updatedBubbles);
+          if (newBubble) {
+            updatedBubbles.push(newBubble);
+          }
         }
       }
     }
@@ -522,17 +546,21 @@ export class Physics {
     
     const margin = Math.max(radius + 10, 30); // Margin from edge (ensure minimum margin)
     
-    // Randomly choose top-left or top-right corner
-    const isLeft = Math.random() < 0.5;
-    const x = isLeft ? margin : canvas.width - margin;
+    // Always spawn from top-left corner
+    const x = margin;
     const y = margin;
     
     // Create new bubble at corner position
     const newBubble = new Bubble(x, y, radius, 0);
     
-    // Give it a small downward velocity (scaled by size - smaller bubbles faster)
+    // Use custom spawn color if set, otherwise use current palette
+    if (this.customSpawnColor) {
+      newBubble.color = this.customSpawnColor;
+    }
+    
+    // Give it a small downward and rightward velocity (scaled by size - smaller bubbles faster)
     const speedScale = Math.sqrt(20 / radius); // Smaller bubbles fall faster
-    newBubble.vx = (isLeft ? 1 : -1) * speedScale;
+    newBubble.vx = 1 * speedScale; // Move right from top-left
     newBubble.vy = 2 * speedScale;
     
     return newBubble;

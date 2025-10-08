@@ -131,11 +131,11 @@ export class Controls {
       coalescenceRate: {
         label: 'Coalescence Rate',
         tooltip: 'How often bubbles merge together. Higher = more merging.',
-        value: 0.00001,
+        value: 0.00012,
         min: 0.0,
         max: 0.0002,
         step: 0.00001,
-        default: 0.00001
+        default: 0.00012
       },
       
       // Plateau Force Strength
