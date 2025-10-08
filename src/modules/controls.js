@@ -217,6 +217,23 @@ export class Controls {
       }
     });
     
+    // Print values button
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'printValuesBtn' || e.target.closest('#printValuesBtn')) {
+        this.showValuesModal();
+      }
+      if (e.target.id === 'closeModalBtn') {
+        this.hideValuesModal();
+      }
+    });
+    
+    // Close modal when clicking outside
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'valuesModal') {
+        this.hideValuesModal();
+      }
+    });
+    
     this.isDragging = false;
     this.draggedControl = null;
   }
@@ -402,6 +419,53 @@ export class Controls {
       if (control.default !== undefined) {
         control.value = control.default;
       }
+    }
+  }
+
+  showValuesModal() {
+    const modal = document.getElementById('valuesModal');
+    const content = document.getElementById('valuesContent');
+    
+    if (!modal || !content) return;
+    
+    // Generate formatted values
+    let html = '<div style="color: rgba(100,200,255,0.9); font-weight: 600; margin-bottom: 10px;">Current Control Values:</div>';
+    
+    // Group values by category
+    const groups = {
+      'Bubble Behavior': ['targetDist', 'separation', 'collisionStrength', 'wallBounce'],
+      'Shape & Tension': ['deformationStrength', 'influenceThreshold', 'surfaceTension', 'plateauForceStrength'],
+      'Environment': ['gravity', 'damping', 'coalescenceRate'],
+      'Appearance': ['bubbleCount', 'averageSize', 'sizeVariation'],
+      'Advanced': ['compressionForce', 'interpolationFactor']
+    };
+    
+    for (const [groupName, controlKeys] of Object.entries(groups)) {
+      html += `<div style="margin-bottom: 15px;">`;
+      html += `<div style="color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px;">${groupName}:</div>`;
+      
+      for (const key of controlKeys) {
+        const control = this.controls[key];
+        if (control) {
+          const value = control.value;
+          const formattedValue = typeof value === 'number' ? value.toFixed(6) : value;
+          html += `<div style="margin-left: 10px; margin-bottom: 2px;">`;
+          html += `<span style="color: rgba(255,255,255,0.9);">${control.label}:</span> `;
+          html += `<span style="color: rgba(100,200,255,1); font-weight: 600;">${formattedValue}</span>`;
+          html += `</div>`;
+        }
+      }
+      html += `</div>`;
+    }
+    
+    content.innerHTML = html;
+    modal.style.display = 'block';
+  }
+
+  hideValuesModal() {
+    const modal = document.getElementById('valuesModal');
+    if (modal) {
+      modal.style.display = 'none';
     }
   }
 }

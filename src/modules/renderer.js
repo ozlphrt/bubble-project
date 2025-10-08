@@ -144,13 +144,18 @@ export class Renderer {
     // Generate HTML content for the control panel with glassmorphism
     let html = '<div style="background: rgba(10,10,15,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 12px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(20px); height: calc(100vh - 40px); overflow-y: visible; overflow-x: hidden; width: 100%; box-sizing: border-box; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">';
     
-    // Header with title and auto-hide toggle
+    // Header with title, print button, and auto-hide toggle
     html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">';
     html += '<h3 style="margin: 0; font-size: 16px; color: rgba(255,255,255,0.95); font-weight: 600;">Physics Controls</h3>';
+    html += '<div style="display: flex; align-items: center; gap: 10px;">';
+    html += '<button id="printValuesBtn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 4px 8px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px;" title="Print all current values">';
+    html += '🖨️ <span>Print</span>';
+    html += '</button>';
     html += '<label style="display: flex; align-items: center; cursor: pointer; font-size: 12px;">';
     html += '<input type="checkbox" id="autoHideToggle" style="margin-right: 5px;">';
     html += '<span style="color: rgba(255,255,255,0.7);">Auto-hide</span>';
     html += '</label>';
+    html += '</div>';
     html += '</div>';
     
     // Create grouped controls
