@@ -54,6 +54,9 @@ export class Bubble {
     this.merging = false; // Is this bubble currently merging?
     this.mergingWith = null; // Which bubble is it merging with?
     this.mergeProgress = 0; // Progress of merge animation (0-1)
+    this.justMerged = false; // Did this bubble just absorb another?
+    this.mergeOscillation = 0; // Oscillation phase for post-merge shake
+    this.mergeOscillationAmplitude = 0; // Amplitude of oscillation
   }
   
   /**
@@ -86,8 +89,17 @@ export class Bubble {
     const gravity = controls?.getValue('gravity') || 0;
     this.vy += gravity * dt * 0.1; // Much smaller scale for reasonable effect
     
-    // Apply surface tension force to radius
-    this.radius += this.surfaceTensionForce * dt * 15.0; // Increased for more visible effect
+    // Apply surface tension force to radius with safety checks
+    const radiusChange = this.surfaceTensionForce * dt * 15.0;
+    const newRadius = this.radius + radiusChange;
+    
+    // Clamp radius to prevent it from becoming negative or too small
+    this.radius = Math.max(5, newRadius); // Minimum radius of 5 pixels
+    
+    // If radius is getting too far from target, reset it
+    if (Math.abs(this.radius - this.targetRadius) > this.targetRadius * 2) {
+      this.radius = this.targetRadius;
+    }
     
     // Apply velocity with time-based scaling for smoother motion
     const timeScale = Math.min(dt / 16, 2); // Cap at 2x normal speed
@@ -211,15 +223,40 @@ export class Bubble {
    * @param {Array<Bubble>} contacts - Bubbles in contact for deformation
    */
   draw(ctx, contacts, controls = null) {
+    // Safety check: don't draw bubbles with invalid radius
+    if (this.radius <= 0) {
+      console.warn('Attempted to draw bubble with non-positive radius:', this.radius);
+      return;
+    }
+    
     // Get control values or use defaults
     const influenceThreshold = controls?.getValue('influenceThreshold') || 0.1;
     const deformationStrength = controls?.getValue('deformationStrength') || 1.0;
     
+    // Apply post-merge oscillation (vibration effect)
+    let displayRadius = this.radius;
+    if (this.justMerged && this.mergeOscillationAmplitude > 0) {
+      // Damped oscillation: radius wobbles and settles
+      const oscillation = Math.sin(this.mergeOscillation) * this.mergeOscillationAmplitude;
+      displayRadius = this.radius + oscillation;
+      
+      // Update oscillation
+      this.mergeOscillation += 0.8; // Oscillation speed
+      this.mergeOscillationAmplitude *= 0.92; // Damping (decay)
+      
+      // Stop oscillation when amplitude is very small
+      if (this.mergeOscillationAmplitude < 0.5) {
+        this.justMerged = false;
+        this.mergeOscillationAmplitude = 0;
+        this.mergeOscillation = 0;
+      }
+    }
+    
     ctx.beginPath();
     
     if (contacts.length === 0) {
-      // No contacts - draw circle
-      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      // No contacts - draw circle (with oscillation if just merged)
+      ctx.arc(this.x, this.y, displayRadius, 0, Math.PI * 2);
     } else {
       // Has contacts - draw deformed shape
       const segments = 32; // Smooth rendering
@@ -285,6 +322,8 @@ export class Bubble {
           const b = rgbMatch[3];
           return `rgba(${r}, ${g}, ${b}, ${opacity / 255})`;
         }
+        // If match fails, return a default
+        return `rgba(128, 128, 128, ${opacity / 255})`;
       }
       // Fallback for hex colors
       return this.color + opacity.toString(16).padStart(2, '0');

@@ -15,8 +15,8 @@
 export class Physics {
   constructor() {
     this.quadtree = null;
-    this.coalescenceRate = 0.01; // Probability per frame
-    this.contactDurationThreshold = 30; // Frames before merge can occur
+    this.coalescenceRate = 0.00001; // Very low default probability per frame per pair
+    this.contactDurationThreshold = 300; // Frames before merge can occur (5 seconds at 60fps for rare, realistic merging)
   }
 
   /**
@@ -347,6 +347,12 @@ export class Physics {
    * @returns {Bubble} The merged bubble
    */
   mergeBubbles(bubble1, bubble2) {
+    // Safety check: ensure both bubbles have positive radius
+    if (bubble1.radius <= 0 || bubble2.radius <= 0) {
+      console.warn('Attempted to merge bubble with non-positive radius');
+      return;
+    }
+    
     // Volume conservation: r_new = sqrt(r1² + r2²) for 2D area
     const newRadius = Math.sqrt(bubble1.radius * bubble1.radius + bubble2.radius * bubble2.radius);
     
@@ -384,21 +390,42 @@ export class Physics {
     bubble1.mergingWith = bubble2;
     bubble1.mergeProgress = 0;
     
+    // Trigger post-merge oscillation (vibration) for bubble2
+    bubble2.justMerged = true;
+    bubble2.mergeOscillation = 0;
+    bubble2.mergeOscillationAmplitude = newRadius * 0.15; // 15% of radius
+    
     return bubble2;
   }
   
   /**
-   * Convert hex color to RGB
-   * @param {string} hex - Hex color string
+   * Convert hex or rgb color to RGB object
+   * @param {string} color - Hex color string (#ff0000) or rgb string (rgb(255, 0, 0))
    * @returns {Object} RGB object
    */
-  hexToRgb(hex) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : { r: 128, g: 128, b: 128 };
+  hexToRgb(color) {
+    // Try to parse as rgb() format first
+    const rgbMatch = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i.exec(color);
+    if (rgbMatch) {
+      return {
+        r: parseInt(rgbMatch[1], 10),
+        g: parseInt(rgbMatch[2], 10),
+        b: parseInt(rgbMatch[3], 10)
+      };
+    }
+    
+    // Try to parse as hex format
+    const hexMatch = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+    if (hexMatch) {
+      return {
+        r: parseInt(hexMatch[1], 16),
+        g: parseInt(hexMatch[2], 16),
+        b: parseInt(hexMatch[3], 16)
+      };
+    }
+    
+    // Default to gray if parsing fails
+    return { r: 128, g: 128, b: 128 };
   }
   
   /**
@@ -408,6 +435,11 @@ export class Physics {
    * @returns {Array<Bubble>} Updated array of bubbles
    */
   processCoalescence(bubbles, coalescenceRate) {
+    // Skip entirely if coalescence rate is zero
+    if (coalescenceRate === 0) {
+      return bubbles;
+    }
+    
     const bubblesToRemove = [];
     
     for (let i = 0; i < bubbles.length; i++) {
@@ -429,6 +461,11 @@ export class Physics {
         const contactDistance = bubble1.radius + bubble2.radius;
         
         if (distance < contactDistance && this.shouldCoalesce(bubble1, bubble2, coalescenceRate)) {
+          // Mark bubble1 for merging animation
+          bubble1.merging = true;
+          bubble1.mergingWith = bubble2;
+          bubble1.mergeProgress = 0;
+          
           // Merge bubbles
           this.mergeBubbles(bubble1, bubble2);
           bubblesToRemove.push(bubble1);

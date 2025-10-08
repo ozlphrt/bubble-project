@@ -116,10 +116,10 @@ export class Controls {
       // Coalescence Rate Control
       coalescenceRate: {
         label: 'Coalescence Rate',
-        value: 0.01, // Default coalescence rate
+        value: 0.00001, // Very low default - realistic slow merging
         min: 0.0,
-        max: 0.1, // Max 10% chance per frame
-        step: 0.001
+        max: 0.001, // Max 0.1% chance per frame per pair
+        step: 0.00001
       },
       
       // Plateau Force Strength
@@ -325,7 +325,7 @@ export class Controls {
     this.controls.theme.value = 0.04;
     this.controls.gravity.value = 0.04;
     this.controls.surfaceTension.value = 0.03;
-    this.controls.coalescenceRate.value = 0.01;
+    this.controls.coalescenceRate.value = 0.00001;
     this.controls.plateauForceStrength.value = 0.2;
     this.controls.averageSize.value = 1.0;
     this.controls.sizeVariation.value = 0.8;

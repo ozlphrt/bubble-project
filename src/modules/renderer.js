@@ -46,22 +46,33 @@ export class Renderer {
       
       // Apply merge animation if bubble is merging
       if (bubble.merging && bubble.mergingWith) {
-        this.ctx.save();
+        // Skip drawing if merge progress is too high (bubble is almost gone)
+        if (bubble.mergeProgress < 0.9) {
+          this.ctx.save();
+          
+          // Fade out during merge
+          this.ctx.globalAlpha = 1.0 - bubble.mergeProgress;
+          
+          // Shrink slightly during merge (clamped to prevent negative radius)
+          const scale = Math.max(0.1, 1.0 - bubble.mergeProgress * 0.5);
+          this.ctx.translate(bubble.x, bubble.y);
+          this.ctx.scale(scale, scale);
+          this.ctx.translate(-bubble.x, -bubble.y);
+          
+          bubble.draw(this.ctx, contacts);
+          
+          // Draw bright red border to indicate merging
+          this.ctx.strokeStyle = `rgba(255, 0, 0, ${1.0 - bubble.mergeProgress})`;
+          this.ctx.lineWidth = 3;
+          this.ctx.beginPath();
+          this.ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+          this.ctx.stroke();
+          
+          this.ctx.restore();
+        }
         
-        // Fade out during merge
-        this.ctx.globalAlpha = 1.0 - bubble.mergeProgress;
-        
-        // Shrink slightly during merge
-        const scale = 1.0 - bubble.mergeProgress * 0.3;
-        this.ctx.translate(bubble.x, bubble.y);
-        this.ctx.scale(scale, scale);
-        this.ctx.translate(-bubble.x, -bubble.y);
-        
-        bubble.draw(this.ctx, contacts);
-        this.ctx.restore();
-        
-        // Update merge progress
-        bubble.mergeProgress += 0.05; // Adjust speed as needed
+        // Update merge progress (much slower for visibility)
+        bubble.mergeProgress += 0.01; // Very slow merge animation (was 0.05)
         
         // Remove bubble when merge is complete
         if (bubble.mergeProgress >= 1.0) {
@@ -155,6 +166,9 @@ export class Renderer {
         if (key === 'theme') {
           const themePercent = Math.round(control.value * 100);
           html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${themePercent}%</span>`;
+        } else if (key === 'coalescenceRate') {
+          // Show 5 decimal places for coalescence rate
+          html += `<span id="value-${key}" style="width: 60px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(5)}</span>`;
         } else {
           html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(2)}</span>`;
         }
@@ -203,6 +217,9 @@ export class Renderer {
           if (key === 'theme') {
             const themePercent = Math.round(control.value * 100);
             valueDisplay.textContent = `${themePercent}%`;
+          } else if (key === 'coalescenceRate') {
+            // Show 5 decimal places for coalescence rate
+            valueDisplay.textContent = control.value.toFixed(5);
           } else {
             valueDisplay.textContent = control.value.toFixed(2);
           }
