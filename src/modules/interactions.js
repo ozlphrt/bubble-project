@@ -79,6 +79,16 @@ export class Interactions {
     this.canvas.addEventListener('touchmove', (e) => {
       e.preventDefault(); // Prevent scrolling
       this.handleTouchMove(e);
+      
+      // Handle control panel visibility for mobile auto-hide
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const syntheticEvent = {
+          clientX: touch.clientX,
+          clientY: touch.clientY
+        };
+        this.handleControlsVisibility(syntheticEvent);
+      }
     });
 
     this.canvas.addEventListener('touchend', (e) => {
@@ -421,15 +431,32 @@ export class Interactions {
    */
   isMouseOverControlPanel(e) {
     const controlPanel = document.querySelector('.control-panel');
-    if (!controlPanel) return false;
+    const presetPanel = document.querySelector('.preset-buttons');
     
-    const panelRect = controlPanel.getBoundingClientRect();
-    const isOver = e.clientX >= panelRect.left && 
-                   e.clientX <= panelRect.right && 
-                   e.clientY >= panelRect.top && 
-                   e.clientY <= panelRect.bottom;
+    let isOverControl = false;
+    let isOverPreset = false;
     
-    // If mouse is over panel, ensure it's visible and clear any hide timeout
+    // Check control panel
+    if (controlPanel) {
+      const panelRect = controlPanel.getBoundingClientRect();
+      isOverControl = e.clientX >= panelRect.left && 
+                     e.clientX <= panelRect.right && 
+                     e.clientY >= panelRect.top && 
+                     e.clientY <= panelRect.bottom;
+    }
+    
+    // Check presets panel
+    if (presetPanel) {
+      const panelRect = presetPanel.getBoundingClientRect();
+      isOverPreset = e.clientX >= panelRect.left && 
+                    e.clientX <= panelRect.right && 
+                    e.clientY >= panelRect.top && 
+                    e.clientY <= panelRect.bottom;
+    }
+    
+    const isOver = isOverControl || isOverPreset;
+    
+    // If mouse/touch is over either panel, ensure they're visible and clear any hide timeout
     if (isOver && this.hideTimeout) {
       clearTimeout(this.hideTimeout);
       this.hideTimeout = null;
