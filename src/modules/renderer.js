@@ -142,10 +142,10 @@ export class Renderer {
     };
     
     // Generate HTML content for the control panel
-    let html = '<div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px); max-height: calc(100vh - 40px); overflow-y: auto; overflow-x: hidden; width: 100%; box-sizing: border-box;">';
+    let html = '<div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 12px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px); height: calc(100vh - 40px); overflow-y: visible; overflow-x: hidden; width: 100%; box-sizing: border-box;">';
     
     // Header with title and auto-hide toggle
-    html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">';
+    html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px;">';
     html += '<h3 style="margin: 0; font-size: 16px; color: white;">Physics Controls</h3>';
     html += '<label style="display: flex; align-items: center; cursor: pointer; font-size: 12px;">';
     html += '<input type="checkbox" id="autoHideToggle" style="margin-right: 5px;">';
@@ -155,8 +155,8 @@ export class Renderer {
     
     // Create grouped controls
     for (const [groupName, controlKeys] of Object.entries(controlGroups)) {
-      html += `<div style="margin-bottom: 20px;">`;
-      html += `<h4 style="margin: 0 0 10px 0; font-size: 14px; color: rgba(255,255,255,0.9); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">${groupName}</h4>`;
+        html += `<div style="margin-bottom: 15px;">`;
+        html += `<h4 style="margin: 0 0 8px 0; font-size: 13px; color: rgba(255,255,255,0.9); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 3px;">${groupName}</h4>`;
       
       for (const key of controlKeys) {
         const control = controls.controls[key];
@@ -165,7 +165,7 @@ export class Renderer {
         const shortLabel = this.getShortLabel(control.label);
         const tooltip = control.tooltip || '';
         
-        html += `<div style="display: flex; align-items: center; margin-bottom: 12px; font-size: 12px; position: relative;">`;
+        html += `<div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 12px; position: relative;">`;
         html += `<span style="width: 80px; color: rgba(255,255,255,0.8); cursor: default;" title="${tooltip}">${shortLabel}</span>`;
         
         // Check if this is a toggle control
