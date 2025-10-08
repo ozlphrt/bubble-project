@@ -315,19 +315,22 @@ export class Simulation {
         
       case 'pearls':
         // Rubber Pearls preset - smooth, elegant bubble behavior
-        this.controls.setValue('targetDist', 1.03);
-        this.controls.setValue('separation', 0.39);
-        this.controls.setValue('collisionStrength', 0.03);
-        this.controls.setValue('influenceThreshold', 0.10);
-        this.controls.setValue('deformationStrength', 1.47);
-        this.controls.setValue('wallBounce', 0.45);
-        this.controls.setValue('damping', 0.99);
-        this.controls.setValue('compressionForce', 0.06);
-        this.controls.setValue('interpolationFactor', 0.03);
-        this.controls.setValue('theme', 0.04);
-        this.controls.setValue('gravity', 0.04);
-        this.controls.setValue('surfaceTension', 0.03);
-        this.controls.setValue('plateauForceStrength', 0.02);
+        this.controls.setValue('targetDist', 1.030000);
+        this.controls.setValue('separation', 0.390000);
+        this.controls.setValue('collisionStrength', 0.030000);
+        this.controls.setValue('wallBounce', 0.450000);
+        this.controls.setValue('deformationStrength', 1.470000);
+        this.controls.setValue('influenceThreshold', 0.100000);
+        this.controls.setValue('surfaceTension', 0.030000);
+        this.controls.setValue('plateauForceStrength', 0.020000);
+        this.controls.setValue('gravity', 0.040000);
+        this.controls.setValue('damping', 0.990000);
+        this.controls.setValue('coalescenceRate', 0.000010);
+        this.controls.setValue('bubbleCount', 300);
+        this.controls.setValue('averageSize', 1.000000);
+        this.controls.setValue('sizeVariation', 0.800000);
+        this.controls.setValue('compressionForce', 0.060000);
+        this.controls.setValue('interpolationFactor', 0.030000);
         this.compress();
         break;
     }
