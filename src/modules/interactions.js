@@ -139,7 +139,7 @@ export class Interactions {
 
     // Control panel event listeners to prevent auto-hide during interaction
     document.addEventListener('mouseenter', (e) => {
-      if (e.target && e.target.closest('.control-panel')) {
+      if (e.target && e.target.closest && e.target.closest('.control-panel')) {
         // Mouse entered control panel - show it and clear any hide timeout
         this.showControlPanel();
         if (this.hideTimeout) {

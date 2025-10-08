@@ -327,6 +327,16 @@ export class Simulation {
     this.physics.updatePositions(this.bubbles, dt, this.canvas, this.controls);
     this.physics.applyPressureForces(this.bubbles); // Re-enabled with subtle forces
     
+    // Update contact durations for coalescence tracking
+    this.bubbles.forEach(bubble => {
+      const contacts = this.physics.findContacts(bubble, this.bubbles);
+      bubble.updateContactDurations(contacts);
+    });
+    
+    // Process coalescence (bubble merging)
+    const coalescenceRate = this.controls.getValue('coalescenceRate') || 0.01;
+    this.bubbles = this.physics.processCoalescence(this.bubbles, coalescenceRate);
+    
     // Apply Plateau forces to push junctions toward 120° angles
     this.currentJunctions = this.physics.detectPlateauBorders(this.bubbles);
     this.physics.applyPlateauForces(this.currentJunctions, this.controls);
@@ -338,11 +348,8 @@ export class Simulation {
     const theme = this.controls.getValue('theme') || 0;
     this.renderer.clear(theme);
     
-    // Draw bubbles
-    this.bubbles.forEach(bubble => {
-      const contacts = this.physics.findContacts(bubble, this.bubbles);
-      bubble.draw(this.ctx, contacts, this.controls);
-    });
+    // Draw bubbles (including merge animations)
+    this.renderer.renderBubbles(this.bubbles, this.physics);
     
     // Render Plateau borders (use cached junctions from update)
     this.renderer.renderPlateauBorders(this.currentJunctions || [], this.controls);

@@ -48,6 +48,12 @@ export class Bubble {
     // State tracking
     this.age = 0;
     this.id = Bubble.nextId++;
+    
+    // Coalescence tracking
+    this.contactDurations = new Map(); // Track contact duration with other bubbles
+    this.merging = false; // Is this bubble currently merging?
+    this.mergingWith = null; // Which bubble is it merging with?
+    this.mergeProgress = 0; // Progress of merge animation (0-1)
   }
   
   /**
@@ -113,6 +119,36 @@ export class Bubble {
     this.vx *= damping;
     this.vy *= damping;
     this.age++;
+  }
+  
+  /**
+   * Update contact durations with other bubbles
+   * @param {Array} contacts - Array of bubbles currently in contact
+   */
+  updateContactDurations(contacts) {
+    // Get all bubble IDs currently in contact
+    const currentContactIds = new Set(contacts.map(bubble => bubble.id));
+    
+    // Increment duration for bubbles still in contact
+    for (const [bubbleId, duration] of this.contactDurations) {
+      if (currentContactIds.has(bubbleId)) {
+        this.contactDurations.set(bubbleId, duration + 1);
+      }
+    }
+    
+    // Add new contacts with duration 1
+    for (const bubble of contacts) {
+      if (!this.contactDurations.has(bubble.id)) {
+        this.contactDurations.set(bubble.id, 1);
+      }
+    }
+    
+    // Remove contacts that are no longer touching
+    for (const [bubbleId] of this.contactDurations) {
+      if (!currentContactIds.has(bubbleId)) {
+        this.contactDurations.delete(bubbleId);
+      }
+    }
   }
   
   /**

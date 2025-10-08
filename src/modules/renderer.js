@@ -40,10 +40,39 @@ export class Renderer {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  renderBubbles(bubbles) {
+  renderBubbles(bubbles, physics = null) {
     bubbles.forEach(bubble => {
-      const contacts = this.physics.findContacts(bubble, bubbles); // Assuming physics is available
-      bubble.draw(this.ctx, contacts);
+      const contacts = physics ? physics.findContacts(bubble, bubbles) : [];
+      
+      // Apply merge animation if bubble is merging
+      if (bubble.merging && bubble.mergingWith) {
+        this.ctx.save();
+        
+        // Fade out during merge
+        this.ctx.globalAlpha = 1.0 - bubble.mergeProgress;
+        
+        // Shrink slightly during merge
+        const scale = 1.0 - bubble.mergeProgress * 0.3;
+        this.ctx.translate(bubble.x, bubble.y);
+        this.ctx.scale(scale, scale);
+        this.ctx.translate(-bubble.x, -bubble.y);
+        
+        bubble.draw(this.ctx, contacts);
+        this.ctx.restore();
+        
+        // Update merge progress
+        bubble.mergeProgress += 0.05; // Adjust speed as needed
+        
+        // Remove bubble when merge is complete
+        if (bubble.mergeProgress >= 1.0) {
+          bubble.merging = false;
+          bubble.mergingWith = null;
+          bubble.mergeProgress = 0;
+        }
+      } else {
+        // Normal rendering
+        bubble.draw(this.ctx, contacts);
+      }
     });
   }
 
@@ -197,6 +226,7 @@ export class Renderer {
       'Theme': 'Theme',
       'Gravity': 'Gravity',
       'Surface Tension': 'Surface Tension',
+      'Coalescence Rate': 'Coalesce',
       'Plateau Borders': 'Plateau',
       'Average Size': 'Avg Size',
       'Size Variation': 'Size Var'

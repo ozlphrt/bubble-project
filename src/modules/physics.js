@@ -15,6 +15,8 @@
 export class Physics {
   constructor() {
     this.quadtree = null;
+    this.coalescenceRate = 0.01; // Probability per frame
+    this.contactDurationThreshold = 30; // Frames before merge can occur
   }
 
   /**
@@ -307,5 +309,135 @@ export class Physics {
         }
       }
     });
+  }
+  
+  /**
+   * Check if two bubbles should coalesce (merge)
+   * @param {Bubble} bubble1 - First bubble
+   * @param {Bubble} bubble2 - Second bubble
+   * @param {number} coalescenceRate - Rate of coalescence (0-1)
+   * @returns {boolean} True if bubbles should merge
+   */
+  shouldCoalesce(bubble1, bubble2, coalescenceRate) {
+    // Check if bubbles have been in contact long enough
+    const contactDuration1 = bubble1.contactDurations.get(bubble2.id) || 0;
+    const contactDuration2 = bubble2.contactDurations.get(bubble1.id) || 0;
+    const maxContactDuration = Math.max(contactDuration1, contactDuration2);
+    
+    if (maxContactDuration < this.contactDurationThreshold) {
+      return false;
+    }
+    
+    // Calculate pressure differential (smaller bubbles have higher pressure)
+    const pressure1 = 1.0 / bubble1.radius; // Simplified pressure calculation
+    const pressure2 = 1.0 / bubble2.radius;
+    const pressureDiff = Math.abs(pressure1 - pressure2);
+    
+    // Higher pressure difference = higher merge probability
+    const baseProbability = coalescenceRate * (1.0 + pressureDiff * 0.5);
+    
+    // Stochastic rupture
+    return Math.random() < baseProbability;
+  }
+  
+  /**
+   * Merge two bubbles into one
+   * @param {Bubble} bubble1 - First bubble (will be removed)
+   * @param {Bubble} bubble2 - Second bubble (will become the merged bubble)
+   * @returns {Bubble} The merged bubble
+   */
+  mergeBubbles(bubble1, bubble2) {
+    // Volume conservation: r_new = sqrt(r1² + r2²) for 2D area
+    const newRadius = Math.sqrt(bubble1.radius * bubble1.radius + bubble2.radius * bubble2.radius);
+    
+    // Position: weighted center of mass
+    const totalMass = bubble1.mass + bubble2.mass;
+    const newX = (bubble1.x * bubble1.mass + bubble2.x * bubble2.mass) / totalMass;
+    const newY = (bubble1.y * bubble1.mass + bubble2.y * bubble2.mass) / totalMass;
+    
+    // Momentum conservation
+    const newVx = (bubble1.vx * bubble1.mass + bubble2.vx * bubble2.mass) / totalMass;
+    const newVy = (bubble1.vy * bubble1.mass + bubble2.vy * bubble2.mass) / totalMass;
+    
+    // Update bubble2 to be the merged bubble
+    bubble2.x = newX;
+    bubble2.y = newY;
+    bubble2.radius = newRadius;
+    bubble2.vx = newVx;
+    bubble2.vy = newVy;
+    bubble2.mass = Math.PI * newRadius * newRadius;
+    
+    // Color blending (weighted average)
+    const color1 = this.hexToRgb(bubble1.color);
+    const color2 = this.hexToRgb(bubble2.color);
+    const weight1 = bubble1.mass / totalMass;
+    const weight2 = bubble2.mass / totalMass;
+    
+    const newR = Math.round(color1.r * weight1 + color2.r * weight2);
+    const newG = Math.round(color1.g * weight1 + color2.g * weight2);
+    const newB = Math.round(color1.b * weight1 + color2.b * weight2);
+    
+    bubble2.color = `rgb(${newR}, ${newG}, ${newB})`;
+    
+    // Mark bubble1 for removal
+    bubble1.merging = true;
+    bubble1.mergingWith = bubble2;
+    bubble1.mergeProgress = 0;
+    
+    return bubble2;
+  }
+  
+  /**
+   * Convert hex color to RGB
+   * @param {string} hex - Hex color string
+   * @returns {Object} RGB object
+   */
+  hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : { r: 128, g: 128, b: 128 };
+  }
+  
+  /**
+   * Process coalescence for all bubbles
+   * @param {Array<Bubble>} bubbles - Array of all bubbles
+   * @param {number} coalescenceRate - Rate of coalescence (0-1)
+   * @returns {Array<Bubble>} Updated array of bubbles
+   */
+  processCoalescence(bubbles, coalescenceRate) {
+    const bubblesToRemove = [];
+    
+    for (let i = 0; i < bubbles.length; i++) {
+      const bubble1 = bubbles[i];
+      
+      // Skip if already merging
+      if (bubble1.merging) continue;
+      
+      for (let j = i + 1; j < bubbles.length; j++) {
+        const bubble2 = bubbles[j];
+        
+        // Skip if already merging
+        if (bubble2.merging) continue;
+        
+        // Check if bubbles are in contact
+        const dx = bubble2.x - bubble1.x;
+        const dy = bubble2.y - bubble1.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const contactDistance = bubble1.radius + bubble2.radius;
+        
+        if (distance < contactDistance && this.shouldCoalesce(bubble1, bubble2, coalescenceRate)) {
+          // Merge bubbles
+          this.mergeBubbles(bubble1, bubble2);
+          bubblesToRemove.push(bubble1);
+          break; // bubble1 is now marked for removal
+        }
+      }
+    }
+    
+    // Remove merged bubbles
+    return bubbles.filter(bubble => !bubblesToRemove.includes(bubble));
   }
 }
