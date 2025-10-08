@@ -19,8 +19,8 @@ export class Interactions {
     this.isDragging = false;
     this.draggedBubble = null;
     this.dragOffset = { x: 0, y: 0 };
-    this.controlPanelVisible = true; // Default to visible (auto-hide OFF)
-    this.autoHideEnabled = false; // Auto-hide disabled by default
+    this.controlPanelVisible = true; // Start visible
+    this.autoHideEnabled = true; // Auto-hide enabled by default
     this.hideTimeout = null;
     this.setupEventListeners();
   }
@@ -34,8 +34,12 @@ export class Interactions {
       this.simulation.compress();
     });
 
+    document.getElementById('restart')?.addEventListener('click', () => {
+      this.simulation.restart();
+    });
+
     document.getElementById('reset')?.addEventListener('click', () => {
-      this.simulation.reset();
+      this.simulation.resetToDefaults();
     });
 
 
@@ -457,9 +461,16 @@ export class Interactions {
    */
   showControlPanel() {
     const controlPanel = document.querySelector('.control-panel');
+    const presetButtons = document.querySelector('.preset-buttons');
+    
     if (controlPanel && !this.controlPanelVisible) {
       controlPanel.classList.remove('hidden');
       this.controlPanelVisible = true;
+    }
+    
+    // Also show preset buttons
+    if (presetButtons) {
+      presetButtons.classList.remove('hidden');
     }
     
     // Clear any pending hide timeout
@@ -487,9 +498,16 @@ export class Interactions {
    */
   hideControlPanel() {
     const controlPanel = document.querySelector('.control-panel');
+    const presetButtons = document.querySelector('.preset-buttons');
+    
     if (controlPanel && this.controlPanelVisible) {
       controlPanel.classList.add('hidden');
       this.controlPanelVisible = false;
+    }
+    
+    // Also hide preset buttons
+    if (presetButtons) {
+      presetButtons.classList.add('hidden');
     }
     
     if (this.hideTimeout) {

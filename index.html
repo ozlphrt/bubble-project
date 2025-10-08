@@ -141,11 +141,17 @@
             right: 20px;
             z-index: 1000;
             display: flex;
+            transition: right 0.3s ease-in-out;
             flex-direction: column;
             gap: 8px;
             background: rgba(0, 0, 0, 0.8);
             padding: 15px;
             border-radius: 8px;
+        }
+
+        .preset-buttons.hidden {
+            right: -250px; /* Slide to the right, off-screen */
+        }
             border: 1px solid rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(10px);
         }
@@ -228,7 +234,8 @@
     
     <div class="controls">
         <button id="compress" class="control-button">Compress</button>
-        <button id="reset" class="control-button">Reset</button>
+        <button id="restart" class="control-button">Restart</button>
+        <button id="reset" class="control-button">Reset to Defaults</button>
     </div>
     
     <div class="control-panel" id="controlPanel">

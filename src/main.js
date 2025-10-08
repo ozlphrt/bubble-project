@@ -214,9 +214,21 @@ export class Simulation {
   }
 
 
-  reset() {
+  restart() {
+    // Restart simulation with current control values (old reset behavior)
     const bubbleCount = this.controls.getValue('bubbleCount') ?? 300;
     this.initBubbles(bubbleCount); // Use current bubble count setting
+    this.compressionActive = false;
+    this.lastCompressionForce = 0;
+  }
+
+  resetToDefaults() {
+    // Reset all controls to their default values
+    this.controls.resetToDefaults();
+    
+    // Reinitialize bubbles with default settings
+    const bubbleCount = this.controls.getValue('bubbleCount') ?? 300;
+    this.initBubbles(bubbleCount);
     this.compressionActive = false;
     this.lastCompressionForce = 0;
   }
