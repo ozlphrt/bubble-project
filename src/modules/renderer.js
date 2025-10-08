@@ -142,7 +142,7 @@ export class Renderer {
     };
     
     // Generate HTML content for the control panel
-    let html = '<div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px); height: calc(100vh - 30px); overflow-y: auto;">';
+    let html = '<div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px); max-height: calc(100vh - 40px); overflow-y: auto; overflow-x: hidden; width: 100%; box-sizing: border-box;">';
     
     // Header with title and auto-hide toggle
     html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">';
@@ -189,7 +189,7 @@ export class Renderer {
           }
           
           // Enhanced slider without extreme zones
-          html += `<div style="flex: 1; height: 16px; background: rgba(100,100,100,0.5); border-radius: 8px; position: relative; margin-right: 5px; cursor: pointer;" id="slider-track-${key}">`;
+          html += `<div style="flex: 1; height: 16px; background: rgba(100,100,100,0.5); border-radius: 8px; position: relative; margin-right: 5px; cursor: pointer; min-width: 0;" id="slider-track-${key}">`;
           
           // Default value indicator (small dot)
           html += `<div style="position: absolute; left: ${defaultPosition * 100}%; top: 50%; width: 4px; height: 4px; background: rgba(255,255,0,0.8); border-radius: 50%; transform: translate(-50%, -50%);"></div>`;
