@@ -511,13 +511,16 @@ export class Physics {
    * @returns {Bubble} New bubble from corner
    */
   createBubbleFromCorner(canvas, existingBubbles) {
-    // Calculate average radius from existing bubbles
+    // Calculate average radius from existing bubbles for size variation base
     const avgRadius = existingBubbles.length > 0 
       ? existingBubbles.reduce((sum, b) => sum + b.radius, 0) / existingBubbles.length 
       : 20;
     
-    const radius = avgRadius;
-    const margin = radius + 10; // Margin from edge
+    // Create random size variation (0.5x to 1.5x average)
+    const sizeVariation = 0.5 + Math.random();
+    const radius = avgRadius * sizeVariation;
+    
+    const margin = Math.max(radius + 10, 30); // Margin from edge (ensure minimum margin)
     
     // Randomly choose top-left or top-right corner
     const isLeft = Math.random() < 0.5;
@@ -527,9 +530,10 @@ export class Physics {
     // Create new bubble at corner position
     const newBubble = new Bubble(x, y, radius, 0);
     
-    // Give it a small downward velocity
-    newBubble.vx = isLeft ? 1 : -1;
-    newBubble.vy = 2;
+    // Give it a small downward velocity (scaled by size - smaller bubbles faster)
+    const speedScale = Math.sqrt(20 / radius); // Smaller bubbles fall faster
+    newBubble.vx = (isLeft ? 1 : -1) * speedScale;
+    newBubble.vy = 2 * speedScale;
     
     return newBubble;
   }
