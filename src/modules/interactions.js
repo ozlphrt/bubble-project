@@ -131,9 +131,7 @@ export class Interactions {
       // Check if clicked element or its parent is the pin button
       const pinBtn = e.target.closest('#pinToggleBtn');
       if (pinBtn) {
-        console.log('Pin button clicked, current autoHideEnabled:', this.autoHideEnabled);
         this.autoHideEnabled = !this.autoHideEnabled;
-        console.log('New autoHideEnabled:', this.autoHideEnabled);
         this.updatePinIcon();
         if (!this.autoHideEnabled) {
           // If auto-hide is disabled, show the panel and clear any hide timeout
@@ -505,21 +503,16 @@ export class Interactions {
    */
   updatePinIcon() {
     const pinIcon = document.getElementById('pinIcon');
-    console.log('updatePinIcon called, pinIcon element:', pinIcon, 'autoHideEnabled:', this.autoHideEnabled);
     if (pinIcon) {
       if (!this.autoHideEnabled) {
         // Pinned (auto-hide disabled) - solid pin
         pinIcon.style.color = 'rgba(255,255,255,1)';
         pinIcon.textContent = '📍';
-        console.log('Set to pinned state (solid pin)');
       } else {
         // Unpinned (auto-hide enabled) - round pin
         pinIcon.style.color = 'rgba(255,255,255,0.7)';
         pinIcon.textContent = '📌';
-        console.log('Set to unpinned state (round pin)');
       }
-    } else {
-      console.log('Pin icon element not found!');
     }
   }
 
@@ -528,13 +521,11 @@ export class Interactions {
    */
   initializePinButton() {
     const pinBtn = document.getElementById('pinToggleBtn');
-    console.log('Initializing pin button:', pinBtn);
     if (pinBtn) {
       // Add direct event listener as backup
       pinBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        console.log('Direct pin button click handler triggered');
         this.autoHideEnabled = !this.autoHideEnabled;
         this.updatePinIcon();
         if (!this.autoHideEnabled) {
@@ -543,8 +534,6 @@ export class Interactions {
       });
       // Update initial state
       this.updatePinIcon();
-    } else {
-      console.log('Pin button not found during initialization');
     }
   }
 
