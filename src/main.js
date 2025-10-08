@@ -33,6 +33,20 @@ export class Simulation {
     // Make simulation globally accessible for controls
     window.simulation = this;
     
+    // DEBUG: Add test function to force equal sizes
+    window.testEqualSizes = () => {
+      console.log('===== MANUAL TEST: Forcing all bubbles to equal size =====');
+      const baseSize = this.targetRadius;
+      this.bubbles.forEach((bubble, i) => {
+        bubble.radius = baseSize;
+        bubble.targetRadius = baseSize;
+        if (i < 5) {
+          console.log(`  Bubble ${i}: Set to radius=${bubble.radius}, targetRadius=${bubble.targetRadius}`);
+        }
+      });
+      console.log(`Total bubbles updated: ${this.bubbles.length}`);
+    };
+    
     // Set up size control callbacks
     this.controls.controls.averageSize.onChange = () => {
       this.updateBubbleSizes();
