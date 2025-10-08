@@ -155,7 +155,7 @@ export class Controls {
         tooltip: 'Base size of bubbles. 1.0 = normal size.',
         value: 1.0, // Base size multiplier
         min: 0.3,
-        max: 2.0,
+        max: 5.0,
         step: 0.1,
         default: 1.0
       },

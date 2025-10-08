@@ -94,7 +94,7 @@ export class Bubble {
     const newRadius = this.radius + radiusChange;
     
     // Clamp radius to prevent it from becoming negative, too small, or too large
-    this.radius = Math.max(5, Math.min(newRadius, 200)); // Min 5px, Max 200px
+    this.radius = Math.max(5, Math.min(newRadius, 500)); // Min 5px, Max 500px
     
     // If radius is getting too far from target, reset it
     if (Math.abs(this.radius - this.targetRadius) > this.targetRadius * 2) {
