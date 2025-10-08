@@ -537,4 +537,64 @@ export class Interactions {
     }
   }
 
+  /**
+   * Initialize color palette button event listeners
+   */
+  initializePaletteButtons() {
+    const paletteButtons = document.querySelectorAll('.color-palette-btn');
+    
+    paletteButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const paletteId = button.getAttribute('data-palette');
+        this.applyColorPalette(paletteId);
+        
+        // Visual feedback - highlight selected palette
+        paletteButtons.forEach(btn => {
+          btn.style.border = '1px solid rgba(255,255,255,0.2)';
+          btn.style.background = 'rgba(255,255,255,0.1)';
+        });
+        button.style.border = '2px solid rgba(100,200,255,0.8)';
+        button.style.background = 'rgba(100,200,255,0.2)';
+      });
+      
+      // Hover effect
+      button.addEventListener('mouseenter', () => {
+        if (button.style.border !== '2px solid rgba(100,200,255,0.8)') {
+          button.style.background = 'rgba(255,255,255,0.2)';
+        }
+      });
+      
+      button.addEventListener('mouseleave', () => {
+        if (button.style.border !== '2px solid rgba(100,200,255,0.8)') {
+          button.style.background = 'rgba(255,255,255,0.1)';
+        }
+      });
+    });
+    
+    // Highlight the default palette (blues)
+    const defaultPalette = document.querySelector('.color-palette-btn[data-palette="blues"]');
+    if (defaultPalette) {
+      defaultPalette.style.border = '2px solid rgba(100,200,255,0.8)';
+      defaultPalette.style.background = 'rgba(100,200,255,0.2)';
+    }
+  }
+
+  /**
+   * Apply a color palette to all bubbles
+   */
+  applyColorPalette(paletteId) {
+    // Import Bubble class to update static palette
+    import('./bubble.js').then(module => {
+      const Bubble = module.Bubble;
+      Bubble.currentPalette = paletteId;
+      
+      // Recolor all existing bubbles
+      if (this.simulation && this.simulation.bubbles) {
+        this.simulation.bubbles.forEach(bubble => {
+          bubble.color = bubble.generateColor(0);
+        });
+      }
+    });
+  }
+
 }

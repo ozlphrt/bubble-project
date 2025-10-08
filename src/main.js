@@ -65,8 +65,9 @@ export class Simulation {
     // Initialize control panel immediately
     this.renderer.ensureControlPanelExists(this.controls);
     
-    // Initialize pin button after control panel is created
+    // Initialize pin button and palette buttons after control panel is created
     this.interactions.initializePinButton();
+    this.interactions.initializePaletteButtons();
     
     this.animate();
   }

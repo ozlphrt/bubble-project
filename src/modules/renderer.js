@@ -209,6 +209,36 @@ export class Renderer {
       html += '</div>'; // Close group
     }
     
+    // Add color palette presets at the bottom
+    html += '<div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">';
+    html += '<h4 style="margin: 0 0 10px 0; font-size: 12px; color: rgba(100,200,255,0.9); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Color Palettes</h4>';
+    html += '<div style="display: flex; gap: 8px; flex-wrap: wrap;">';
+    
+    // Define color palettes
+    const palettes = [
+      { name: 'Blues', colors: ['#4a9eff', '#6bb6ff', '#8cc8ff', '#a8d8ff'], id: 'blues' },
+      { name: 'Pastels', colors: ['#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9'], id: 'pastels' },
+      { name: 'Sunset', colors: ['#FF6B6B', '#FFA07A', '#FFD93D', '#FF8C42'], id: 'sunset' },
+      { name: 'Ocean', colors: ['#006994', '#0091AD', '#00B4D8', '#48CAE4'], id: 'ocean' },
+      { name: 'Forest', colors: ['#2D6A4F', '#40916C', '#52B788', '#74C69D'], id: 'forest' },
+      { name: 'Purple', colors: ['#6B5B95', '#8B7AB8', '#A799B7', '#C3B1E1'], id: 'purple' },
+      { name: 'Rainbow', colors: ['#FF6B6B', '#FFD93D', '#6BCF7F', '#4D96FF'], id: 'rainbow' },
+      { name: 'Mono', colors: ['#E0E0E0', '#CCCCCC', '#B3B3B3', '#999999'], id: 'mono' }
+    ];
+    
+    palettes.forEach(palette => {
+      html += `<div class="color-palette-btn" data-palette="${palette.id}" style="cursor: pointer; padding: 4px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; transition: all 0.2s;" data-tooltip="${palette.name} palette" title="${palette.name}">`;
+      html += '<div style="display: flex; gap: 2px;">';
+      palette.colors.forEach(color => {
+        html += `<div style="width: 14px; height: 14px; background: ${color}; border-radius: 2px; opacity: 0.8;"></div>`;
+      });
+      html += '</div>';
+      html += '</div>';
+    });
+    
+    html += '</div>';
+    html += '</div>';
+    
     html += '</div>';
     
     controlPanelElement.innerHTML = html;

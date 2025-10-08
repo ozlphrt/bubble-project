@@ -170,45 +170,107 @@ export class Bubble {
   }
   
   /**
-   * Generate a random color for the bubble
+   * Generate a random color for the bubble based on current palette
    * @returns {string} Color string
    */
   generateColor(theme = 0) {
-    // Continuous theme-based color generation
-    // Interpolate between light colors (dark theme) and dark colors (light theme)
+    const palette = Bubble.currentPalette || 'blues';
+    const colors = Bubble.getPaletteColors(palette);
     
-    const lightColors = [
-      [74, 158, 255],   // #4a9eff
-      [107, 182, 255],  // #6bb6ff
-      [140, 200, 255],  // #8cc8ff
-      [168, 216, 255],  // #a8d8ff
-      [196, 232, 255],  // #c4e8ff
-      [224, 248, 255],  // #e0f8ff
-      [240, 248, 255],  // #f0f8ff
-      [255, 255, 255]   // #ffffff
-    ];
+    const colorIndex = Math.floor(Math.random() * colors.length);
+    const color = colors[colorIndex];
     
-    const darkColors = [
-      [46, 91, 186],    // #2E5BBA
-      [74, 124, 126],   // #4A7C7E
-      [107, 91, 149],   // #6B5B95
-      [139, 69, 19],    // #8B4513
-      [47, 79, 79],     // #2F4F4F
-      [139, 0, 0],      // #8B0000
-      [0, 100, 0],      // #006400
-      [75, 0, 130]      // #4B0082
-    ];
+    return color;
+  }
+  
+  /**
+   * Get color palette definitions
+   */
+  static getPaletteColors(paletteId) {
+    const palettes = {
+      'blues': [
+        'rgb(74, 158, 255)',   // #4a9eff
+        'rgb(107, 182, 255)',  // #6bb6ff
+        'rgb(140, 200, 255)',  // #8cc8ff
+        'rgb(168, 216, 255)',  // #a8d8ff
+        'rgb(196, 232, 255)',  // #c4e8ff
+        'rgb(224, 248, 255)',  // #e0f8ff
+        'rgb(240, 248, 255)',  // #f0f8ff
+        'rgb(255, 255, 255)'   // #ffffff
+      ],
+      'pastels': [
+        'rgb(255, 179, 186)',  // #FFB3BA
+        'rgb(255, 223, 186)',  // #FFDFBA
+        'rgb(255, 255, 186)',  // #FFFFBA
+        'rgb(186, 255, 201)',  // #BAFFC9
+        'rgb(186, 225, 255)',  // #BAE1FF
+        'rgb(220, 198, 224)',  // #DCC6E0
+        'rgb(255, 200, 221)',  // #FFC8DD
+        'rgb(206, 237, 199)'   // #CEEDC7
+      ],
+      'sunset': [
+        'rgb(255, 107, 107)',  // #FF6B6B
+        'rgb(255, 160, 122)',  // #FFA07A
+        'rgb(255, 217, 61)',   // #FFD93D
+        'rgb(255, 140, 66)',   // #FF8C42
+        'rgb(255, 99, 132)',   // #FF6384
+        'rgb(255, 159, 64)',   // #FF9F40
+        'rgb(255, 205, 86)',   // #FFCD56
+        'rgb(255, 127, 80)'    // #FF7F50
+      ],
+      'ocean': [
+        'rgb(0, 105, 148)',    // #006994
+        'rgb(0, 145, 173)',    // #0091AD
+        'rgb(0, 180, 216)',    // #00B4D8
+        'rgb(72, 202, 228)',   // #48CAE4
+        'rgb(144, 224, 239)',  // #90E0EF
+        'rgb(174, 233, 242)',  // #ADE8F4
+        'rgb(202, 240, 248)',  // #CAF0F8
+        'rgb(3, 169, 244)'     // #03A9F4
+      ],
+      'forest': [
+        'rgb(45, 106, 79)',    // #2D6A4F
+        'rgb(64, 145, 108)',   // #40916C
+        'rgb(82, 183, 136)',   // #52B788
+        'rgb(116, 198, 157)',  // #74C69D
+        'rgb(149, 213, 178)',  // #95D5B2
+        'rgb(180, 228, 200)',  // #B4E4C8
+        'rgb(212, 241, 223)',  // #D4F1DF
+        'rgb(87, 171, 127)'    // #57AB7F
+      ],
+      'purple': [
+        'rgb(107, 91, 149)',   // #6B5B95
+        'rgb(139, 122, 184)',  // #8B7AB8
+        'rgb(167, 153, 183)',  // #A799B7
+        'rgb(195, 177, 225)',  // #C3B1E1
+        'rgb(148, 103, 189)',  // #9467BD
+        'rgb(174, 129, 255)',  // #AE81FF
+        'rgb(155, 89, 182)',   // #9B59B6
+        'rgb(142, 68, 173)'    // #8E44AD
+      ],
+      'rainbow': [
+        'rgb(255, 107, 107)',  // #FF6B6B (Red)
+        'rgb(255, 140, 66)',   // #FF8C42 (Orange)
+        'rgb(255, 217, 61)',   // #FFD93D (Yellow)
+        'rgb(107, 207, 127)',  // #6BCF7F (Green)
+        'rgb(77, 150, 255)',   // #4D96FF (Blue)
+        'rgb(139, 122, 184)',  // #8B7AB8 (Purple)
+        'rgb(255, 179, 186)',  // #FFB3BA (Pink)
+        'rgb(144, 224, 239)'   // #90E0EF (Cyan)
+      ],
+      'mono': [
+        'rgb(224, 224, 224)',  // #E0E0E0
+        'rgb(204, 204, 204)',  // #CCCCCC
+        'rgb(179, 179, 179)',  // #B3B3B3
+        'rgb(153, 153, 153)',  // #999999
+        'rgb(189, 189, 189)',  // #BDBDBD
+        'rgb(238, 238, 238)',  // #EEEEEE
+        'rgb(158, 158, 158)',  // #9E9E9E
+        'rgb(117, 117, 117)'   // #757575
+      ]
+    };
     
-    const colorIndex = Math.floor(Math.random() * lightColors.length);
-    const lightColor = lightColors[colorIndex];
-    const darkColor = darkColors[colorIndex];
-    
-    // Interpolate between light and dark colors based on theme
-    const r = Math.round(lightColor[0] + (darkColor[0] - lightColor[0]) * theme);
-    const g = Math.round(lightColor[1] + (darkColor[1] - lightColor[1]) * theme);
-    const b = Math.round(lightColor[2] + (darkColor[2] - lightColor[2]) * theme);
-    
-    return `rgb(${r}, ${g}, ${b})`;
+    return palettes[paletteId] || palettes['blues'];
   }
   
   /**
@@ -492,3 +554,6 @@ export class Bubble {
 
 // Static counter for unique IDs
 Bubble.nextId = 0;
+
+// Static current palette
+Bubble.currentPalette = 'blues';
