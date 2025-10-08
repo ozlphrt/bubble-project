@@ -21,16 +21,15 @@
         }
 
         /* Custom tooltip styling */
-        [title] {
+        [data-tooltip] {
             position: relative;
         }
 
-        [title]:hover::after,
-        span[title]:hover::after {
-            content: attr(title) !important;
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip) !important;
             position: fixed !important;
             left: 320px !important;
-            top: var(--tooltip-y, 50%) !important;
+            top: 50% !important;
             transform: translateY(-50%) !important;
             padding: 16px 24px !important;
             background: rgba(0, 0, 0, 0.95) !important;
