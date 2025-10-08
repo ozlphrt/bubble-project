@@ -311,16 +311,28 @@ export class Bubble {
       ctx.closePath();
     }
     
-    // Safety check: ensure radius is finite before drawing
+    // Comprehensive safety check before drawing gradient
     if (!isFinite(this.radius) || isNaN(this.radius) || this.radius <= 0) {
       console.warn('Invalid bubble radius detected:', this.radius, 'Resetting to targetRadius:', this.targetRadius);
       this.radius = this.targetRadius || 20;
     }
+    if (!isFinite(this.x) || isNaN(this.x)) {
+      console.warn('Invalid bubble x position:', this.x);
+      this.x = 100;
+    }
+    if (!isFinite(this.y) || isNaN(this.y)) {
+      console.warn('Invalid bubble y position:', this.y);
+      this.y = 100;
+    }
+    if (!isFinite(displayRadius) || isNaN(displayRadius) || displayRadius <= 0) {
+      console.warn('Invalid displayRadius:', displayRadius, 'Using this.radius:', this.radius);
+      displayRadius = this.radius;
+    }
     
-    // Create radial gradient for glassmorphism effect
+    // Create radial gradient for glassmorphism effect (use displayRadius for consistency)
     const gradient = ctx.createRadialGradient(
-      this.x - this.radius * 0.3, this.y - this.radius * 0.3, 0,
-      this.x, this.y, this.radius
+      this.x - displayRadius * 0.3, this.y - displayRadius * 0.3, 0,
+      this.x, this.y, displayRadius
     );
     
     // Convert RGB color to RGBA with opacity
