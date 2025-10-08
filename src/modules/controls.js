@@ -20,17 +20,17 @@ export class Controls {
         label: 'Separation',
         tooltip: 'How close bubbles can get to each other. Lower values = tighter packing.',
         value: 0.83,
-        min: 0.01, // Allow extreme packing
+        min: 0.5, // Adjusted min for better default positioning
         max: 1.1,
-        step: 0.01, // Larger step for easier adjustment
+        step: 0.01,
         default: 0.83
       },
       separation: {
         label: 'Separation Force',
         tooltip: 'How strongly bubbles push each other apart. Higher = more repulsion.',
         value: 0.30,
-        min: 0.01, // Minimum 0.01 for very soft separation
-        max: 1.0,
+        min: 0.05,
+        max: 0.8,
         step: 0.01,
         default: 0.30
       },
@@ -38,8 +38,8 @@ export class Controls {
         label: 'Collision Strength',
         tooltip: 'How bouncy bubbles are when they collide. Higher = more bounce.',
         value: 0.03,
-        min: 0.001,
-        max: 0.1,
+        min: 0.01,
+        max: 0.08,
         step: 0.001,
         default: 0.03
       },
@@ -76,7 +76,7 @@ export class Controls {
         label: 'Damping',
         tooltip: 'How quickly bubbles slow down. Higher = more friction.',
         value: 0.99,
-        min: 0.98,
+        min: 0.95,
         max: 0.999,
         step: 0.001,
         default: 0.99
@@ -86,9 +86,9 @@ export class Controls {
       compressionForce: {
         label: 'Compression Force',
         tooltip: 'How much force is applied when you press the Compress button.',
-        value: 0.06, // Updated default compression force
-        min: 0.001,
-        max: 0.1,
+        value: 0.06,
+        min: 0.02,
+        max: 0.12,
         step: 0.001,
         default: 0.06
       },
@@ -120,9 +120,9 @@ export class Controls {
       surfaceTension: {
         label: 'Surface Tension',
         tooltip: 'How much bubbles try to maintain their round shape.',
-        value: 0.03, // Updated surface tension default
+        value: 0.03,
         min: 0,
-        max: 3.0, // Increased max to 3
+        max: 0.5,
         step: 0.01,
         default: 0.03
       },
@@ -131,9 +131,9 @@ export class Controls {
       coalescenceRate: {
         label: 'Coalescence Rate',
         tooltip: 'How often bubbles merge together. Higher = more merging.',
-        value: 0.00001, // Very low default - realistic slow merging
+        value: 0.00001,
         min: 0.0,
-        max: 0.001, // Max 0.1% chance per frame per pair
+        max: 0.0002,
         step: 0.00001,
         default: 0.00001
       },

@@ -132,31 +132,31 @@ export class Renderer {
     if (!controlPanelElement) return;
     
     
-    // Define control groups
+    // Define control groups - reorganized for better logical grouping
     const controlGroups = {
-      'Physics': ['targetDist', 'separation', 'collisionStrength', 'damping', 'gravity'],
-      'Deformation': ['influenceThreshold', 'deformationStrength', 'surfaceTension'],
-      'Forces': ['compressionForce', 'interpolationFactor', 'plateauForceStrength'],
-      'Appearance': ['averageSize', 'sizeVariation'],
-      'Simulation': ['bubbleCount', 'coalescenceRate', 'wallBounce']
+      'Bubble Behavior': ['targetDist', 'separation', 'collisionStrength', 'wallBounce'],
+      'Shape & Tension': ['deformationStrength', 'influenceThreshold', 'surfaceTension', 'plateauForceStrength'],
+      'Environment': ['gravity', 'damping', 'coalescenceRate'],
+      'Appearance': ['bubbleCount', 'averageSize', 'sizeVariation'],
+      'Advanced': ['compressionForce', 'interpolationFactor']
     };
     
-    // Generate HTML content for the control panel
-    let html = '<div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 12px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px); height: calc(100vh - 40px); overflow-y: visible; overflow-x: hidden; width: 100%; box-sizing: border-box;">';
+    // Generate HTML content for the control panel with glassmorphism
+    let html = '<div style="background: rgba(10,10,15,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 12px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(20px); height: calc(100vh - 40px); overflow-y: visible; overflow-x: hidden; width: 100%; box-sizing: border-box; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">';
     
     // Header with title and auto-hide toggle
-    html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px;">';
-    html += '<h3 style="margin: 0; font-size: 16px; color: white;">Physics Controls</h3>';
+    html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">';
+    html += '<h3 style="margin: 0; font-size: 16px; color: rgba(255,255,255,0.95); font-weight: 600;">Physics Controls</h3>';
     html += '<label style="display: flex; align-items: center; cursor: pointer; font-size: 12px;">';
     html += '<input type="checkbox" id="autoHideToggle" style="margin-right: 5px;">';
-    html += '<span style="color: rgba(255,255,255,0.8);">Auto-hide</span>';
+    html += '<span style="color: rgba(255,255,255,0.7);">Auto-hide</span>';
     html += '</label>';
     html += '</div>';
     
     // Create grouped controls
     for (const [groupName, controlKeys] of Object.entries(controlGroups)) {
         html += `<div style="margin-bottom: 15px;">`;
-        html += `<h4 style="margin: 0 0 8px 0; font-size: 13px; color: rgba(255,255,255,0.9); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 3px;">${groupName}</h4>`;
+        html += `<h4 style="margin: 0 0 8px 0; font-size: 12px; color: rgba(100,200,255,0.9); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(100,200,255,0.2); padding-bottom: 3px;">${groupName}</h4>`;
       
       for (const key of controlKeys) {
         const control = controls.controls[key];
