@@ -64,8 +64,7 @@ export class Simulation {
     
     // Better size distribution: favor smaller bubbles for balanced visual area
     const radius = this.generateBalancedRadius();
-    const theme = this.controls.getValue('theme') || 0;
-    this.bubbles.push(new Bubble(x, y, radius, theme));
+    this.bubbles.push(new Bubble(x, y, radius, 0.04)); // Fixed theme value
   }
 
   generateBalancedRadius() {
@@ -166,7 +165,7 @@ export class Simulation {
           Math.random() * this.canvas.width,
           Math.random() * this.canvas.height,
           this.generateBalancedRadius(),
-          this.controls.getValue('theme') || 0.04
+          0.04 // Fixed theme value
         );
         this.bubbles.push(bubble);
       }

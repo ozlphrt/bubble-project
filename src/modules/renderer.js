@@ -131,27 +131,25 @@ export class Renderer {
     const controlPanelElement = document.getElementById('controlPanel');
     if (!controlPanelElement) return;
     
-    const theme = controls.getValue('theme') || 0;
     
     // Define control groups
     const controlGroups = {
       'Physics': ['targetDist', 'separation', 'collisionStrength', 'damping', 'gravity'],
       'Deformation': ['influenceThreshold', 'deformationStrength', 'surfaceTension'],
       'Forces': ['compressionForce', 'interpolationFactor', 'plateauForceStrength'],
-      'Appearance': ['theme', 'averageSize', 'sizeVariation'],
+      'Appearance': ['averageSize', 'sizeVariation'],
       'Simulation': ['bubbleCount', 'coalescenceRate', 'wallBounce']
     };
     
     // Generate HTML content for the control panel
-    let html = '<div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px); max-height: 80vh; overflow-y: auto;">';
-    html += '<h3 style="margin: 0 0 15px 0; font-size: 16px; color: white;">Physics Controls</h3>';
+    let html = '<div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px); height: calc(100vh - 30px); overflow-y: auto;">';
     
-    // Auto-hide toggle
-    html += '<div style="display: flex; align-items: center; margin-bottom: 15px; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">';
-    html += '<span style="color: rgba(255,255,255,0.8); margin-right: 10px;">Auto-hide:</span>';
-    html += '<label style="display: flex; align-items: center; cursor: pointer;">';
+    // Header with title and auto-hide toggle
+    html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">';
+    html += '<h3 style="margin: 0; font-size: 16px; color: white;">Physics Controls</h3>';
+    html += '<label style="display: flex; align-items: center; cursor: pointer; font-size: 12px;">';
     html += '<input type="checkbox" id="autoHideToggle" style="margin-right: 5px;">';
-    html += '<span style="color: white;">Enable</span>';
+    html += '<span style="color: rgba(255,255,255,0.8);">Auto-hide</span>';
     html += '</label>';
     html += '</div>';
     
@@ -184,27 +182,20 @@ export class Renderer {
           const defaultPosition = this.normalizeValue(control.default || control.min, control.min, control.max);
           
           // Value display
-          if (key === 'theme') {
-            const themePercent = Math.round(control.value * 100);
-            html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${themePercent}%</span>`;
-          } else if (key === 'coalescenceRate') {
+          if (key === 'coalescenceRate') {
             html += `<span id="value-${key}" style="width: 60px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(5)}</span>`;
           } else {
             html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(2)}</span>`;
           }
           
-          // Enhanced slider with extended range zones
+          // Enhanced slider without extreme zones
           html += `<div style="flex: 1; height: 16px; background: rgba(100,100,100,0.5); border-radius: 8px; position: relative; margin-right: 5px; cursor: pointer;" id="slider-track-${key}">`;
           
-          // Extended range zones (5% on each side)
-          html += `<div style="position: absolute; left: 0; top: 0; width: 5%; height: 100%; background: rgba(255,100,100,0.3); border-radius: 8px 0 0 8px;"></div>`;
-          html += `<div style="position: absolute; right: 0; top: 0; width: 5%; height: 100%; background: rgba(255,100,100,0.3); border-radius: 0 8px 8px 0;"></div>`;
-          
           // Default value indicator (small dot)
-          html += `<div style="position: absolute; left: ${defaultPosition * 90 + 5}%; top: 50%; width: 4px; height: 4px; background: rgba(255,255,0,0.8); border-radius: 50%; transform: translate(-50%, -50%);"></div>`;
+          html += `<div style="position: absolute; left: ${defaultPosition * 100}%; top: 50%; width: 4px; height: 4px; background: rgba(255,255,0,0.8); border-radius: 50%; transform: translate(-50%, -50%);"></div>`;
           
           // Slider handle
-          html += `<div id="slider-${key}" style="position: absolute; left: ${normalizedValue * 90 + 5}%; top: -1px; width: 4px; height: 18px; background: white; border-radius: 2px; transform: translateX(-50%); cursor: grab;"></div>`;
+          html += `<div id="slider-${key}" style="position: absolute; left: ${normalizedValue * 100}%; top: -1px; width: 4px; height: 18px; background: white; border-radius: 2px; transform: translateX(-50%); cursor: grab;"></div>`;
           html += '</div>';
         }
         
@@ -237,19 +228,16 @@ export class Renderer {
         // Update enhanced slider
         const normalizedValue = this.normalizeValue(control.value, control.min, control.max);
         
-        // Update slider handle position (accounting for 5% margins)
+        // Update slider handle position
         const sliderHandle = document.getElementById(`slider-${key}`);
         if (sliderHandle) {
-          sliderHandle.style.left = `${normalizedValue * 90 + 5}%`;
+          sliderHandle.style.left = `${normalizedValue * 100}%`;
         }
         
         // Update value display
         const valueDisplay = document.getElementById(`value-${key}`);
         if (valueDisplay) {
-          if (key === 'theme') {
-            const themePercent = Math.round(control.value * 100);
-            valueDisplay.textContent = `${themePercent}%`;
-          } else if (key === 'coalescenceRate') {
+          if (key === 'coalescenceRate') {
             // Show 5 decimal places for coalescence rate
             valueDisplay.textContent = control.value.toFixed(5);
           } else {

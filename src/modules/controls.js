@@ -102,16 +102,6 @@ export class Controls {
         default: 0.03
       },
       
-      // Theme Control
-      theme: {
-        label: 'Theme',
-        tooltip: 'Bubble color brightness. 0 = dark, 1 = bright.',
-        value: 0.04, // 4% = 0.04 (very dark with slight light)
-        min: 0,
-        max: 1,
-        step: 0.01,
-        default: 0.04
-      },
       
       
       
@@ -327,25 +317,8 @@ export class Controls {
     const relativeX = mouseX - trackRect.left;
     const percentage = Math.max(0, Math.min(1, relativeX / trackRect.width));
     
-    // Handle extended range zones (5% on each side)
-    let newValue;
-    let sensitivity = 1.0;
-    
-    if (percentage <= 0.05) {
-      // Left extended zone (0-5%) - slower movement
-      const zonePercentage = percentage / 0.05;
-      newValue = control.min - (control.max - control.min) * 0.1 * (1 - zonePercentage);
-      sensitivity = 0.2; // Slower movement in extended zone
-    } else if (percentage >= 0.95) {
-      // Right extended zone (95-100%) - slower movement
-      const zonePercentage = (percentage - 0.95) / 0.05;
-      newValue = control.max + (control.max - control.min) * 0.1 * zonePercentage;
-      sensitivity = 0.2; // Slower movement in extended zone
-    } else {
-      // Normal range (5-95%) - normal movement
-      const normalizedPercentage = (percentage - 0.05) / 0.9;
-      newValue = control.min + normalizedPercentage * (control.max - control.min);
-    }
+    // Calculate new value based on percentage
+    const newValue = control.min + percentage * (control.max - control.min);
     
     // Update the control value
     this.setValue(key, newValue);
