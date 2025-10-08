@@ -25,26 +25,27 @@
             position: relative;
         }
 
-        [title]:hover::after {
-            content: attr(title);
-            position: fixed;
-            left: 320px;
-            top: var(--tooltip-y, 50%);
-            transform: translateY(-50%);
-            padding: 16px 24px;
-            background: rgba(0, 0, 0, 0.95);
-            color: white;
-            border: 3px solid rgba(255, 255, 255, 0.4);
-            border-radius: 24px;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            font-size: 18px;
-            font-weight: 900;
-            white-space: nowrap;
-            z-index: 10000;
-            pointer-events: none;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            max-width: calc(100vw - 340px);
+        [title]:hover::after,
+        span[title]:hover::after {
+            content: attr(title) !important;
+            position: fixed !important;
+            left: 320px !important;
+            top: var(--tooltip-y, 50%) !important;
+            transform: translateY(-50%) !important;
+            padding: 16px 24px !important;
+            background: rgba(0, 0, 0, 0.95) !important;
+            color: white !important;
+            border: 3px solid rgba(255, 255, 255, 0.4) !important;
+            border-radius: 24px !important;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+            font-size: 18px !important;
+            font-weight: 900 !important;
+            white-space: nowrap !important;
+            z-index: 10000 !important;
+            pointer-events: none !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+            max-width: calc(100vw - 340px) !important;
         }
 
         #canvas {
