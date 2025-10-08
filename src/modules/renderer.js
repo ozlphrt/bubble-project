@@ -148,8 +148,8 @@ export class Renderer {
     html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">';
     html += '<h3 style="margin: 0; font-size: 16px; color: rgba(255,255,255,0.95); font-weight: 600;">Physics Controls</h3>';
     html += '<div style="display: flex; align-items: center; gap: 10px;">';
-    html += '<button id="printValuesBtn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 4px 8px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px;" title="Print all current values">';
-    html += '🖨️ <span>Print</span>';
+    html += '<button id="printValuesBtn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 4px 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 28px; height: 24px;" title="Print all current values">';
+    html += '🖨️';
     html += '</button>';
     html += '<label style="display: flex; align-items: center; cursor: pointer; font-size: 12px;">';
     html += '<input type="checkbox" id="autoHideToggle" style="margin-right: 5px;">';
