@@ -40,9 +40,9 @@ export class Renderer {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  renderBubbles(bubbles, physics = null) {
+  renderBubbles(bubbles, physics = null, frameNumber = 0) {
     bubbles.forEach(bubble => {
-      const contacts = physics ? physics.findContacts(bubble, bubbles) : [];
+      const contacts = physics ? physics.findContacts(bubble, bubbles, frameNumber) : [];
       
       // Apply merge animation if bubble is merging
       if (bubble.merging && bubble.mergingWith) {

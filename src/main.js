@@ -424,7 +424,7 @@ export class Simulation {
     
     // Update contact durations for coalescence tracking
     this.bubbles.forEach(bubble => {
-      const contacts = this.physics.findContacts(bubble, this.bubbles);
+      const contacts = this.physics.findContacts(bubble, this.bubbles, this.physics.contactCacheFrame);
       bubble.updateContactDurations(contacts);
     });
     
@@ -444,7 +444,7 @@ export class Simulation {
     this.renderer.clear(theme);
     
     // Draw bubbles (including merge animations)
-    this.renderer.renderBubbles(this.bubbles, this.physics);
+    this.renderer.renderBubbles(this.bubbles, this.physics, this.physics.contactCacheFrame);
     
     // Render Plateau borders (use cached junctions from update)
     this.renderer.renderPlateauBorders(this.currentJunctions || [], this.controls);
@@ -465,6 +465,10 @@ export class Simulation {
     }
     const averageDt = this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length;
     this.fps = Math.round(1000 / averageDt);
+
+    // Clear contact cache for new frame
+    this.physics.contactCache.clear();
+    this.physics.contactCacheFrame++;
 
     this.update(dt);
     this.render();

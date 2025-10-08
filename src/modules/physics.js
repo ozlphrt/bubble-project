@@ -20,6 +20,8 @@ export class Physics {
     this.coalescenceRate = 0.00001; // Very low default probability per frame per pair
     this.contactDurationThreshold = 300; // Frames before merge can occur (5 seconds at 60fps for rare, realistic merging)
     this.customSpawnColor = 'rgb(255, 0, 0)'; // Default to full red
+    this.contactCache = new Map(); // Cache contacts to avoid redundant calculations
+    this.contactCacheFrame = 0; // Track which frame the cache is from
   }
 
   /**
@@ -32,8 +34,8 @@ export class Physics {
     const separationMultiplier = controls?.getValue('separation') || 0.6;
     const collisionStrengthBase = controls?.getValue('collisionStrength') || 0.03;
     
-    // Multiple passes for better separation
-    for (let pass = 0; pass < 3; pass++) {
+    // Single pass for better performance (was 3 passes)
+    for (let pass = 0; pass < 1; pass++) {
       for (let i = 0; i < bubbles.length; i++) {
         for (let j = i + 1; j < bubbles.length; j++) {
           const dx = bubbles[j].x - bubbles[i].x;
@@ -83,14 +85,27 @@ export class Physics {
    * @param {Array<Bubble>} allBubbles - All bubbles in simulation
    * @returns {Array<Bubble>} Array of bubbles in contact
    */
-  findContacts(bubble, allBubbles) {
-    return allBubbles.filter(other => {
+  findContacts(bubble, allBubbles, frameNumber = 0) {
+    // Use cache if it's from the current frame
+    if (this.contactCacheFrame === frameNumber && this.contactCache.has(bubble.id)) {
+      return this.contactCache.get(bubble.id);
+    }
+    
+    // Calculate contacts
+    const contacts = allBubbles.filter(other => {
       if (other === bubble) return false;
       const dx = other.x - bubble.x;
       const dy = other.y - bubble.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
       return dist < bubble.radius + other.radius * 1.05; // Allow closer contact for better deformation
     });
+    
+    // Cache the result
+    if (this.contactCacheFrame === frameNumber) {
+      this.contactCache.set(bubble.id, contacts);
+    }
+    
+    return contacts;
   }
 
   /**
