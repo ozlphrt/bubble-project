@@ -18,79 +18,99 @@ export class Controls {
       // Collision & Separation
       targetDist: {
         label: 'Separation',
+        tooltip: 'How close bubbles can get to each other. Lower values = tighter packing.',
         value: 0.83,
         min: 0.01, // Allow extreme packing
         max: 1.1,
-        step: 0.01 // Larger step for easier adjustment
+        step: 0.01, // Larger step for easier adjustment
+        default: 0.83
       },
       separation: {
         label: 'Separation Force',
+        tooltip: 'How strongly bubbles push each other apart. Higher = more repulsion.',
         value: 0.30,
         min: 0.01, // Minimum 0.01 for very soft separation
         max: 1.0,
-        step: 0.01
+        step: 0.01,
+        default: 0.30
       },
       collisionStrength: {
         label: 'Collision Strength',
+        tooltip: 'How bouncy bubbles are when they collide. Higher = more bounce.',
         value: 0.03,
         min: 0.001,
         max: 0.1,
-        step: 0.001
+        step: 0.001,
+        default: 0.03
       },
       
       // Bubble Properties
       influenceThreshold: {
         label: 'Morphing Threshold',
+        tooltip: 'How close bubbles need to be to start deforming each other.',
         value: 0.1,
         min: 0.01,
         max: 0.5,
-        step: 0.01
+        step: 0.01,
+        default: 0.1
       },
       deformationStrength: {
         label: 'Morphing Strength',
+        tooltip: 'How much bubbles can deform when squished together.',
         value: 1.54,
         min: 0.1,
         max: 5.0,
-        step: 0.1
+        step: 0.1,
+        default: 1.54
       },
       wallBounce: {
         label: 'Wall Bounce',
+        tooltip: 'How much energy bubbles keep when bouncing off walls.',
         value: 0.45,
         min: 0.1,
         max: 0.9,
-        step: 0.01
+        step: 0.01,
+        default: 0.45
       },
       damping: {
         label: 'Damping',
+        tooltip: 'How quickly bubbles slow down. Higher = more friction.',
         value: 0.99,
         min: 0.98,
         max: 0.999,
-        step: 0.001
+        step: 0.001,
+        default: 0.99
       },
       
       // Force Parameters
       compressionForce: {
         label: 'Compression Force',
+        tooltip: 'How much force is applied when you press the Compress button.',
         value: 0.06, // Updated default compression force
         min: 0.001,
         max: 0.1,
-        step: 0.001
+        step: 0.001,
+        default: 0.06
       },
       interpolationFactor: {
         label: 'Force Smoothing',
+        tooltip: 'How smoothly forces are applied. Higher = smoother but slower response.',
         value: 0.03,
         min: 0.01,
         max: 0.2,
-        step: 0.01
+        step: 0.01,
+        default: 0.03
       },
       
       // Theme Control
       theme: {
         label: 'Theme',
+        tooltip: 'Bubble color brightness. 0 = dark, 1 = bright.',
         value: 0.04, // 4% = 0.04 (very dark with slight light)
         min: 0,
         max: 1,
-        step: 0.01
+        step: 0.01,
+        default: 0.04
       },
       
       
@@ -98,63 +118,77 @@ export class Controls {
       // Gravity Control
       gravity: {
         label: 'Gravity',
+        tooltip: 'How strongly bubbles are pulled downward.',
         value: 0.04, // Updated default gravity
         min: 0,
         max: 0.5,
-        step: 0.01
+        step: 0.01,
+        default: 0.04
       },
       
       // Surface Tension Control
       surfaceTension: {
         label: 'Surface Tension',
+        tooltip: 'How much bubbles try to maintain their round shape.',
         value: 0.03, // Updated surface tension default
         min: 0,
         max: 3.0, // Increased max to 3
-        step: 0.01
+        step: 0.01,
+        default: 0.03
       },
       
       // Coalescence Rate Control
       coalescenceRate: {
         label: 'Coalescence Rate',
+        tooltip: 'How often bubbles merge together. Higher = more merging.',
         value: 0.00001, // Very low default - realistic slow merging
         min: 0.0,
         max: 0.001, // Max 0.1% chance per frame per pair
-        step: 0.00001
+        step: 0.00001,
+        default: 0.00001
       },
       
       // Plateau Force Strength
       plateauForceStrength: {
         label: 'Plateau Force',
+        tooltip: 'Force that pushes bubble junctions toward 120° angles (honeycomb effect).',
         value: 0.2,
         min: 0,
         max: 0.3, // Increased max
-        step: 0.01
+        step: 0.01,
+        default: 0.2
       },
       
       // Bubble Size Controls
       averageSize: {
         label: 'Average Size',
+        tooltip: 'Base size of bubbles. 1.0 = normal size.',
         value: 1.0, // Base size multiplier
         min: 0.3,
         max: 2.0,
-        step: 0.1
+        step: 0.1,
+        default: 1.0
       },
       
       sizeVariation: {
         label: 'Size Variation',
+        tooltip: 'How much bubble sizes vary. 0 = all same size, 1 = full variation.',
         value: 0.8, // How much size varies (0 = all same size, 1 = full variation)
         min: 0.0,
         max: 1.0,
-        step: 0.01 // Smaller step to allow reaching exactly 0.0
+        step: 0.01, // Smaller step to allow reaching exactly 0.0
+        default: 0.8
       },
       
       // Bubble Count Control
       bubbleCount: {
         label: 'Bubble Count',
+        tooltip: 'Total number of bubbles in the simulation.',
         value: 300, // Default number of bubbles
         min: 10,
         max: 1000,
-        step: 10
+        step: 10,
+        default: 300
       }
     };
     
@@ -178,6 +212,17 @@ export class Controls {
         const key = e.target.id.replace('toggle-', '');
         if (this.controls[key]) {
           this.setValue(key, e.target.checked ? 1 : 0);
+        }
+      }
+    });
+    
+    // Double-click to restore default values
+    document.addEventListener('dblclick', (e) => {
+      if (e.target && e.target.id && e.target.id.startsWith('slider-track-')) {
+        const key = e.target.id.replace('slider-track-', '');
+        const control = this.controls[key];
+        if (control && control.default !== undefined) {
+          this.setValue(key, control.default);
         }
       }
     });
@@ -249,15 +294,13 @@ export class Controls {
       return null;
     }
     
-    // Find which slider the mouse is over by checking the slider TRACK (parent of handle)
+    // Find which slider the mouse is over by checking the slider TRACK
     for (const [key, control] of Object.entries(this.controls)) {
       // Skip toggle controls
       if (control.isToggle) continue;
       
-      const sliderHandle = document.getElementById(`slider-${key}`);
-      if (sliderHandle && sliderHandle.parentElement) {
-        // Get the slider track (parent element)
-        const sliderTrack = sliderHandle.parentElement;
+      const sliderTrack = document.getElementById(`slider-track-${key}`);
+      if (sliderTrack) {
         const trackRect = sliderTrack.getBoundingClientRect();
         
         // Check if mouse is anywhere on the slider track (full width)
@@ -275,11 +318,7 @@ export class Controls {
     const { key, control } = controlInfo;
     
     // Find the slider track element for this control
-    const sliderHandle = document.getElementById(`slider-${key}`);
-    if (!sliderHandle) return;
-    
-    // Get the slider track (parent element)
-    const sliderTrack = sliderHandle.parentElement;
+    const sliderTrack = document.getElementById(`slider-track-${key}`);
     if (!sliderTrack) return;
     
     const trackRect = sliderTrack.getBoundingClientRect();
@@ -287,7 +326,26 @@ export class Controls {
     // Calculate position within the slider track
     const relativeX = mouseX - trackRect.left;
     const percentage = Math.max(0, Math.min(1, relativeX / trackRect.width));
-    const newValue = control.min + percentage * (control.max - control.min);
+    
+    // Handle extended range zones (5% on each side)
+    let newValue;
+    let sensitivity = 1.0;
+    
+    if (percentage <= 0.05) {
+      // Left extended zone (0-5%) - slower movement
+      const zonePercentage = percentage / 0.05;
+      newValue = control.min - (control.max - control.min) * 0.1 * (1 - zonePercentage);
+      sensitivity = 0.2; // Slower movement in extended zone
+    } else if (percentage >= 0.95) {
+      // Right extended zone (95-100%) - slower movement
+      const zonePercentage = (percentage - 0.95) / 0.05;
+      newValue = control.max + (control.max - control.min) * 0.1 * zonePercentage;
+      sensitivity = 0.2; // Slower movement in extended zone
+    } else {
+      // Normal range (5-95%) - normal movement
+      const normalizedPercentage = (percentage - 0.05) / 0.9;
+      newValue = control.min + normalizedPercentage * (control.max - control.min);
+    }
     
     // Update the control value
     this.setValue(key, newValue);
@@ -327,22 +385,10 @@ export class Controls {
 
   resetToDefaults() {
     // Reset all controls to their default values
-    this.controls.targetDist.value = 0.83;
-    this.controls.separation.value = 0.30;
-    this.controls.collisionStrength.value = 0.03;
-    this.controls.influenceThreshold.value = 0.10;
-    this.controls.deformationStrength.value = 1.54;
-    this.controls.wallBounce.value = 0.45;
-    this.controls.damping.value = 0.99;
-    this.controls.compressionForce.value = 0.06;
-    this.controls.interpolationFactor.value = 0.03;
-    this.controls.theme.value = 0.04;
-    this.controls.gravity.value = 0.04;
-    this.controls.surfaceTension.value = 0.03;
-    this.controls.coalescenceRate.value = 0.00001;
-    this.controls.plateauForceStrength.value = 0.2;
-    this.controls.averageSize.value = 1.0;
-    this.controls.sizeVariation.value = 0.8;
-    this.controls.bubbleCount.value = 300;
+    for (const [key, control] of Object.entries(this.controls)) {
+      if (control.default !== undefined) {
+        control.value = control.default;
+      }
+    }
   }
 }

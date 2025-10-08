@@ -133,8 +133,17 @@ export class Renderer {
     
     const theme = controls.getValue('theme') || 0;
     
+    // Define control groups
+    const controlGroups = {
+      'Physics': ['targetDist', 'separation', 'collisionStrength', 'damping', 'gravity'],
+      'Deformation': ['influenceThreshold', 'deformationStrength', 'surfaceTension'],
+      'Forces': ['compressionForce', 'interpolationFactor', 'plateauForceStrength'],
+      'Appearance': ['theme', 'averageSize', 'sizeVariation'],
+      'Simulation': ['bubbleCount', 'coalescenceRate', 'wallBounce']
+    };
+    
     // Generate HTML content for the control panel
-    let html = '<div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px);">';
+    let html = '<div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px); max-height: 80vh; overflow-y: auto;">';
     html += '<h3 style="margin: 0 0 15px 0; font-size: 16px; color: white;">Physics Controls</h3>';
     
     // Auto-hide toggle
@@ -146,40 +155,63 @@ export class Renderer {
     html += '</label>';
     html += '</div>';
     
-    for (const [key, control] of Object.entries(controls.controls)) {
-      const shortLabel = this.getShortLabel(control.label);
+    // Create grouped controls
+    for (const [groupName, controlKeys] of Object.entries(controlGroups)) {
+      html += `<div style="margin-bottom: 20px;">`;
+      html += `<h4 style="margin: 0 0 10px 0; font-size: 14px; color: rgba(255,255,255,0.9); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">${groupName}</h4>`;
       
-      html += '<div style="display: flex; align-items: center; margin-bottom: 12px; font-size: 12px;">';
-      html += `<span style="width: 80px; color: rgba(255,255,255,0.8);">${shortLabel}</span>`;
-      
-      // Check if this is a toggle control
-      if (control.isToggle) {
-        // Render as checkbox toggle
-        const isChecked = control.value >= 0.5;
-        html += `<label style="flex: 1; display: flex; align-items: center; cursor: pointer;">`;
-        html += `<input type="checkbox" id="toggle-${key}" ${isChecked ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">`;
-        html += `<span id="value-${key}" style="margin-left: 10px; color: white;">${isChecked ? 'On' : 'Off'}</span>`;
-        html += `</label>`;
-      } else {
-        // Render as slider
-        // Value display
-        if (key === 'theme') {
-          const themePercent = Math.round(control.value * 100);
-          html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${themePercent}%</span>`;
-        } else if (key === 'coalescenceRate') {
-          // Show 5 decimal places for coalescence rate
-          html += `<span id="value-${key}" style="width: 60px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(5)}</span>`;
+      for (const key of controlKeys) {
+        const control = controls.controls[key];
+        if (!control) continue;
+        
+        const shortLabel = this.getShortLabel(control.label);
+        const tooltip = control.tooltip || '';
+        
+        html += `<div style="display: flex; align-items: center; margin-bottom: 12px; font-size: 12px; position: relative;" title="${tooltip}">`;
+        html += `<span style="width: 80px; color: rgba(255,255,255,0.8); cursor: help;">${shortLabel}</span>`;
+        
+        // Check if this is a toggle control
+        if (control.isToggle) {
+          // Render as checkbox toggle
+          const isChecked = control.value >= 0.5;
+          html += `<label style="flex: 1; display: flex; align-items: center; cursor: pointer;">`;
+          html += `<input type="checkbox" id="toggle-${key}" ${isChecked ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">`;
+          html += `<span id="value-${key}" style="margin-left: 10px; color: white;">${isChecked ? 'On' : 'Off'}</span>`;
+          html += `</label>`;
         } else {
-          html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(2)}</span>`;
+          // Enhanced slider with tooltip, default indicator, and extended range
+          const normalizedValue = this.normalizeValue(control.value, control.min, control.max);
+          const defaultPosition = this.normalizeValue(control.default || control.min, control.min, control.max);
+          
+          // Value display
+          if (key === 'theme') {
+            const themePercent = Math.round(control.value * 100);
+            html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${themePercent}%</span>`;
+          } else if (key === 'coalescenceRate') {
+            html += `<span id="value-${key}" style="width: 60px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(5)}</span>`;
+          } else {
+            html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(2)}</span>`;
+          }
+          
+          // Enhanced slider with extended range zones
+          html += `<div style="flex: 1; height: 16px; background: rgba(100,100,100,0.5); border-radius: 8px; position: relative; margin-right: 5px; cursor: pointer;" id="slider-track-${key}">`;
+          
+          // Extended range zones (5% on each side)
+          html += `<div style="position: absolute; left: 0; top: 0; width: 5%; height: 100%; background: rgba(255,100,100,0.3); border-radius: 8px 0 0 8px;"></div>`;
+          html += `<div style="position: absolute; right: 0; top: 0; width: 5%; height: 100%; background: rgba(255,100,100,0.3); border-radius: 0 8px 8px 0;"></div>`;
+          
+          // Default value indicator (small dot)
+          html += `<div style="position: absolute; left: ${defaultPosition * 90 + 5}%; top: 50%; width: 4px; height: 4px; background: rgba(255,255,0,0.8); border-radius: 50%; transform: translate(-50%, -50%);"></div>`;
+          
+          // Slider handle
+          html += `<div id="slider-${key}" style="position: absolute; left: ${normalizedValue * 90 + 5}%; top: -1px; width: 4px; height: 18px; background: white; border-radius: 2px; transform: translateX(-50%); cursor: grab;"></div>`;
+          html += '</div>';
         }
         
-        // Slider
-        html += `<div style="flex: 1; height: 16px; background: rgba(100,100,100,0.5); border-radius: 8px; position: relative; margin-right: 5px;">`;
-        html += `<div id="slider-${key}" style="position: absolute; left: 0%; top: -1px; width: 4px; height: 18px; background: white; border-radius: 2px; transform: translateX(-50%);"></div>`;
         html += '</div>';
       }
       
-      html += '</div>';
+      html += '</div>'; // Close group
     }
     
     html += '</div>';
@@ -202,13 +234,13 @@ export class Renderer {
           valueDisplay.textContent = control.value >= 0.5 ? 'On' : 'Off';
         }
       } else {
-        // Update slider
-        const normalizedValue = Math.max(0, Math.min(1, (control.value - control.min) / (control.max - control.min)));
+        // Update enhanced slider
+        const normalizedValue = this.normalizeValue(control.value, control.min, control.max);
         
-        // Update slider handle position
+        // Update slider handle position (accounting for 5% margins)
         const sliderHandle = document.getElementById(`slider-${key}`);
         if (sliderHandle) {
-          sliderHandle.style.left = `${normalizedValue * 100}%`;
+          sliderHandle.style.left = `${normalizedValue * 90 + 5}%`;
         }
         
         // Update value display
@@ -250,6 +282,10 @@ export class Renderer {
       'Bubble Count': 'Bubble Count'
     };
     return shortLabels[label] || label;
+  }
+
+  normalizeValue(value, min, max) {
+    return Math.max(0, Math.min(1, (value - min) / (max - min)));
   }
 
   /**
