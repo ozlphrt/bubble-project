@@ -179,6 +179,18 @@ export class Controls {
         max: 1000,
         step: 10,
         default: 300
+      },
+      
+      // Visual Effects Toggle
+      visualEffects: {
+        label: 'Visual Effects',
+        tooltip: 'Enable enhanced visual effects (highlights, rim lighting, size-based colors).',
+        value: 1, // Enabled by default
+        min: 0,
+        max: 1,
+        step: 1,
+        default: 1,
+        isToggle: true
       }
     };
     
@@ -436,7 +448,7 @@ export class Controls {
       'Bubble Behavior': ['targetDist', 'separation', 'collisionStrength', 'wallBounce'],
       'Shape & Tension': ['deformationStrength', 'influenceThreshold', 'surfaceTension', 'plateauForceStrength'],
       'Environment': ['gravity', 'damping', 'coalescenceRate'],
-      'Appearance': ['bubbleCount', 'averageSize', 'sizeVariation'],
+      'Appearance': ['bubbleCount', 'averageSize', 'sizeVariation', 'visualEffects'],
       'Advanced': ['compressionForce', 'interpolationFactor']
     };
     

@@ -329,39 +329,126 @@ export class Bubble {
       displayRadius = this.radius;
     }
     
-    // Create radial gradient for glassmorphism effect (use displayRadius for consistency)
+    // Enhanced bubble rendering with visual effects
+    this.drawBubbleBody(ctx, displayRadius);
+    
+    // Only draw visual effects if enabled
+    const visualEffectsEnabled = controls?.getValue('visualEffects') ?? 1;
+    if (visualEffectsEnabled >= 0.5) {
+      this.drawBubbleHighlight(ctx, displayRadius);
+      this.drawBubbleRim(ctx, displayRadius);
+    }
+  }
+
+  /**
+   * Draw the main bubble body with size-based colors and transparency
+   */
+  drawBubbleBody(ctx, displayRadius) {
+    // Create radial gradient for glassmorphism effect
     const gradient = ctx.createRadialGradient(
       this.x - displayRadius * 0.3, this.y - displayRadius * 0.3, 0,
       this.x, this.y, displayRadius
     );
     
-    // Convert RGB color to RGBA with opacity
+    // Size-based color enhancement - smaller bubbles get more vibrant colors
+    const sizeFactor = Math.min(1, this.radius / 30); // Normalize size factor
+    const vibrancyBoost = 1 + (1 - sizeFactor) * 0.3; // Boost smaller bubbles
+    
+    // Convert RGB color to RGBA with size-based opacity
     const colorWithOpacity = (opacity) => {
       if (this.color.startsWith('rgb(')) {
-        // Extract RGB values from "rgb(r, g, b)" format
         const rgbMatch = this.color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
         if (rgbMatch) {
-          const r = rgbMatch[1];
-          const g = rgbMatch[2];
-          const b = rgbMatch[3];
-          return `rgba(${r}, ${g}, ${b}, ${opacity / 255})`;
+          let r = parseInt(rgbMatch[1]) * vibrancyBoost;
+          let g = parseInt(rgbMatch[2]) * vibrancyBoost;
+          let b = parseInt(rgbMatch[3]) * vibrancyBoost;
+          
+          // Clamp to valid RGB range
+          r = Math.min(255, Math.max(0, r));
+          g = Math.min(255, Math.max(0, g));
+          b = Math.min(255, Math.max(0, b));
+          
+          return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${opacity / 255})`;
         }
-        // If match fails, return a default
         return `rgba(128, 128, 128, ${opacity / 255})`;
       }
-      // Fallback for hex colors
       return this.color + opacity.toString(16).padStart(2, '0');
     };
     
-    gradient.addColorStop(0, colorWithOpacity(64)); // More transparent center (40 in hex)
-    gradient.addColorStop(0.7, colorWithOpacity(32)); // Very transparent middle (20 in hex)
-    gradient.addColorStop(1, colorWithOpacity(16)); // Barely visible edge (10 in hex)
+    // Enhanced gradient with better transparency
+    gradient.addColorStop(0, colorWithOpacity(80)); // Brighter center
+    gradient.addColorStop(0.6, colorWithOpacity(40)); // Transparent middle
+    gradient.addColorStop(1, colorWithOpacity(20)); // Very transparent edge
     
     ctx.fillStyle = gradient;
     ctx.fill();
+  }
+
+  /**
+   * Draw bubble highlight (white spot) for realism
+   */
+  drawBubbleHighlight(ctx, displayRadius) {
+    if (displayRadius < 5) return; // Skip highlights for very small bubbles
     
-    // Draw outline with reduced opacity to prevent brightness buildup
-    this.drawOutline(ctx, contacts);
+    ctx.save();
+    
+    // Calculate highlight position (slightly offset from center)
+    const highlightX = this.x - displayRadius * 0.25;
+    const highlightY = this.y - displayRadius * 0.25;
+    const highlightRadius = displayRadius * 0.15;
+    
+    // Create highlight gradient
+    const highlightGradient = ctx.createRadialGradient(
+      highlightX, highlightY, 0,
+      highlightX, highlightY, highlightRadius
+    );
+    
+    highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)'); // Bright white center
+    highlightGradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.4)'); // Fade out
+    highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)'); // Transparent edge
+    
+    ctx.fillStyle = highlightGradient;
+    ctx.beginPath();
+    ctx.arc(highlightX, highlightY, highlightRadius, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
+  }
+
+  /**
+   * Draw bubble rim lighting for depth
+   */
+  drawBubbleRim(ctx, displayRadius) {
+    ctx.save();
+    
+    // Create rim lighting effect
+    const rimGradient = ctx.createRadialGradient(
+      this.x, this.y, displayRadius * 0.8,
+      this.x, this.y, displayRadius
+    );
+    
+    // Extract base color for rim
+    let rimColor = 'rgba(255, 255, 255, 0.3)'; // Default white rim
+    if (this.color.startsWith('rgb(')) {
+      const rgbMatch = this.color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (rgbMatch) {
+        const r = rgbMatch[1];
+        const g = rgbMatch[2];
+        const b = rgbMatch[3];
+        rimColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
+      }
+    }
+    
+    rimGradient.addColorStop(0, 'rgba(0, 0, 0, 0)'); // Transparent center
+    rimGradient.addColorStop(0.8, 'rgba(0, 0, 0, 0)'); // Still transparent
+    rimGradient.addColorStop(1, rimColor); // Colored rim
+    
+    ctx.fillStyle = rimGradient;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, displayRadius, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
   }
 
   drawOutline(ctx, contacts) {
