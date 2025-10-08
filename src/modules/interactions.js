@@ -126,10 +126,11 @@ export class Interactions {
       }
     });
     
-    // Auto-hide toggle event listener
-    document.addEventListener('change', (e) => {
-      if (e.target && e.target.id === 'autoHideToggle') {
-        this.autoHideEnabled = e.target.checked;
+    // Pin toggle button event listener
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'pinToggleBtn') {
+        this.autoHideEnabled = !this.autoHideEnabled;
+        this.updatePinIcon();
         if (!this.autoHideEnabled) {
           // If auto-hide is disabled, show the panel and clear any hide timeout
           this.showControlPanel();
@@ -492,6 +493,24 @@ export class Interactions {
     if (this.hideTimeout) {
       clearTimeout(this.hideTimeout);
       this.hideTimeout = null;
+    }
+  }
+
+  /**
+   * Update pin icon to show current state
+   */
+  updatePinIcon() {
+    const pinIcon = document.getElementById('pinIcon');
+    if (pinIcon) {
+      if (!this.autoHideEnabled) {
+        // Pinned (auto-hide disabled) - bright pin
+        pinIcon.style.color = 'rgba(255,255,255,1)';
+        pinIcon.textContent = '📌';
+      } else {
+        // Unpinned (auto-hide enabled) - dim pin
+        pinIcon.style.color = 'rgba(255,255,255,0.5)';
+        pinIcon.textContent = '📌';
+      }
     }
   }
 
