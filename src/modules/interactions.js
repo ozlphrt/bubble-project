@@ -88,8 +88,8 @@ export class Interactions {
     });
 
     // Preset button events
-    document.getElementById('preset-perfect-honeycomb')?.addEventListener('click', () => {
-      this.simulation.applyPreset('perfect-honeycomb');
+    document.getElementById('preset-honeycomb')?.addEventListener('click', () => {
+      this.simulation.applyPreset('honeycomb');
     });
     document.getElementById('preset-pebbles')?.addEventListener('click', () => {
       this.simulation.applyPreset('pebbles');
