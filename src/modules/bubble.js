@@ -464,16 +464,16 @@ export class Bubble {
     // Calculate highlight position (slightly offset from center)
     const highlightX = this.x - displayRadius * 0.25;
     const highlightY = this.y - displayRadius * 0.25;
-    const highlightRadius = displayRadius * 0.15;
+    const highlightRadius = displayRadius * 0.12;
     
-    // Create highlight gradient
+    // Create highlight gradient - much more subtle to preserve colors
     const highlightGradient = ctx.createRadialGradient(
       highlightX, highlightY, 0,
       highlightX, highlightY, highlightRadius
     );
     
-    highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)'); // Bright white center
-    highlightGradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.4)'); // Fade out
+    highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)'); // Subtle white center
+    highlightGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.15)'); // Gentle fade
     highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)'); // Transparent edge
     
     ctx.fillStyle = highlightGradient;
