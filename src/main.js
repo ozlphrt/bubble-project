@@ -297,19 +297,22 @@ export class Simulation {
         
       case 'soap':
         // Realistic soap bubble behavior
-        this.controls.setValue('targetDist', 0.76);
-        this.controls.setValue('separation', 0.18);
-        this.controls.setValue('collisionStrength', 0.03);
-        this.controls.setValue('influenceThreshold', 0.23);
-        this.controls.setValue('deformationStrength', 1.21);
-        this.controls.setValue('wallBounce', 0.53);
-        this.controls.setValue('damping', 0.99);
-        this.controls.setValue('compressionForce', 0.06);
-        this.controls.setValue('interpolationFactor', 0.03);
-        this.controls.setValue('theme', 0.04);
-        this.controls.setValue('gravity', 0.04);
-        this.controls.setValue('surfaceTension', 1.78);
-        this.controls.setValue('plateauForceStrength', 0.27);
+        this.controls.setValue('targetDist', 0.760000);
+        this.controls.setValue('separation', 0.180000);
+        this.controls.setValue('collisionStrength', 0.030000);
+        this.controls.setValue('wallBounce', 0.530000);
+        this.controls.setValue('deformationStrength', 1.210000);
+        this.controls.setValue('influenceThreshold', 0.230000);
+        this.controls.setValue('surfaceTension', 0.500000);
+        this.controls.setValue('plateauForceStrength', 0.270000);
+        this.controls.setValue('gravity', 0.040000);
+        this.controls.setValue('damping', 0.990000);
+        this.controls.setValue('coalescenceRate', 0.000010);
+        this.controls.setValue('bubbleCount', 300);
+        this.controls.setValue('averageSize', 1.000000);
+        this.controls.setValue('sizeVariation', 0.800000);
+        this.controls.setValue('compressionForce', 0.060000);
+        this.controls.setValue('interpolationFactor', 0.030000);
         this.compress();
         break;
         
