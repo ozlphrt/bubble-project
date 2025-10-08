@@ -448,8 +448,7 @@ export class Controls {
       'Bubble Behavior': ['targetDist', 'separation', 'collisionStrength', 'wallBounce'],
       'Shape & Tension': ['deformationStrength', 'influenceThreshold', 'surfaceTension', 'plateauForceStrength'],
       'Environment': ['gravity', 'damping', 'coalescenceRate'],
-      'Appearance': ['bubbleCount', 'averageSize', 'sizeVariation', 'visualEffects'],
-      'Advanced': ['compressionForce', 'interpolationFactor']
+      'Appearance': ['bubbleCount', 'averageSize', 'sizeVariation', 'visualEffects']
     };
     
     for (const [groupName, controlKeys] of Object.entries(groups)) {
