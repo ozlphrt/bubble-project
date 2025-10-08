@@ -346,7 +346,18 @@ export class Controls {
     const percentage = Math.max(0, Math.min(1, relativeX / trackRect.width));
     
     // Calculate new value based on percentage
-    const newValue = control.min + percentage * (control.max - control.min);
+    let newValue = control.min + percentage * (control.max - control.min);
+    
+    // Snap to min if very close (within 2% of the range)
+    const range = control.max - control.min;
+    if (Math.abs(newValue - control.min) < range * 0.02) {
+      newValue = control.min;
+    }
+    
+    // Snap to max if very close (within 2% of the range)
+    if (Math.abs(newValue - control.max) < range * 0.02) {
+      newValue = control.max;
+    }
     
     // Update the control value
     this.setValue(key, newValue);
