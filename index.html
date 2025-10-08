@@ -21,29 +21,31 @@
         }
 
         /* Custom tooltip styling */
-        [data-tooltip] {
-            position: relative;
+        span[data-tooltip] {
+            position: relative !important;
+            display: inline-block !important;
         }
 
         span[data-tooltip]:hover::after {
             content: attr(data-tooltip) !important;
+            display: block !important;
             position: fixed !important;
             left: 320px !important;
             top: 50% !important;
             transform: translateY(-50%) !important;
-            padding: 16px 24px !important;
-            background: rgba(0, 0, 0, 0.9) !important;
+            padding: 20px 30px !important;
+            background: rgba(0, 0, 0, 0.95) !important;
             color: white !important;
-            border: 2px solid rgba(255, 255, 255, 0.3) !important;
-            border-radius: 12px !important;
+            border: 3px solid rgba(255, 255, 255, 0.4) !important;
+            border-radius: 16px !important;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
-            font-size: 14px !important;
-            font-weight: 600 !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
             white-space: nowrap !important;
             z-index: 10000 !important;
             pointer-events: none !important;
             backdrop-filter: blur(10px) !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7) !important;
             max-width: calc(100vw - 340px) !important;
         }
 
