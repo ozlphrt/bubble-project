@@ -181,11 +181,11 @@ export class Renderer {
           const normalizedValue = this.normalizeValue(control.value, control.min, control.max);
           const defaultPosition = this.normalizeValue(control.default || control.min, control.min, control.max);
           
-          // Value display
+          // Value display (hidden by default, shown during drag)
           if (key === 'coalescenceRate') {
-            html += `<span id="value-${key}" style="width: 60px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(5)}</span>`;
+            html += `<span id="value-${key}" style="width: 60px; text-align: right; margin-right: 10px; color: white; opacity: 0; transition: opacity 0.2s;">${control.value.toFixed(5)}</span>`;
           } else {
-            html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(2)}</span>`;
+            html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white; opacity: 0; transition: opacity 0.2s;">${control.value.toFixed(2)}</span>`;
           }
           
           // Enhanced slider without extreme zones

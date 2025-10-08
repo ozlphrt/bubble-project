@@ -234,6 +234,12 @@ export class Controls {
       this.isDragging = true;
       this.draggedControl = control;
       this.updateControlValue(control, e.clientX, e.clientY);
+      
+      // Show value display for this control
+      const valueDisplay = document.getElementById(`value-${control.key}`);
+      if (valueDisplay) {
+        valueDisplay.style.opacity = '1';
+      }
     }
   }
 
@@ -245,6 +251,14 @@ export class Controls {
   }
 
   handleMouseUp(e) {
+    // Hide value display for the dragged control
+    if (this.draggedControl) {
+      const valueDisplay = document.getElementById(`value-${this.draggedControl.key}`);
+      if (valueDisplay) {
+        valueDisplay.style.opacity = '0';
+      }
+    }
+    
     this.isDragging = false;
     this.draggedControl = null;
   }
@@ -257,6 +271,12 @@ export class Controls {
         this.isDragging = true;
         this.draggedControl = control;
         this.updateControlValue(control, touch.clientX, touch.clientY);
+        
+        // Show value display for this control
+        const valueDisplay = document.getElementById(`value-${control.key}`);
+        if (valueDisplay) {
+          valueDisplay.style.opacity = '1';
+        }
       }
     }
   }
@@ -269,6 +289,14 @@ export class Controls {
   }
 
   handleTouchEnd(e) {
+    // Hide value display for the dragged control
+    if (this.draggedControl) {
+      const valueDisplay = document.getElementById(`value-${this.draggedControl.key}`);
+      if (valueDisplay) {
+        valueDisplay.style.opacity = '0';
+      }
+    }
+    
     this.isDragging = false;
     this.draggedControl = null;
   }
