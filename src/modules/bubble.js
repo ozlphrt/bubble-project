@@ -215,45 +215,45 @@ export class Bubble {
         'rgb(255, 182, 193)',  // #FFB6C1 - Light pink
         'rgb(176, 48, 96)'     // #B03060 - Maroon
       ],
-      'lavender': [
-        'rgb(138, 43, 226)',   // #8A2BE2 - Blue violet
-        'rgb(147, 112, 219)',  // #9370DB - Medium purple
-        'rgb(186, 85, 211)',   // #BA55D3 - Medium orchid
-        'rgb(218, 112, 214)',  // #DA70D6 - Orchid
-        'rgb(221, 160, 221)',  // #DDA0DD - Plum
-        'rgb(238, 130, 238)',  // #EE82EE - Violet
-        'rgb(216, 191, 216)',  // #D8BFD8 - Thistle
-        'rgb(153, 102, 204)'   // #9966CC - Amethyst
+      'neon': [
+        'rgb(255, 0, 255)',    // #FF00FF - Magenta
+        'rgb(0, 255, 255)',    // #00FFFF - Cyan
+        'rgb(255, 255, 0)',    // #FFFF00 - Yellow
+        'rgb(57, 255, 20)',    // #39FF14 - Neon green
+        'rgb(255, 16, 240)',   // #FF10F0 - Neon pink
+        'rgb(0, 255, 127)',    // #00FF7F - Spring green
+        'rgb(255, 20, 147)',   // #FF1493 - Deep pink
+        'rgb(0, 191, 255)'     // #00BFFF - Deep sky blue
       ],
-      'mint': [
-        'rgb(0, 128, 128)',    // #008080 - Teal
-        'rgb(64, 224, 208)',   // #40E0D0 - Turquoise
-        'rgb(72, 209, 204)',   // #48D1CC - Medium turquoise
-        'rgb(175, 238, 238)',  // #AFEEEE - Pale turquoise
-        'rgb(127, 255, 212)',  // #7FFFD4 - Aquamarine
-        'rgb(102, 205, 170)',  // #66CDAA - Medium aquamarine
-        'rgb(0, 206, 209)',    // #00CED1 - Dark turquoise
-        'rgb(32, 178, 170)'    // #20B2AA - Light sea green
-      ],
-      'coral': [
-        'rgb(255, 127, 80)',   // #FF7F50 - Coral
-        'rgb(255, 99, 71)',    // #FF6347 - Tomato
+      'sunset': [
+        'rgb(255, 69, 0)',     // #FF4500 - Orange red
         'rgb(255, 140, 0)',    // #FF8C00 - Dark orange
-        'rgb(255, 165, 0)',    // #FFA500 - Orange
-        'rgb(255, 160, 122)',  // #FFA07A - Light salmon
-        'rgb(250, 128, 114)',  // #FA8072 - Salmon
-        'rgb(233, 150, 122)',  // #E99672 - Dark salmon
-        'rgb(240, 128, 128)'   // #F08080 - Light coral
-      ],
-      'amber': [
-        'rgb(255, 191, 0)',    // #FFBF00 - Amber
         'rgb(255, 215, 0)',    // #FFD700 - Gold
-        'rgb(255, 185, 15)',   // #FFB90F - Dark goldenrod
-        'rgb(218, 165, 32)',   // #DAA520 - Goldenrod
-        'rgb(255, 193, 37)',   // #FFC125 - Golden
-        'rgb(238, 201, 0)',    // #EEC900 - Yellow
-        'rgb(255, 239, 0)',    // #FFEF00 - Lemon
-        'rgb(255, 222, 0)'     // #FFDE00 - School bus yellow
+        'rgb(255, 99, 71)',    // #FF6347 - Tomato
+        'rgb(220, 20, 60)',    // #DC143C - Crimson
+        'rgb(255, 165, 0)',    // #FFA500 - Orange
+        'rgb(255, 127, 80)',   // #FF7F50 - Coral
+        'rgb(178, 34, 34)'     // #B22222 - Firebrick
+      ],
+      'ocean': [
+        'rgb(0, 0, 139)',      // #00008B - Dark blue
+        'rgb(0, 128, 128)',    // #008080 - Teal
+        'rgb(0, 191, 255)',    // #00BFFF - Deep sky blue
+        'rgb(30, 144, 255)',   // #1E90FF - Dodger blue
+        'rgb(0, 206, 209)',    // #00CED1 - Dark turquoise
+        'rgb(70, 130, 180)',   // #4682B4 - Steel blue
+        'rgb(0, 105, 148)',    // #006994 - Strong blue
+        'rgb(25, 25, 112)'     // #191970 - Midnight blue
+      ],
+      'toxic': [
+        'rgb(0, 255, 0)',      // #00FF00 - Lime
+        'rgb(127, 255, 0)',    // #7FFF00 - Chartreuse
+        'rgb(50, 205, 50)',    // #32CD32 - Lime green
+        'rgb(0, 250, 154)',    // #00FA9A - Medium spring green
+        'rgb(173, 255, 47)',   // #ADFF2F - Green yellow
+        'rgb(124, 252, 0)',    // #7CFC00 - Lawn green
+        'rgb(0, 255, 127)',    // #00FF7F - Spring green
+        'rgb(34, 139, 34)'     // #228B22 - Forest green
       ],
       'rainbow': [
         'rgb(255, 107, 107)',  // #FF6B6B (Red)

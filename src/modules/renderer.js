@@ -217,10 +217,10 @@ export class Renderer {
     const palettes = [
       { name: 'Blues', colors: ['#4a9eff', '#6bb6ff', '#8cc8ff', '#a8d8ff'], id: 'blues' },
       { name: 'Cherry', colors: ['#DC143C', '#FF007F', '#C71585', '#FF1493'], id: 'cherry' },
-      { name: 'Lavender', colors: ['#8A2BE2', '#9370DB', '#BA55D3', '#DA70D6'], id: 'lavender' },
-      { name: 'Mint', colors: ['#008080', '#40E0D0', '#48D1CC', '#AFEEEE'], id: 'mint' },
-      { name: 'Coral', colors: ['#FF7F50', '#FF6347', '#FF8C00', '#FFA500'], id: 'coral' },
-      { name: 'Amber', colors: ['#FFBF00', '#FFD700', '#FFB90F', '#DAA520'], id: 'amber' },
+      { name: 'Neon', colors: ['#FF00FF', '#00FFFF', '#FFFF00', '#39FF14'], id: 'neon' },
+      { name: 'Sunset', colors: ['#FF4500', '#FF8C00', '#FFD700', '#FF6347'], id: 'sunset' },
+      { name: 'Ocean', colors: ['#00008B', '#008080', '#00BFFF', '#1E90FF'], id: 'ocean' },
+      { name: 'Toxic', colors: ['#00FF00', '#7FFF00', '#32CD32', '#00FA9A'], id: 'toxic' },
       { name: 'Rainbow', colors: ['#FF6B6B', '#FFD93D', '#6BCF7F', '#4D96FF'], id: 'rainbow' },
       { name: 'Mono', colors: ['#E0E0E0', '#CCCCCC', '#B3B3B3', '#999999'], id: 'mono' },
       { name: 'Fire', colors: ['#FF0000', '#FF4500', '#FF8C00', '#FFD700'], id: 'fire' }
