@@ -111,17 +111,18 @@ export class Simulation {
     const sizeVariation = this.controls.getValue('sizeVariation') || 0.8;
     const baseSize = this.targetRadius * averageSize;
     
+    console.log(`updateBubbleSizes called: averageSize=${averageSize}, sizeVariation=${sizeVariation}, baseSize=${baseSize}`);
     console.log(`Size variation check: ${sizeVariation} <= 0.001? ${sizeVariation <= 0.001}`);
     
-    
+    let sameSize = true;
     this.bubbles.forEach(bubble => {
       let newRadius;
       
       if (sizeVariation <= 0.001) { // Use small threshold instead of exact 0
         // All bubbles same size
         newRadius = baseSize;
-        console.log(`Setting bubble to same size: ${newRadius}`);
       } else {
+        sameSize = false;
         // Weighted size distribution for better visual balance
         const random = Math.random() * 100;
         
@@ -150,6 +151,14 @@ export class Simulation {
       bubble.radius = newRadius;
       bubble.targetRadius = newRadius;
     });
+    
+    if (sameSize) {
+      console.log(`All bubbles set to same size: ${baseSize}, total bubbles: ${this.bubbles.length}`);
+      // Log first 5 bubble sizes to verify
+      this.bubbles.slice(0, 5).forEach((b, i) => {
+        console.log(`  Bubble ${i}: radius=${b.radius.toFixed(2)}, targetRadius=${b.targetRadius.toFixed(2)}`);
+      });
+    }
   }
 
   // Adjust the number of bubbles based on the bubble count control
