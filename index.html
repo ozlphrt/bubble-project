@@ -52,6 +52,18 @@
             background: #0a0a0a;
             cursor: crosshair;
         }
+        
+        /* Test tooltip */
+        .test-tooltip {
+            position: fixed;
+            top: 50px;
+            left: 50px;
+            background: red;
+            color: white;
+            padding: 10px;
+            border: 2px solid yellow;
+            z-index: 10000;
+        }
 
         .controls {
             position: fixed;
@@ -242,6 +254,9 @@
         <div class="status-item">Bubbles: <span id="bubbleCount">0</span></div>
         <div class="status-item compression-indicator" id="compression"></div>
     </div>
+    
+    <!-- Test tooltip -->
+    <div class="test-tooltip">TEST TOOLTIP</div>
     
     <div class="preset-buttons">
         <h4 style="margin: 0 0 10px 0; font-size: 14px; color: white;">Presets</h4>
