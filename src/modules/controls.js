@@ -380,8 +380,9 @@ export class Controls {
         console.log(`setValue called for sizeVariation: ${oldValue} -> ${this.controls[key].value}`);
       }
       
-      // Trigger callback if defined
-      if (this.controls[key].onChange) {
+      // Trigger callback if defined AND value actually changed
+      if (this.controls[key].onChange && oldValue !== this.controls[key].value) {
+        console.log(`Triggering onChange for ${key}: ${oldValue} -> ${this.controls[key].value}`);
         this.controls[key].onChange(this.controls[key].value);
       }
     }

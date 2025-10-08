@@ -37,8 +37,9 @@ export class Simulation {
     this.controls.controls.averageSize.onChange = () => {
       this.updateBubbleSizes();
     };
-    this.controls.controls.sizeVariation.onChange = () => {
-      console.log('sizeVariation onChange callback triggered');
+    this.controls.controls.sizeVariation.onChange = (newValue) => {
+      console.log('===== sizeVariation onChange callback triggered =====');
+      console.log(`New sizeVariation value: ${newValue}`);
       this.updateBubbleSizes();
     };
     this.controls.controls.bubbleCount.onChange = () => {
