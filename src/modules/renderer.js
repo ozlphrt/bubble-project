@@ -251,7 +251,7 @@ export class Renderer {
 
   getShortLabel(label) {
     const shortLabels = {
-      'Separation': 'Sep',
+      'Separation': 'Separation',
       'Separation Force': 'Sep Force',
       'Collision Strength': 'Collision',
       'Morphing Threshold': 'Morph Thresh',
