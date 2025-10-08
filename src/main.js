@@ -27,7 +27,7 @@ export class Simulation {
 
     this.targetRadius = 20; // Base radius for new bubbles
 
-    const initialBubbleCount = this.controls.getValue('bubbleCount') || 300;
+    const initialBubbleCount = this.controls.getValue('bubbleCount') ?? 300;
     this.initBubbles(initialBubbleCount); // Start with bubble count from controls
     
     // Make simulation globally accessible for controls
@@ -84,8 +84,8 @@ export class Simulation {
 
   generateBalancedRadius() {
     // Use size controls to determine bubble size
-    const averageSize = this.controls.getValue('averageSize') || 1.0;
-    const sizeVariation = this.controls.getValue('sizeVariation') || 0.8;
+    const averageSize = this.controls.getValue('averageSize') ?? 1.0;
+    const sizeVariation = this.controls.getValue('sizeVariation') ?? 0.8;
     
     // Base size with average multiplier
     const baseSize = this.targetRadius * averageSize;
@@ -122,8 +122,8 @@ export class Simulation {
 
   // Update existing bubble sizes based on current size controls
   updateBubbleSizes() {
-    const averageSize = this.controls.getValue('averageSize') || 1.0;
-    const sizeVariation = this.controls.getValue('sizeVariation') || 0.8;
+    const averageSize = this.controls.getValue('averageSize') ?? 1.0;
+    const sizeVariation = this.controls.getValue('sizeVariation') ?? 0.8;
     const baseSize = this.targetRadius * averageSize;
     
     console.log(`updateBubbleSizes called: averageSize=${averageSize}, sizeVariation=${sizeVariation}, baseSize=${baseSize}`);
@@ -178,7 +178,7 @@ export class Simulation {
 
   // Adjust the number of bubbles based on the bubble count control
   adjustBubbleCount() {
-    const targetCount = this.controls.getValue('bubbleCount') || 300;
+    const targetCount = this.controls.getValue('bubbleCount') ?? 300;
     const currentCount = this.bubbles.length;
     
     if (targetCount > currentCount) {
@@ -201,7 +201,7 @@ export class Simulation {
 
 
   reset() {
-    const bubbleCount = this.controls.getValue('bubbleCount') || 300;
+    const bubbleCount = this.controls.getValue('bubbleCount') ?? 300;
     this.initBubbles(bubbleCount); // Use current bubble count setting
     this.compressionActive = false;
     this.lastCompressionForce = 0;
@@ -352,8 +352,8 @@ export class Simulation {
       }
 
       // Get control values or use defaults
-      const compressionForce = this.controls.getValue('compressionForce') || 0.001;
-      const interpolationFactor = this.controls.getValue('interpolationFactor') || 0.05;
+      const compressionForce = this.controls.getValue('compressionForce') ?? 0.001;
+      const interpolationFactor = this.controls.getValue('interpolationFactor') ?? 0.05;
 
       // Calculate target force using smoother curve
       const targetForce = compressionForce * Math.exp(-progress * 2);
@@ -390,7 +390,7 @@ export class Simulation {
     });
     
     // Process coalescence (bubble merging)
-    const coalescenceRate = this.controls.getValue('coalescenceRate') || 0.01;
+    const coalescenceRate = this.controls.getValue('coalescenceRate') ?? 0.01;
     this.bubbles = this.physics.processCoalescence(this.bubbles, coalescenceRate);
     
     // Apply Plateau forces to push junctions toward 120° angles
@@ -401,7 +401,7 @@ export class Simulation {
   }
 
   render() {
-    const theme = this.controls.getValue('theme') || 0;
+    const theme = this.controls.getValue('theme') ?? 0;
     this.renderer.clear(theme);
     
     // Draw bubbles (including merge animations)
