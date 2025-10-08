@@ -3,6 +3,7 @@ import { Physics } from './modules/physics.js';
 import { Renderer } from './modules/renderer.js';
 import { Interactions } from './modules/interactions.js';
 import { Controls } from './modules/controls.js';
+import { TooltipManager } from './modules/tooltip.js';
 
 export class Simulation {
   constructor() {
@@ -13,6 +14,7 @@ export class Simulation {
     this.renderer = new Renderer(this.canvas, this.ctx);
     this.interactions = new Interactions(this.canvas, this); // Pass 'this' for callbacks
     this.controls = new Controls();
+    this.tooltipManager = new TooltipManager();
 
     this.lastFrameTime = performance.now();
     this.fps = 0;

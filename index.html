@@ -21,32 +21,30 @@
         }
 
         /* Custom tooltip styling */
-        span[data-tooltip] {
-            position: relative !important;
-            display: inline-block !important;
+        #customTooltip {
+            position: fixed;
+            left: 320px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 20px 30px;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            border-radius: 16px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            white-space: nowrap;
+            z-index: 10000;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.2s;
         }
-
-        span[data-tooltip]:hover::after {
-            content: attr(data-tooltip) !important;
-            display: block !important;
-            position: fixed !important;
-            left: 320px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            padding: 20px 30px !important;
-            background: rgba(0, 0, 0, 0.95) !important;
-            color: white !important;
-            border: 3px solid rgba(255, 255, 255, 0.4) !important;
-            border-radius: 16px !important;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
-            font-size: 16px !important;
-            font-weight: 700 !important;
-            white-space: nowrap !important;
-            z-index: 10000 !important;
-            pointer-events: none !important;
-            backdrop-filter: blur(10px) !important;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7) !important;
-            max-width: calc(100vw - 340px) !important;
+        
+        #customTooltip.visible {
+            opacity: 1;
         }
 
         #canvas {
@@ -245,6 +243,9 @@
         <div class="status-item">Bubbles: <span id="bubbleCount">0</span></div>
         <div class="status-item compression-indicator" id="compression"></div>
     </div>
+    
+    <!-- Custom tooltip -->
+    <div id="customTooltip"></div>
     
     
     <div class="preset-buttons">
