@@ -224,19 +224,23 @@ export class Simulation {
   applyPreset(presetName) {
     switch(presetName) {
       case 'perfect-honeycomb':
-        // Realistic honeycomb with balanced deformation
-        this.controls.setValue('targetDist', 1.00);
-        this.controls.setValue('separation', 0.4);
-        this.controls.setValue('collisionStrength', 0.02);
-        this.controls.setValue('influenceThreshold', 0.1);
-        this.controls.setValue('deformationStrength', 1.8);
-        this.controls.setValue('wallBounce', 0.4);
-        this.controls.setValue('damping', 0.985);
-        this.controls.setValue('surfaceTension', 0.8); // Higher surface tension for stability
-        this.controls.setValue('plateauForceStrength', 0.12);
-        this.controls.setValue('compressionForce', 0.08);
-        this.controls.setValue('interpolationFactor', 0.03);
-        this.controls.setValue('gravity', 0.04);
+        // Updated perfect honeycomb values for optimal formation
+        this.controls.setValue('targetDist', 0.682039);
+        this.controls.setValue('separation', 0.300000);
+        this.controls.setValue('collisionStrength', 0.030000);
+        this.controls.setValue('wallBounce', 0.450000);
+        this.controls.setValue('deformationStrength', 1.691778);
+        this.controls.setValue('influenceThreshold', 0.330368);
+        this.controls.setValue('surfaceTension', 0.248242);
+        this.controls.setValue('plateauForceStrength', 0.163963);
+        this.controls.setValue('gravity', 0.000000);
+        this.controls.setValue('damping', 0.950000);
+        this.controls.setValue('coalescenceRate', 0.000000);
+        this.controls.setValue('bubbleCount', 763);
+        this.controls.setValue('averageSize', 2.734310);
+        this.controls.setValue('sizeVariation', 0.000000);
+        this.controls.setValue('compressionForce', 0.060000);
+        this.controls.setValue('interpolationFactor', 0.030000);
         this.compress();
         break;
         
