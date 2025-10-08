@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soap Bubble Physics Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #canvas {
+            display: block;
+            background: #0a0a0a;
+            cursor: crosshair;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px; /* Default visible position */
+            z-index: 1000;
+            width: 300px; /* Fixed width for proper slider visibility */
+            transition: left 0.3s ease-in-out;
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .control-panel.hidden {
+            left: -300px; /* Slide out when hidden */
+        }
+
+        .control-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            min-width: 120px;
+        }
+
+        .control-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .control-button:active {
+            transform: translateY(0);
+        }
+
+        .status {
+            position: fixed;
+            bottom: 20px; /* Move to bottom to avoid preset buttons */
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-item {
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .compression-indicator {
+            color: #4a9eff;
+            font-weight: 600;
+        }
+
+        .preset-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .preset-button {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+        }
+
+        .preset-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .preset-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .controls {
+                bottom: 10px;
+                left: 10px;
+                gap: 8px;
+            }
+
+            .control-panel {
+                left: 10px; /* Default visible position on mobile */
+                width: 280px; /* Slightly smaller width for mobile */
+            }
+
+            .control-panel.hidden {
+                left: -280px; /* Slide out when hidden on mobile */
+            }
+
+            .control-button {
+                padding: 10px 16px;
+                font-size: 12px;
+                min-width: 100px;
+            }
+
+            .status {
+                bottom: 10px;
+                right: 10px;
+                padding: 10px 15px;
+            }
+
+            .status-item {
+                font-size: 12px;
+            }
+
+            .preset-buttons {
+                top: 10px;
+                right: 10px;
+                padding: 12px;
+            }
+
+            .preset-button {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="controls">
+        <button id="compress" class="control-button">Compress</button>
+        <button id="reset" class="control-button">Reset</button>
+    </div>
+    
+    <div class="control-panel" id="controlPanel">
+        <div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px);">
+            <h3 style="margin: 0 0 15px 0; font-size: 16px; color: white;">Physics Controls</h3>
+            <div style="color: rgba(255,255,255,0.8);">Loading controls...</div>
+        </div>
+    </div>
+    
+    <div class="status">
+        <div class="status-item">FPS: <span id="fps">0</span></div>
+        <div class="status-item">Bubbles: <span id="bubbleCount">0</span></div>
+        <div class="status-item compression-indicator" id="compression"></div>
+    </div>
+    
+    <div class="preset-buttons">
+        <h4 style="margin: 0 0 10px 0; font-size: 14px; color: white;">Presets</h4>
+        <button id="preset-perfect-honeycomb" class="preset-button">Perfect Honeycomb</button>
+        <button id="preset-stable-foam" class="preset-button">Stable Foam</button>
+        <button id="preset-bouncy-foam" class="preset-button">Bouncy Foam</button>
+            <button id="preset-tight-pack" class="preset-button">Tight Pack</button>
+            <button id="preset-soap" class="preset-button">Soap</button>
+            <button id="preset-pearls" class="preset-button">Rubber Pearls</button>
+        </div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>

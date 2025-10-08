@@ -1,0 +1,81 @@
+{
+  "name": "soap-bubble-simulation",
+  "version": "1.0.0",
+  "description": "Interactive educational simulation of soap bubble physics and foam formation",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'No build step required for vanilla JS'",
+    "deploy": "gh-pages -d ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/[username]/soap-bubble-simulation.git"
+  },
+  "keywords": [
+    "physics",
+    "simulation",
+    "education",
+    "bubbles",
+    "foam",
+    "surface-tension",
+    "plateau-laws",
+    "interactive",
+    "canvas",
+    "javascript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/[username]/soap-bubble-simulation/issues"
+  },
+  "homepage": "https://[username].github.io/soap-bubble-simulation/",
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "gh-pages": "^6.1.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.2.0"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true,
+      "jest": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    },
+    "rules": {
+      "indent": [
+        "error",
+        2
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "semi": [
+        "error",
+        "always"
+      ],
+      "max-len": [
+        "error",
+        {
+          "code": 100
+        }
+      ],
+      "no-unused-vars": "error",
+      "no-console": "warn"
+    }
+  }
+}

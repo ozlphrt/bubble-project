@@ -1,0 +1,272 @@
+/**
+ * Renderer Module
+ * 
+ * This module handles all rendering operations for the soap bubble simulation,
+ * including canvas setup, bubble drawing, and UI rendering.
+ * 
+ * @fileoverview Rendering engine for soap bubble simulation
+ * @version 1.0.0
+ * @author Soap Bubble Simulation Team
+ */
+
+/**
+ * Renderer class for handling all drawing operations
+ */
+export class Renderer {
+  constructor(canvas, ctx) {
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.setFullScreen();
+    window.addEventListener('resize', () => this.setFullScreen());
+  }
+
+  setFullScreen() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  }
+
+  clear(theme = 0) {
+    // Continuous theme-based background colors
+    // Interpolate between dark (#0a0a0a) and light (#f5f5f5)
+    const darkR = 10, darkG = 10, darkB = 10;
+    const lightR = 245, lightG = 245, lightB = 245;
+    
+    const r = Math.round(darkR + (lightR - darkR) * theme);
+    const g = Math.round(darkG + (lightG - darkG) * theme);
+    const b = Math.round(darkB + (lightB - darkB) * theme);
+    
+    const bgColor = `rgb(${r}, ${g}, ${b})`;
+    this.ctx.fillStyle = bgColor;
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  renderBubbles(bubbles) {
+    bubbles.forEach(bubble => {
+      const contacts = this.physics.findContacts(bubble, bubbles); // Assuming physics is available
+      bubble.draw(this.ctx, contacts);
+    });
+  }
+
+  renderUI(fps, bubbleCount, compressionActive, lastCompressionForce, controls, bubbles = []) {
+    // Render FPS
+    const fpsElement = document.getElementById('fps');
+    if (fpsElement) {
+      fpsElement.textContent = fps;
+    }
+
+    // Render Bubble Count
+    const bubbleCountElement = document.getElementById('bubbleCount');
+    if (bubbleCountElement) {
+      bubbleCountElement.textContent = bubbleCount;
+    }
+
+    // Render Compression Indicator
+    const compressionIndicator = document.getElementById('compression');
+    if (compressionIndicator) {
+      if (compressionActive) {
+        const forcePercent = Math.round((lastCompressionForce / 0.001) * 100); // Adjusted max force
+        compressionIndicator.textContent = `Force: ${forcePercent}%`;
+      } else {
+        compressionIndicator.textContent = '';
+      }
+    }
+    
+    // Only draw control panel if it doesn't exist yet
+    this.ensureControlPanelExists(controls);
+    // Update slider positions without regenerating HTML
+    this.updateSliderPositions(controls);
+  }
+
+  ensureControlPanelExists(controls) {
+    const controlPanelElement = document.getElementById('controlPanel');
+    if (!controlPanelElement) return;
+    
+    // Only create the control panel if it doesn't exist or is empty
+    if (controlPanelElement.innerHTML.trim() === '' || controlPanelElement.innerHTML.includes('Loading controls...')) {
+      this.createControlPanel(controls);
+    }
+  }
+
+  createControlPanel(controls) {
+    const controlPanelElement = document.getElementById('controlPanel');
+    if (!controlPanelElement) return;
+    
+    const theme = controls.getValue('theme') || 0;
+    
+    // Generate HTML content for the control panel
+    let html = '<div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; color: white; font-family: Arial, sans-serif; backdrop-filter: blur(10px);">';
+    html += '<h3 style="margin: 0 0 15px 0; font-size: 16px; color: white;">Physics Controls</h3>';
+    
+    // Auto-hide toggle
+    html += '<div style="display: flex; align-items: center; margin-bottom: 15px; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">';
+    html += '<span style="color: rgba(255,255,255,0.8); margin-right: 10px;">Auto-hide:</span>';
+    html += '<label style="display: flex; align-items: center; cursor: pointer;">';
+    html += '<input type="checkbox" id="autoHideToggle" style="margin-right: 5px;">';
+    html += '<span style="color: white;">Enable</span>';
+    html += '</label>';
+    html += '</div>';
+    
+    for (const [key, control] of Object.entries(controls.controls)) {
+      const shortLabel = this.getShortLabel(control.label);
+      
+      html += '<div style="display: flex; align-items: center; margin-bottom: 12px; font-size: 12px;">';
+      html += `<span style="width: 80px; color: rgba(255,255,255,0.8);">${shortLabel}</span>`;
+      
+      // Check if this is a toggle control
+      if (control.isToggle) {
+        // Render as checkbox toggle
+        const isChecked = control.value >= 0.5;
+        html += `<label style="flex: 1; display: flex; align-items: center; cursor: pointer;">`;
+        html += `<input type="checkbox" id="toggle-${key}" ${isChecked ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">`;
+        html += `<span id="value-${key}" style="margin-left: 10px; color: white;">${isChecked ? 'On' : 'Off'}</span>`;
+        html += `</label>`;
+      } else {
+        // Render as slider
+        // Value display
+        if (key === 'theme') {
+          const themePercent = Math.round(control.value * 100);
+          html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${themePercent}%</span>`;
+        } else {
+          html += `<span id="value-${key}" style="width: 40px; text-align: right; margin-right: 10px; color: white;">${control.value.toFixed(2)}</span>`;
+        }
+        
+        // Slider
+        html += `<div style="flex: 1; height: 16px; background: rgba(100,100,100,0.5); border-radius: 8px; position: relative; margin-right: 5px;">`;
+        html += `<div id="slider-${key}" style="position: absolute; left: 0%; top: -1px; width: 4px; height: 18px; background: white; border-radius: 2px; transform: translateX(-50%);"></div>`;
+        html += '</div>';
+      }
+      
+      html += '</div>';
+    }
+    
+    html += '</div>';
+    
+    controlPanelElement.innerHTML = html;
+  }
+
+  updateSliderPositions(controls) {
+    for (const [key, control] of Object.entries(controls.controls)) {
+      if (control.isToggle) {
+        // Update toggle checkbox
+        const toggleCheckbox = document.getElementById(`toggle-${key}`);
+        if (toggleCheckbox) {
+          toggleCheckbox.checked = control.value >= 0.5;
+        }
+        
+        // Update toggle value display
+        const valueDisplay = document.getElementById(`value-${key}`);
+        if (valueDisplay) {
+          valueDisplay.textContent = control.value >= 0.5 ? 'On' : 'Off';
+        }
+      } else {
+        // Update slider
+        const normalizedValue = Math.max(0, Math.min(1, (control.value - control.min) / (control.max - control.min)));
+        
+        // Update slider handle position
+        const sliderHandle = document.getElementById(`slider-${key}`);
+        if (sliderHandle) {
+          sliderHandle.style.left = `${normalizedValue * 100}%`;
+        }
+        
+        // Update value display
+        const valueDisplay = document.getElementById(`value-${key}`);
+        if (valueDisplay) {
+          if (key === 'theme') {
+            const themePercent = Math.round(control.value * 100);
+            valueDisplay.textContent = `${themePercent}%`;
+          } else {
+            valueDisplay.textContent = control.value.toFixed(2);
+          }
+        }
+      }
+    }
+  }
+
+
+  getShortLabel(label) {
+    const shortLabels = {
+      'Separation': 'Sep',
+      'Separation Force': 'Sep Force',
+      'Collision Strength': 'Collision',
+      'Morphing Threshold': 'Morph Thresh',
+      'Morphing Strength': 'Morph Str',
+      'Wall Bounce': 'Wall Bounce',
+      'Damping': 'Damping',
+      'Compression Force': 'Compress',
+      'Force Smoothing': 'Smoothing',
+      'Theme': 'Theme',
+      'Gravity': 'Gravity',
+      'Surface Tension': 'Surface Tension',
+      'Plateau Borders': 'Plateau',
+      'Average Size': 'Avg Size',
+      'Size Variation': 'Size Var'
+    };
+    return shortLabels[label] || label;
+  }
+
+  /**
+   * Render Plateau borders (triple junctions)
+   * @param {Array<Object>} junctions - Array of junction objects from detectPlateauBorders
+   * @param {Controls} controls - Controls object to get visualization settings
+   */
+  renderPlateauBorders(junctions, controls) {
+    // Plateau border visualization disabled (always hidden)
+    return;
+    
+    const theme = controls?.getValue('theme') || 0;
+    const borderThickness = 1; // Fixed thickness
+    
+    junctions.forEach(junction => {
+      // Draw lines from junction point to each bubble center
+      this.ctx.save();
+      
+      // Use different colors for perfect (120°) vs imperfect junctions
+      if (junction.isPerfect) {
+        // Perfect Plateau border - bright green
+        this.ctx.strokeStyle = `rgba(0, 255, 100, 0.8)`;
+        this.ctx.lineWidth = borderThickness + 1;
+      } else {
+        // Imperfect junction - yellow/orange based on error
+        const errorIntensity = Math.min(1, junction.avgError / 0.5); // Normalize error
+        const r = Math.round(255);
+        const g = Math.round(200 - errorIntensity * 100);
+        const b = Math.round(50 - errorIntensity * 50);
+        this.ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.6)`;
+        this.ctx.lineWidth = borderThickness;
+      }
+      
+      // Draw lines from junction to each bubble
+      junction.bubbles.forEach(bubble => {
+        this.ctx.beginPath();
+        this.ctx.moveTo(junction.x, junction.y);
+        
+        // Find the point on the bubble edge closest to the junction
+        const dx = bubble.x - junction.x;
+        const dy = bubble.y - junction.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const edgeX = junction.x + (dx / dist) * (dist - bubble.radius * 0.5);
+        const edgeY = junction.y + (dy / dist) * (dist - bubble.radius * 0.5);
+        
+        this.ctx.lineTo(edgeX, edgeY);
+        this.ctx.stroke();
+      });
+      
+      // Draw a circle at the junction point
+      this.ctx.beginPath();
+      this.ctx.arc(junction.x, junction.y, borderThickness * 1.5, 0, Math.PI * 2);
+      this.ctx.fillStyle = junction.isPerfect ? 
+        `rgba(0, 255, 100, 0.9)` : 
+        `rgba(255, 200, 50, 0.7)`;
+      this.ctx.fill();
+      
+      // Draw angle indicators for perfect junctions
+      if (junction.isPerfect) {
+        this.ctx.font = '10px monospace';
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.fillText('120°', junction.x + 5, junction.y - 5);
+      }
+      
+      this.ctx.restore();
+    });
+  }
+}

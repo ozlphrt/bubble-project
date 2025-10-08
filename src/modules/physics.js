@@ -1,0 +1,311 @@
+/**
+ * Physics Module
+ * 
+ * This module handles all physics calculations for the soap bubble simulation,
+ * including collision detection, contact resolution, and force application.
+ * 
+ * @fileoverview Physics engine for soap bubble simulation
+ * @version 1.0.0
+ * @author Soap Bubble Simulation Team
+ */
+
+/**
+ * Physics engine class for handling bubble interactions
+ */
+export class Physics {
+  constructor() {
+    this.quadtree = null;
+  }
+
+  /**
+   * Detect and resolve collisions between bubbles
+   * @param {Array<Bubble>} bubbles - Array of all bubbles
+   */
+  detectCollisions(bubbles, controls = null) {
+    // Get control values or use defaults
+    const targetDistMultiplier = controls?.getValue('targetDist') || 1.02;
+    const separationMultiplier = controls?.getValue('separation') || 0.6;
+    const collisionStrengthBase = controls?.getValue('collisionStrength') || 0.03;
+    
+    // Multiple passes for better separation
+    for (let pass = 0; pass < 3; pass++) {
+      for (let i = 0; i < bubbles.length; i++) {
+        for (let j = i + 1; j < bubbles.length; j++) {
+          const dx = bubbles[j].x - bubbles[i].x;
+          const dy = bubbles[j].y - bubbles[i].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const minDist = bubbles[i].radius + bubbles[j].radius;
+            
+          const targetDist = minDist * targetDistMultiplier;
+          if (dist < targetDist && dist > 0) {
+            const overlap = targetDist - dist;
+            const nx = dx / dist;
+            const ny = dy / dist;
+            
+            const separation = overlap * separationMultiplier;
+            bubbles[i].x -= nx * separation;
+            bubbles[i].y -= ny * separation;
+            bubbles[j].x += nx * separation;
+            bubbles[j].y += ny * separation;
+            
+            const dvx = bubbles[j].vx - bubbles[i].vx;
+            const dvy = bubbles[j].vy - bubbles[i].vy;
+            const dvn = dvx * nx + dvy * ny;
+            
+            // Dynamic collision response based on controls
+            const sizeRatio = Math.max(bubbles[i].radius, bubbles[j].radius) / Math.min(bubbles[i].radius, bubbles[j].radius);
+            const collisionStrength = collisionStrengthBase + (sizeRatio - 1) * 0.02;
+            
+            bubbles[i].vx += nx * dvn * collisionStrength;
+            bubbles[i].vy += ny * dvn * collisionStrength;
+            bubbles[j].vx -= nx * dvn * collisionStrength;
+            bubbles[j].vy -= ny * dvn * collisionStrength;
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Find bubbles in contact with a given bubble
+   * @param {Bubble} bubble - Bubble to find contacts for
+   * @param {Array<Bubble>} allBubbles - All bubbles in simulation
+   * @returns {Array<Bubble>} Array of bubbles in contact
+   */
+  findContacts(bubble, allBubbles) {
+    return allBubbles.filter(other => {
+      if (other === bubble) return false;
+      const dx = other.x - bubble.x;
+      const dy = other.y - bubble.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      return dist < bubble.radius + other.radius * 1.05; // Allow closer contact for better deformation
+    });
+  }
+
+  /**
+   * Update positions of all bubbles
+   * @param {Array<Bubble>} bubbles - Array of all bubbles
+   * @param {number} dt - Delta time
+   * @param {HTMLCanvasElement} canvas - Canvas for boundary checking
+   */
+  updatePositions(bubbles, dt, canvas, controls = null) {
+    bubbles.forEach(bubble => {
+      bubble.update(dt, canvas, controls);
+    });
+  }
+
+  /**
+   * Apply pressure-based forces between bubbles (Young-Laplace effect)
+   * Smaller bubbles have higher pressure and push away larger bubbles
+   * @param {Array<Bubble>} bubbles - Array of all bubbles
+   */
+  applyPressureForces(bubbles) {
+    for (let i = 0; i < bubbles.length; i++) {
+      for (let j = i + 1; j < bubbles.length; j++) {
+        const bubble1 = bubbles[i];
+        const bubble2 = bubbles[j];
+        
+        const dx = bubble2.x - bubble1.x;
+        const dy = bubble2.y - bubble1.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        // Only apply pressure forces if bubbles are very close and touching
+        if (dist < (bubble1.radius + bubble2.radius) * 1.1) {
+          const nx = dx / dist;
+          const ny = dy / dist;
+          
+          // Pressure difference creates force
+          const pressureDiff = bubble1.pressure - bubble2.pressure;
+          const pressureForce = pressureDiff * 0.5; // Very strong force - increased for visibility
+          
+          // Apply forces (smaller bubble pushes larger bubble)
+          bubble1.vx -= nx * pressureForce;
+          bubble1.vy -= ny * pressureForce;
+          bubble2.vx += nx * pressureForce;
+          bubble2.vy += ny * pressureForce;
+        }
+      }
+    }
+  }
+
+  /**
+   * Apply compression forces to all bubbles
+   * @param {Array<Bubble>} bubbles - Array of all bubbles
+   * @param {number} force - Compression force magnitude
+   * @param {HTMLCanvasElement} canvas - Canvas for center calculation
+   */
+  applyCompressionForces(bubbles, force, canvas) {
+    bubbles.forEach(bubble => {
+      const dx = canvas.width / 2 - bubble.x;
+      const dy = canvas.height / 2 - bubble.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist > 0) {
+        const nx = dx / dist;
+        const ny = dy / dist;
+        bubble.vx += nx * force;
+        bubble.vy += ny * force;
+      }
+    });
+  }
+
+  /**
+   * Detect Plateau borders (triple junctions where 3+ bubbles meet)
+   * @param {Array<Bubble>} bubbles - Array of all bubbles
+   * @returns {Array<Object>} Array of junction objects with position, bubbles, and angles
+   */
+  detectPlateauBorders(bubbles) {
+    const junctions = [];
+    
+    // For each bubble, find all its contacts
+    for (let i = 0; i < bubbles.length; i++) {
+      const bubble = bubbles[i];
+      const contacts = this.findContacts(bubble, bubbles);
+      
+      // Need at least 2 contacts to form a junction
+      if (contacts.length >= 2) {
+        // Check all pairs of contacts to find triple junctions
+        for (let j = 0; j < contacts.length; j++) {
+          for (let k = j + 1; k < contacts.length; k++) {
+            const contact1 = contacts[j];
+            const contact2 = contacts[k];
+            
+            // Check if contact1 and contact2 are also in contact with each other
+            const dx = contact2.x - contact1.x;
+            const dy = contact2.y - contact1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist < (contact1.radius + contact2.radius) * 1.1) {
+              // Found a triple junction! Calculate the junction point
+              const junctionX = (bubble.x + contact1.x + contact2.x) / 3;
+              const junctionY = (bubble.y + contact1.y + contact2.y) / 3;
+              
+              // Calculate angles between the three bubbles
+              const angle1 = Math.atan2(bubble.y - junctionY, bubble.x - junctionX);
+              const angle2 = Math.atan2(contact1.y - junctionY, contact1.x - junctionX);
+              const angle3 = Math.atan2(contact2.y - junctionY, contact2.x - junctionX);
+              
+              // Calculate the angles between each pair
+              let angleDiff1 = Math.abs(angle2 - angle1);
+              let angleDiff2 = Math.abs(angle3 - angle2);
+              let angleDiff3 = Math.abs(angle1 - angle3);
+              
+              // Normalize angles to [0, 2π]
+              if (angleDiff1 > Math.PI) angleDiff1 = 2 * Math.PI - angleDiff1;
+              if (angleDiff2 > Math.PI) angleDiff2 = 2 * Math.PI - angleDiff2;
+              if (angleDiff3 > Math.PI) angleDiff3 = 2 * Math.PI - angleDiff3;
+              
+              // Check if junction already exists (avoid duplicates)
+              const exists = junctions.some(j => 
+                Math.abs(j.x - junctionX) < 5 && Math.abs(j.y - junctionY) < 5
+              );
+              
+              if (!exists) {
+                // Calculate how close the angles are to 120° (2π/3 radians)
+                const idealAngle = (2 * Math.PI) / 3; // 120 degrees
+                const angleError1 = Math.abs(angleDiff1 - idealAngle);
+                const angleError2 = Math.abs(angleDiff2 - idealAngle);
+                const angleError3 = Math.abs(angleDiff3 - idealAngle);
+                const avgError = (angleError1 + angleError2 + angleError3) / 3;
+                
+                // Consider it a "good" Plateau border if average error < 10° (0.174 radians)
+                const isPerfect = avgError < 0.174; // ~10 degrees
+                
+                junctions.push({
+                  x: junctionX,
+                  y: junctionY,
+                  bubbles: [bubble, contact1, contact2],
+                  angles: [angleDiff1, angleDiff2, angleDiff3],
+                  avgError: avgError,
+                  isPerfect: isPerfect
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return junctions;
+  }
+
+  /**
+   * Apply forces at Plateau borders to push angles toward 120°
+   * This enforces Plateau's First Law: three films meet at 120° angles
+   * @param {Array<Object>} junctions - Array of junction objects from detectPlateauBorders
+   * @param {Controls} controls - Controls object to get force strength
+   */
+  applyPlateauForces(junctions, controls = null) {
+    const forceStrength = controls?.getValue('plateauForceStrength') || 0.1;
+    
+    // Always apply Plateau forces (toggle removed)
+    
+    junctions.forEach(junction => {
+      // Skip if junction is already perfect (within tolerance)
+      if (junction.isPerfect) return;
+      
+      const [bubble1, bubble2, bubble3] = junction.bubbles;
+      const idealAngle = (2 * Math.PI) / 3; // 120 degrees
+      
+      // Calculate current angles from junction to each bubble
+      const angle1 = Math.atan2(bubble1.y - junction.y, bubble1.x - junction.x);
+      const angle2 = Math.atan2(bubble2.y - junction.y, bubble2.x - junction.x);
+      const angle3 = Math.atan2(bubble3.y - junction.y, bubble3.x - junction.x);
+      
+      // Sort angles to get them in order around the junction
+      let angles = [
+        { angle: angle1, bubble: bubble1 },
+        { angle: angle2, bubble: bubble2 },
+        { angle: angle3, bubble: bubble3 }
+      ].sort((a, b) => a.angle - b.angle);
+      
+      // For each pair of adjacent bubbles, calculate the angle between them
+      for (let i = 0; i < 3; i++) {
+        const current = angles[i];
+        const next = angles[(i + 1) % 3];
+        
+        // Calculate angle difference
+        let angleDiff = next.angle - current.angle;
+        if (angleDiff < 0) angleDiff += 2 * Math.PI;
+        
+        // Calculate error from ideal 120°
+        const angleError = angleDiff - idealAngle;
+        
+        // Apply corrective forces perpendicular to the radial direction
+        // This will rotate the bubbles around the junction
+        // Use larger tolerance to prevent endless oscillation
+        if (Math.abs(angleError) > 0.1) { // Only apply if error > ~6 degrees
+          // Scale force down as we get closer to ideal angle (proportional control)
+          const errorMagnitude = Math.abs(angleError);
+          const scaleFactor = Math.min(1, errorMagnitude / 0.5); // Reduces force near target
+          const force = angleError * forceStrength * scaleFactor;
+          
+          // Calculate perpendicular directions (tangent to circle around junction)
+          const dist1 = Math.sqrt(
+            Math.pow(current.bubble.x - junction.x, 2) + 
+            Math.pow(current.bubble.y - junction.y, 2)
+          );
+          const dist2 = Math.sqrt(
+            Math.pow(next.bubble.x - junction.x, 2) + 
+            Math.pow(next.bubble.y - junction.y, 2)
+          );
+          
+          if (dist1 > 0 && dist2 > 0) {
+            // Perpendicular force (rotate current bubble clockwise if angle too large)
+            const perpX1 = -(current.bubble.y - junction.y) / dist1;
+            const perpY1 = (current.bubble.x - junction.x) / dist1;
+            
+            const perpX2 = -(next.bubble.y - junction.y) / dist2;
+            const perpY2 = (next.bubble.x - junction.x) / dist2;
+            
+            // Apply forces to rotate bubbles toward ideal angle
+            current.bubble.vx += perpX1 * force * 0.5;
+            current.bubble.vy += perpY1 * force * 0.5;
+            next.bubble.vx -= perpX2 * force * 0.5;
+            next.bubble.vy -= perpY2 * force * 0.5;
+          }
+        }
+      }
+    });
+  }
+}

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soap Foam Collision</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #1a1a1a;
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+        canvas {
+            border: 2px solid #444;
+            background: #000;
+            cursor: pointer;
+        }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #333;
+            color: #fff;
+            border: 1px solid #666;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #444;
+        }
+        .info {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <h2>Soap Foam - Collision and Deformation</h2>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <div class="controls">
+        <button id="addBtn">Add Bubble</button>
+        <button id="compressBtn">Compress</button>
+        <button id="resetBtn">Reset</button>
+    </div>
+    <div class="info">Click to add bubbles | Watch them collide and form flat boundaries</div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let bubbles = [];
+        let targetRadius = 45;
+        
+        class Bubble {
+            constructor(x, y, radius) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Bounce off walls
+                if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
+                    this.vx *= -0.8;
+                    this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
+                }
+                if (this.y - this.radius < 0 || this.y + this.radius > canvas.height) {
+                    this.vy *= -0.8;
+                    this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
+                }
+                
+                // Damping
+                this.vx *= 0.99;
+                this.vy *= 0.99;
+            }
+            
+            draw(contacts) {
+                ctx.beginPath();
+                
+                if (contacts.length === 0) {
+                    // No contacts - draw circle
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                } else {
+                    // Has contacts - draw deformed shape
+                    const segments = 64;
+                    let points = [];
+                    
+                    for (let i = 0; i < segments; i++) {
+                        const angle = (i / segments) * Math.PI * 2;
+                        let r = this.radius;
+                        
+                        // Check if this angle intersects with any contact
+                        for (let contact of contacts) {
+                            const dx = contact.x - this.x;
+                            const dy = contact.y - this.y;
+                            const contactAngle = Math.atan2(dy, dx);
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            
+                            // Calculate angle difference
+                            let angleDiff = angle - contactAngle;
+                            while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                            while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+                            
+                            // If pointing towards contact, flatten to midpoint
+                            const influence = Math.cos(angleDiff);
+                            if (influence > 0.3) {
+                                // Distance to midpoint between centers
+                                const midpoint = dist / 2;
+                                const flattenAmount = influence * influence; // Stronger near center
+                                r = Math.min(r, this.radius - (this.radius - midpoint) * flattenAmount);
+                            }
+                        }
+                        
+                        points.push({
+                            x: this.x + Math.cos(angle) * r,
+                            y: this.y + Math.sin(angle) * r
+                        });
+                    }
+                    
+                    ctx.moveTo(points[0].x, points[0].y);
+                    for (let i = 1; i < points.length; i++) {
+                        ctx.lineTo(points[i].x, points[i].y);
+                    }
+                    ctx.closePath();
+                }
+                
+                ctx.fillStyle = this.color.replace('60%', '40%') + '80';
+                ctx.fill();
+                ctx.strokeStyle = '#00ff88';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+        
+        function init() {
+            bubbles = [];
+            for (let i = 0; i < 8; i++) {
+                const x = Math.random() * (canvas.width - 100) + 50;
+                const y = Math.random() * (canvas.height - 100) + 50;
+                const radius = targetRadius * (0.7 + Math.random() * 0.6);
+                bubbles.push(new Bubble(x, y, radius));
+            }
+        }
+        
+        function handleCollisions() {
+            for (let i = 0; i < bubbles.length; i++) {
+                for (let j = i + 1; j < bubbles.length; j++) {
+                    const dx = bubbles[j].x - bubbles[i].x;
+                    const dy = bubbles[j].y - bubbles[i].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const minDist = bubbles[i].radius + bubbles[j].radius;
+                    
+                    const targetDist = minDist * 0.98;
+                    if (dist < targetDist && dist > 0) {
+                        const overlap = targetDist - dist;
+                        const nx = dx / dist;
+                        const ny = dy / dist;
+                        
+                        const separation = overlap * 0.05;
+                        bubbles[i].x -= nx * separation;
+                        bubbles[i].y -= ny * separation;
+                        bubbles[j].x += nx * separation;
+                        bubbles[j].y += ny * separation;
+                        
+                        const dvx = bubbles[j].vx - bubbles[i].vx;
+                        const dvy = bubbles[j].vy - bubbles[i].vy;
+                        const dvn = dvx * nx + dvy * ny;
+                        
+                        bubbles[i].vx += nx * dvn * 0.15;
+                        bubbles[i].vy += ny * dvn * 0.15;
+                        bubbles[j].vx -= nx * dvn * 0.15;
+                        bubbles[j].vy -= ny * dvn * 0.15;
+                    }
+                }
+            }
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            bubbles.forEach(b => b.update());
+            handleCollisions();
+            
+            bubbles.forEach(bubble => {
+                const contacts = [];
+                bubbles.forEach(other => {
+                    if (bubble === other) return;
+                    const dx = other.x - bubble.x;
+                    const dy = other.y - bubble.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < bubble.radius + other.radius * 1.15) {
+                        contacts.push(other);
+                    }
+                });
+                bubble.draw(contacts);
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        document.getElementById('addBtn').addEventListener('click', () => {
+            const x = Math.random() * (canvas.width - 100) + 50;
+            const y = Math.random() * (canvas.height - 100) + 50;
+            const radius = targetRadius * (0.7 + Math.random() * 0.6);
+            bubbles.push(new Bubble(x, y, radius));
+        });
+        
+        document.getElementById('compressBtn').addEventListener('click', () => {
+            bubbles.forEach(b => {
+                b.vx += (canvas.width / 2 - b.x) * 0.01;
+                b.vy += (canvas.height / 2 - b.y) * 0.01;
+            });
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            init();
+        });
+        
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const radius = targetRadius * (0.7 + Math.random() * 0.6);
+            bubbles.push(new Bubble(x, y, radius));
+        });
+        
+        init();
+        animate();
+    </script>
+</body>
+</html>
