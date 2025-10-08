@@ -248,19 +248,22 @@ export class Simulation {
         this.compress();
         break;
         
-      case 'stable-foam':
-        // Calm, realistic soap foam
-        this.controls.setValue('targetDist', 1.02);
-        this.controls.setValue('separation', 0.4);
-        this.controls.setValue('collisionStrength', 0.03);
-        this.controls.setValue('influenceThreshold', 0.1);
-        this.controls.setValue('deformationStrength', 1.5);
-        this.controls.setValue('wallBounce', 0.45);
-        this.controls.setValue('damping', 0.99);
-        this.controls.setValue('surfaceTension', 0.5); // Moderate surface tension
-        this.controls.setValue('plateauForceStrength', 0.05);
-        this.controls.setValue('compressionForce', 0.06);
-        this.controls.setValue('gravity', 0.04);
+      case 'pebbles':
+        // Small, compact bubbles like smooth pebbles
+        this.controls.setValue('targetDist', 0.830000);
+        this.controls.setValue('separation', 0.300000);
+        this.controls.setValue('collisionStrength', 0.030000);
+        this.controls.setValue('wallBounce', 0.450000);
+        this.controls.setValue('deformationStrength', 1.540000);
+        this.controls.setValue('influenceThreshold', 0.100000);
+        this.controls.setValue('surfaceTension', 0.030000);
+        this.controls.setValue('plateauForceStrength', 0.200000);
+        this.controls.setValue('gravity', 0.040000);
+        this.controls.setValue('damping', 0.990000);
+        this.controls.setValue('coalescenceRate', 0.000119);
+        this.controls.setValue('bubbleCount', 325);
+        this.controls.setValue('averageSize', 1.658752);
+        this.controls.setValue('sizeVariation', 0.045951);
         this.compress();
         break;
         

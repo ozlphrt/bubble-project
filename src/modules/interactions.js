@@ -91,8 +91,8 @@ export class Interactions {
     document.getElementById('preset-perfect-honeycomb')?.addEventListener('click', () => {
       this.simulation.applyPreset('perfect-honeycomb');
     });
-    document.getElementById('preset-stable-foam')?.addEventListener('click', () => {
-      this.simulation.applyPreset('stable-foam');
+    document.getElementById('preset-pebbles')?.addEventListener('click', () => {
+      this.simulation.applyPreset('pebbles');
     });
     document.getElementById('preset-bouncy-foam')?.addEventListener('click', () => {
       this.simulation.applyPreset('bouncy-foam');
