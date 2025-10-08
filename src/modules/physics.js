@@ -19,6 +19,7 @@ export class Physics {
     this.quadtree = null;
     this.coalescenceRate = 0.00001; // Very low default probability per frame per pair
     this.contactDurationThreshold = 300; // Frames before merge can occur (5 seconds at 60fps for rare, realistic merging)
+    this.customSpawnColor = 'rgb(255, 0, 0)'; // Default to full red
   }
 
   /**

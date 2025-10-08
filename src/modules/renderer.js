@@ -147,10 +147,10 @@ export class Renderer {
     html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">';
     html += '<h3 style="margin: 0; font-size: 16px; color: rgba(255,255,255,0.95); font-weight: 600;">Physics Controls</h3>';
     html += '<div style="display: flex; align-items: center; gap: 10px;">';
-    html += '<button id="faucetBtn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 4px 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 28px; height: 24px;" title="Choose bubble spawn color" data-tooltip="Choose spawn color">';
+    html += '<button id="faucetBtn" style="background: linear-gradient(135deg, #ff0000, rgba(255,255,255,0.2)); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 4px 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 28px; height: 24px;" title="Choose bubble spawn color" data-tooltip="Choose spawn color">';
     html += '🚰';
     html += '</button>';
-    html += '<input type="color" id="bubbleColorPicker" value="#4a9eff" style="display: none;">';
+    html += '<input type="color" id="bubbleColorPicker" value="#ff0000" style="display: none;">';
     html += '<button id="printValuesBtn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 4px 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 28px; height: 24px;" title="Print all current values">';
     html += '🖨️';
     html += '</button>';

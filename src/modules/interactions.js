@@ -448,7 +448,10 @@ export class Interactions {
     // Check if mouse/touch is near left edge (within 50px) - always show panel
     const nearLeftEdge = pos.x <= 50;
     
-    if (nearLeftEdge) {
+    // Check if mouse/touch is near right edge (within 50px) - always show panel
+    const nearRightEdge = pos.x >= window.innerWidth - 50;
+    
+    if (nearLeftEdge || nearRightEdge) {
       this.showControlPanel();
     } else if (this.autoHideEnabled && !this.isMouseOverControlPanel(e)) {
       // Only schedule hide if auto-hide is enabled and mouse is not over panel
