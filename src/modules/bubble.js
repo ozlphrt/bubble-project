@@ -85,9 +85,13 @@ export class Bubble {
     // Calculate surface tension forces (for pressure calculation only)
     this.calculateSurfaceTension(controls);
     
-    // Apply gravity
+    // Apply gravity (force = mass × acceleration, but we apply acceleration directly)
+    // Larger bubbles have more mass but in 2D soap films, buoyancy somewhat compensates
+    // We scale gravity slightly by inverse of radius to simulate this
     const gravity = controls?.getValue('gravity') || 0;
-    this.vy += gravity * dt * 0.1; // Much smaller scale for reasonable effect
+    const massScale = Math.sqrt(this.mass / (Math.PI * 20 * 20)); // Normalize to radius=20
+    const gravityAccel = gravity / Math.max(0.5, massScale); // Larger bubbles fall slower due to air resistance
+    this.vy += gravityAccel * dt * 0.1; // Much smaller scale for reasonable effect
     
     // Apply surface tension force to radius with safety checks
     const radiusChange = this.surfaceTensionForce * dt * 15.0;
@@ -106,6 +110,9 @@ export class Bubble {
       console.warn('Non-finite radius detected in update, resetting to targetRadius');
       this.radius = this.targetRadius || 20;
     }
+    
+    // Update mass when radius changes
+    this.mass = Math.PI * this.radius * this.radius;
     
     // Apply velocity with time-based scaling for smoother motion
     const timeScale = Math.min(dt / 16, 2); // Cap at 2x normal speed

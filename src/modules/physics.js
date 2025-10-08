@@ -46,24 +46,30 @@ export class Physics {
             const nx = dx / dist;
             const ny = dy / dist;
             
+            // Mass-based separation: lighter bubbles move more
+            const totalMass = bubbles[i].mass + bubbles[j].mass;
+            const massRatio_i = bubbles[j].mass / totalMass; // Inverse - lighter moves more
+            const massRatio_j = bubbles[i].mass / totalMass;
+            
             const separation = overlap * separationMultiplier;
-            bubbles[i].x -= nx * separation;
-            bubbles[i].y -= ny * separation;
-            bubbles[j].x += nx * separation;
-            bubbles[j].y += ny * separation;
+            bubbles[i].x -= nx * separation * massRatio_i;
+            bubbles[i].y -= ny * separation * massRatio_i;
+            bubbles[j].x += nx * separation * massRatio_j;
+            bubbles[j].y += ny * separation * massRatio_j;
             
             const dvx = bubbles[j].vx - bubbles[i].vx;
             const dvy = bubbles[j].vy - bubbles[i].vy;
             const dvn = dvx * nx + dvy * ny;
             
-            // Dynamic collision response based on controls
+            // Mass-based collision response: heavier bubbles transfer less momentum
             const sizeRatio = Math.max(bubbles[i].radius, bubbles[j].radius) / Math.min(bubbles[i].radius, bubbles[j].radius);
             const collisionStrength = collisionStrengthBase + (sizeRatio - 1) * 0.02;
             
-            bubbles[i].vx += nx * dvn * collisionStrength;
-            bubbles[i].vy += ny * dvn * collisionStrength;
-            bubbles[j].vx -= nx * dvn * collisionStrength;
-            bubbles[j].vy -= ny * dvn * collisionStrength;
+            // Apply impulse scaled by mass ratios
+            bubbles[i].vx += nx * dvn * collisionStrength * massRatio_i;
+            bubbles[i].vy += ny * dvn * collisionStrength * massRatio_i;
+            bubbles[j].vx -= nx * dvn * collisionStrength * massRatio_j;
+            bubbles[j].vy -= ny * dvn * collisionStrength * massRatio_j;
           }
         }
       }
