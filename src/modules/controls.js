@@ -269,6 +269,9 @@ export class Controls {
       if (valueDisplay) {
         valueDisplay.style.opacity = '1';
       }
+      
+      // Change cursor to horizontal resize arrows
+      document.body.style.cursor = 'ew-resize';
     }
   }
 
@@ -287,6 +290,9 @@ export class Controls {
         valueDisplay.style.opacity = '0';
       }
     }
+    
+    // Restore cursor to default
+    document.body.style.cursor = '';
     
     this.isDragging = false;
     this.draggedControl = null;

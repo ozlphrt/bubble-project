@@ -412,9 +412,9 @@ export class Simulation {
       bubble.updateContactDurations(contacts);
     });
     
-    // Process coalescence (bubble merging)
+    // Process coalescence (bubble merging) with canvas for spawning new bubbles
     const coalescenceRate = this.controls.getValue('coalescenceRate') ?? 0.01;
-    this.bubbles = this.physics.processCoalescence(this.bubbles, coalescenceRate);
+    this.bubbles = this.physics.processCoalescence(this.bubbles, coalescenceRate, this.canvas);
     
     // Apply Plateau forces to push junctions toward 120° angles
     this.currentJunctions = this.physics.detectPlateauBorders(this.bubbles);

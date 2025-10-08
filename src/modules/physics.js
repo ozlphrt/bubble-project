@@ -9,6 +9,8 @@
  * @author Soap Bubble Simulation Team
  */
 
+import { Bubble } from './bubble.js';
+
 /**
  * Physics engine class for handling bubble interactions
  */
@@ -344,9 +346,10 @@ export class Physics {
    * Merge two bubbles into one
    * @param {Bubble} bubble1 - First bubble (will be removed)
    * @param {Bubble} bubble2 - Second bubble (will become the merged bubble)
+   * @param {HTMLCanvasElement} canvas - Canvas for spawning new bubble
    * @returns {Bubble} The merged bubble
    */
-  mergeBubbles(bubble1, bubble2) {
+  mergeBubbles(bubble1, bubble2, canvas = null) {
     // Safety check: ensure both bubbles have positive radius
     if (bubble1.radius <= 0 || bubble2.radius <= 0) {
       console.warn('Attempted to merge bubble with non-positive radius');
@@ -395,6 +398,10 @@ export class Physics {
     bubble2.mergeOscillation = 0;
     bubble2.mergeOscillationAmplitude = newRadius * 0.15; // 15% of radius
     
+    // Store canvas reference for spawning new bubble
+    this.lastMergeCanvas = canvas;
+    this.spawnBubbleOnMerge = true;
+    
     return bubble2;
   }
   
@@ -432,9 +439,10 @@ export class Physics {
    * Process coalescence for all bubbles
    * @param {Array<Bubble>} bubbles - Array of all bubbles
    * @param {number} coalescenceRate - Rate of coalescence (0-1)
+   * @param {HTMLCanvasElement} canvas - Canvas for spawning new bubbles
    * @returns {Array<Bubble>} Updated array of bubbles
    */
-  processCoalescence(bubbles, coalescenceRate) {
+  processCoalescence(bubbles, coalescenceRate, canvas = null) {
     // Skip entirely if coalescence rate is zero
     if (coalescenceRate === 0) {
       return bubbles;
@@ -466,8 +474,8 @@ export class Physics {
           bubble1.mergingWith = bubble2;
           bubble1.mergeProgress = 0;
           
-          // Merge bubbles
-          this.mergeBubbles(bubble1, bubble2);
+          // Merge bubbles and pass canvas for spawning
+          this.mergeBubbles(bubble1, bubble2, canvas);
           bubblesToRemove.push(bubble1);
           break; // bubble1 is now marked for removal
         }
@@ -475,6 +483,48 @@ export class Physics {
     }
     
     // Remove merged bubbles
-    return bubbles.filter(bubble => !bubblesToRemove.includes(bubble));
+    const updatedBubbles = bubbles.filter(bubble => !bubblesToRemove.includes(bubble));
+    
+    // Add new bubbles from corners for each merge
+    if (canvas && bubblesToRemove.length > 0) {
+      for (let i = 0; i < bubblesToRemove.length; i++) {
+        const newBubble = this.createBubbleFromCorner(canvas, updatedBubbles);
+        if (newBubble) {
+          updatedBubbles.push(newBubble);
+        }
+      }
+    }
+    
+    return updatedBubbles;
+  }
+  
+  /**
+   * Create a new bubble from a random corner
+   * @param {HTMLCanvasElement} canvas - Canvas for positioning
+   * @param {Array<Bubble>} existingBubbles - Existing bubbles to determine size
+   * @returns {Bubble} New bubble from corner
+   */
+  createBubbleFromCorner(canvas, existingBubbles) {
+    // Calculate average radius from existing bubbles
+    const avgRadius = existingBubbles.length > 0 
+      ? existingBubbles.reduce((sum, b) => sum + b.radius, 0) / existingBubbles.length 
+      : 20;
+    
+    const radius = avgRadius;
+    const margin = radius + 10; // Margin from edge
+    
+    // Randomly choose top-left or top-right corner
+    const isLeft = Math.random() < 0.5;
+    const x = isLeft ? margin : canvas.width - margin;
+    const y = margin;
+    
+    // Create new bubble at corner position
+    const newBubble = new Bubble(x, y, radius, 0);
+    
+    // Give it a small downward velocity
+    newBubble.vx = isLeft ? 1 : -1;
+    newBubble.vy = 2;
+    
+    return newBubble;
   }
 }
