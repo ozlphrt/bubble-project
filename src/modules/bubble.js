@@ -205,55 +205,55 @@ export class Bubble {
         'rgb(240, 248, 255)',  // #f0f8ff
         'rgb(255, 255, 255)'   // #ffffff
       ],
-      'neon': [
-        'rgb(255, 16, 240)',   // #FF10F0 - Hot pink/magenta
-        'rgb(0, 240, 255)',    // #00F0FF - Bright cyan
-        'rgb(255, 255, 0)',    // #FFFF00 - Pure yellow
-        'rgb(0, 255, 65)',     // #00FF41 - Bright green
-        'rgb(255, 0, 255)',    // #FF00FF - Pure magenta
-        'rgb(0, 255, 255)',    // #00FFFF - Pure cyan
-        'rgb(255, 128, 0)',    // #FF8000 - Bright orange
-        'rgb(128, 255, 0)'     // #80FF00 - Lime green
-      ],
-      'sunset': [
-        'rgb(255, 107, 107)',  // #FF6B6B
-        'rgb(255, 160, 122)',  // #FFA07A
-        'rgb(255, 217, 61)',   // #FFD93D
-        'rgb(255, 140, 66)',   // #FF8C42
-        'rgb(255, 99, 132)',   // #FF6384
-        'rgb(255, 159, 64)',   // #FF9F40
-        'rgb(255, 205, 86)',   // #FFCD56
-        'rgb(255, 127, 80)'    // #FF7F50
-      ],
-      'ocean': [
-        'rgb(0, 105, 148)',    // #006994
-        'rgb(0, 145, 173)',    // #0091AD
-        'rgb(0, 180, 216)',    // #00B4D8
-        'rgb(72, 202, 228)',   // #48CAE4
-        'rgb(144, 224, 239)',  // #90E0EF
-        'rgb(174, 233, 242)',  // #ADE8F4
-        'rgb(202, 240, 248)',  // #CAF0F8
-        'rgb(3, 169, 244)'     // #03A9F4
-      ],
-      'candy': [
+      'cherry': [
+        'rgb(220, 20, 60)',    // #DC143C - Crimson
+        'rgb(255, 0, 127)',    // #FF007F - Rose
+        'rgb(199, 21, 133)',   // #C71585 - Medium violet red
         'rgb(255, 20, 147)',   // #FF1493 - Deep pink
         'rgb(255, 105, 180)',  // #FF69B4 - Hot pink
-        'rgb(0, 206, 209)',    // #00CED1 - Turquoise
-        'rgb(127, 255, 0)',    // #7FFF00 - Chartreuse
-        'rgb(255, 0, 255)',    // #FF00FF - Magenta
-        'rgb(0, 255, 255)',    // #00FFFF - Cyan
-        'rgb(255, 215, 0)',    // #FFD700 - Gold
-        'rgb(138, 43, 226)'    // #8A2BE2 - Blue violet
+        'rgb(219, 112, 147)',  // #DB7093 - Pale violet red
+        'rgb(255, 182, 193)',  // #FFB6C1 - Light pink
+        'rgb(176, 48, 96)'     // #B03060 - Maroon
       ],
-      'electric': [
-        'rgb(157, 0, 255)',    // #9D00FF - Electric purple
-        'rgb(255, 0, 255)',    // #FF00FF - Electric magenta
-        'rgb(0, 255, 255)',    // #00FFFF - Electric cyan
-        'rgb(0, 255, 0)',      // #00FF00 - Electric green
-        'rgb(255, 0, 128)',    // #FF0080 - Electric pink
-        'rgb(0, 128, 255)',    // #0080FF - Electric blue
-        'rgb(255, 255, 0)',    // #FFFF00 - Electric yellow
-        'rgb(128, 0, 255)'     // #8000FF - Deep electric purple
+      'lavender': [
+        'rgb(138, 43, 226)',   // #8A2BE2 - Blue violet
+        'rgb(147, 112, 219)',  // #9370DB - Medium purple
+        'rgb(186, 85, 211)',   // #BA55D3 - Medium orchid
+        'rgb(218, 112, 214)',  // #DA70D6 - Orchid
+        'rgb(221, 160, 221)',  // #DDA0DD - Plum
+        'rgb(238, 130, 238)',  // #EE82EE - Violet
+        'rgb(216, 191, 216)',  // #D8BFD8 - Thistle
+        'rgb(153, 102, 204)'   // #9966CC - Amethyst
+      ],
+      'mint': [
+        'rgb(0, 128, 128)',    // #008080 - Teal
+        'rgb(64, 224, 208)',   // #40E0D0 - Turquoise
+        'rgb(72, 209, 204)',   // #48D1CC - Medium turquoise
+        'rgb(175, 238, 238)',  // #AFEEEE - Pale turquoise
+        'rgb(127, 255, 212)',  // #7FFFD4 - Aquamarine
+        'rgb(102, 205, 170)',  // #66CDAA - Medium aquamarine
+        'rgb(0, 206, 209)',    // #00CED1 - Dark turquoise
+        'rgb(32, 178, 170)'    // #20B2AA - Light sea green
+      ],
+      'coral': [
+        'rgb(255, 127, 80)',   // #FF7F50 - Coral
+        'rgb(255, 99, 71)',    // #FF6347 - Tomato
+        'rgb(255, 140, 0)',    // #FF8C00 - Dark orange
+        'rgb(255, 165, 0)',    // #FFA500 - Orange
+        'rgb(255, 160, 122)',  // #FFA07A - Light salmon
+        'rgb(250, 128, 114)',  // #FA8072 - Salmon
+        'rgb(233, 150, 122)',  // #E99672 - Dark salmon
+        'rgb(240, 128, 128)'   // #F08080 - Light coral
+      ],
+      'amber': [
+        'rgb(255, 191, 0)',    // #FFBF00 - Amber
+        'rgb(255, 215, 0)',    // #FFD700 - Gold
+        'rgb(255, 185, 15)',   // #FFB90F - Dark goldenrod
+        'rgb(218, 165, 32)',   // #DAA520 - Goldenrod
+        'rgb(255, 193, 37)',   // #FFC125 - Golden
+        'rgb(238, 201, 0)',    // #EEC900 - Yellow
+        'rgb(255, 239, 0)',    // #FFEF00 - Lemon
+        'rgb(255, 222, 0)'     // #FFDE00 - School bus yellow
       ],
       'rainbow': [
         'rgb(255, 107, 107)',  // #FF6B6B (Red)
@@ -428,25 +428,16 @@ export class Bubble {
       this.x, this.y, displayRadius
     );
     
-    // Size-based color enhancement - smaller bubbles get more vibrant colors
-    const sizeFactor = Math.min(1, this.radius / 30); // Normalize size factor
-    const vibrancyBoost = 1 + (1 - sizeFactor) * 0.3; // Boost smaller bubbles
-    
-    // Convert RGB color to RGBA with size-based opacity
+    // Convert RGB color to RGBA with opacity (no color modification to preserve true colors)
     const colorWithOpacity = (opacity) => {
       if (this.color.startsWith('rgb(')) {
         const rgbMatch = this.color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
         if (rgbMatch) {
-          let r = parseInt(rgbMatch[1]) * vibrancyBoost;
-          let g = parseInt(rgbMatch[2]) * vibrancyBoost;
-          let b = parseInt(rgbMatch[3]) * vibrancyBoost;
+          const r = parseInt(rgbMatch[1]);
+          const g = parseInt(rgbMatch[2]);
+          const b = parseInt(rgbMatch[3]);
           
-          // Clamp to valid RGB range
-          r = Math.min(255, Math.max(0, r));
-          g = Math.min(255, Math.max(0, g));
-          b = Math.min(255, Math.max(0, b));
-          
-          return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${opacity / 255})`;
+          return `rgba(${r}, ${g}, ${b}, ${opacity / 255})`;
         }
         return `rgba(128, 128, 128, ${opacity / 255})`;
       }

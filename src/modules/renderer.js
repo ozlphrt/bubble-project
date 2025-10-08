@@ -216,11 +216,11 @@ export class Renderer {
     // Define color palettes
     const palettes = [
       { name: 'Blues', colors: ['#4a9eff', '#6bb6ff', '#8cc8ff', '#a8d8ff'], id: 'blues' },
-      { name: 'Neon', colors: ['#FF10F0', '#00F0FF', '#FFFF00', '#00FF41'], id: 'neon' },
-      { name: 'Sunset', colors: ['#FF6B6B', '#FFA07A', '#FFD93D', '#FF8C42'], id: 'sunset' },
-      { name: 'Ocean', colors: ['#006994', '#0091AD', '#00B4D8', '#48CAE4'], id: 'ocean' },
-      { name: 'Candy', colors: ['#FF1493', '#FF69B4', '#00CED1', '#7FFF00'], id: 'candy' },
-      { name: 'Electric', colors: ['#9D00FF', '#FF00FF', '#00FFFF', '#00FF00'], id: 'electric' },
+      { name: 'Cherry', colors: ['#DC143C', '#FF007F', '#C71585', '#FF1493'], id: 'cherry' },
+      { name: 'Lavender', colors: ['#8A2BE2', '#9370DB', '#BA55D3', '#DA70D6'], id: 'lavender' },
+      { name: 'Mint', colors: ['#008080', '#40E0D0', '#48D1CC', '#AFEEEE'], id: 'mint' },
+      { name: 'Coral', colors: ['#FF7F50', '#FF6347', '#FF8C00', '#FFA500'], id: 'coral' },
+      { name: 'Amber', colors: ['#FFBF00', '#FFD700', '#FFB90F', '#DAA520'], id: 'amber' },
       { name: 'Rainbow', colors: ['#FF6B6B', '#FFD93D', '#6BCF7F', '#4D96FF'], id: 'rainbow' },
       { name: 'Mono', colors: ['#E0E0E0', '#CCCCCC', '#B3B3B3', '#999999'], id: 'mono' },
       { name: 'Fire', colors: ['#FF0000', '#FF4500', '#FF8C00', '#FFD700'], id: 'fire' }
