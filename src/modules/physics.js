@@ -344,10 +344,9 @@ export class Physics {
    * Merge two bubbles into one
    * @param {Bubble} bubble1 - First bubble (will be removed)
    * @param {Bubble} bubble2 - Second bubble (will become the merged bubble)
-   * @param {MergeEffects} mergeEffects - Optional merge effects manager
    * @returns {Bubble} The merged bubble
    */
-  mergeBubbles(bubble1, bubble2, mergeEffects = null) {
+  mergeBubbles(bubble1, bubble2) {
     // Safety check: ensure both bubbles have positive radius
     if (bubble1.radius <= 0 || bubble2.radius <= 0) {
       console.warn('Attempted to merge bubble with non-positive radius');
@@ -366,6 +365,14 @@ export class Physics {
     const newVx = (bubble1.vx * bubble1.mass + bubble2.vx * bubble2.mass) / totalMass;
     const newVy = (bubble1.vy * bubble1.mass + bubble2.vy * bubble2.mass) / totalMass;
     
+    // Update bubble2 to be the merged bubble
+    bubble2.x = newX;
+    bubble2.y = newY;
+    bubble2.radius = newRadius;
+    bubble2.vx = newVx;
+    bubble2.vy = newVy;
+    bubble2.mass = Math.PI * newRadius * newRadius;
+    
     // Color blending (weighted average)
     const color1 = this.hexToRgb(bubble1.color);
     const color2 = this.hexToRgb(bubble2.color);
@@ -376,23 +383,7 @@ export class Physics {
     const newG = Math.round(color1.g * weight1 + color2.g * weight2);
     const newB = Math.round(color1.b * weight1 + color2.b * weight2);
     
-    const newColor = `rgb(${newR}, ${newG}, ${newB})`;
-    
-    // Create visual effects at merge point BEFORE updating bubble positions
-    if (mergeEffects) {
-      const mergeX = newX;
-      const mergeY = newY;
-      mergeEffects.createMergeEffect(mergeX, mergeY, bubble1.radius, bubble1.color, newRadius);
-    }
-    
-    // Update bubble2 to be the merged bubble
-    bubble2.x = newX;
-    bubble2.y = newY;
-    bubble2.radius = newRadius;
-    bubble2.vx = newVx;
-    bubble2.vy = newVy;
-    bubble2.mass = Math.PI * newRadius * newRadius;
-    bubble2.color = newColor;
+    bubble2.color = `rgb(${newR}, ${newG}, ${newB})`;
     
     // Mark bubble1 for removal
     bubble1.merging = true;
@@ -441,10 +432,9 @@ export class Physics {
    * Process coalescence for all bubbles
    * @param {Array<Bubble>} bubbles - Array of all bubbles
    * @param {number} coalescenceRate - Rate of coalescence (0-1)
-   * @param {MergeEffects} mergeEffects - Optional merge effects manager
    * @returns {Array<Bubble>} Updated array of bubbles
    */
-  processCoalescence(bubbles, coalescenceRate, mergeEffects = null) {
+  processCoalescence(bubbles, coalescenceRate) {
     // Skip entirely if coalescence rate is zero
     if (coalescenceRate === 0) {
       return bubbles;
@@ -476,8 +466,8 @@ export class Physics {
           bubble1.mergingWith = bubble2;
           bubble1.mergeProgress = 0;
           
-          // Merge bubbles with visual effects
-          this.mergeBubbles(bubble1, bubble2, mergeEffects);
+          // Merge bubbles
+          this.mergeBubbles(bubble1, bubble2);
           bubblesToRemove.push(bubble1);
           break; // bubble1 is now marked for removal
         }
