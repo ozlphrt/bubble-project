@@ -27,7 +27,8 @@ export class Simulation {
 
     this.targetRadius = 20; // Base radius for new bubbles
 
-    this.initBubbles(250); // Start with 250 bubbles
+    const initialBubbleCount = this.controls.getValue('bubbleCount') || 300;
+    this.initBubbles(initialBubbleCount); // Start with bubble count from controls
     
     // Make simulation globally accessible for controls
     window.simulation = this;
@@ -37,7 +38,11 @@ export class Simulation {
       this.updateBubbleSizes();
     };
     this.controls.controls.sizeVariation.onChange = () => {
+      console.log('sizeVariation onChange callback triggered');
       this.updateBubbleSizes();
+    };
+    this.controls.controls.bubbleCount.onChange = () => {
+      this.adjustBubbleCount();
     };
     
     // Initialize control panel immediately
@@ -72,7 +77,7 @@ export class Simulation {
     const baseSize = this.targetRadius * averageSize;
     
     // Apply variation: 0 = all same size, 1 = full variation
-    if (sizeVariation === 0) {
+    if (sizeVariation <= 0.001) { // Use small threshold instead of exact 0
       return baseSize; // All bubbles same size
     }
     
@@ -107,12 +112,16 @@ export class Simulation {
     const sizeVariation = this.controls.getValue('sizeVariation') || 0.8;
     const baseSize = this.targetRadius * averageSize;
     
+    console.log(`Size variation check: ${sizeVariation} <= 0.001? ${sizeVariation <= 0.001}`);
+    
+    
     this.bubbles.forEach(bubble => {
       let newRadius;
       
-      if (sizeVariation === 0) {
+      if (sizeVariation <= 0.001) { // Use small threshold instead of exact 0
         // All bubbles same size
         newRadius = baseSize;
+        console.log(`Setting bubble to same size: ${newRadius}`);
       } else {
         // Weighted size distribution for better visual balance
         const random = Math.random() * 100;
@@ -144,9 +153,33 @@ export class Simulation {
     });
   }
 
+  // Adjust the number of bubbles based on the bubble count control
+  adjustBubbleCount() {
+    const targetCount = this.controls.getValue('bubbleCount') || 300;
+    const currentCount = this.bubbles.length;
+    
+    if (targetCount > currentCount) {
+      // Add more bubbles
+      const bubblesToAdd = targetCount - currentCount;
+      for (let i = 0; i < bubblesToAdd; i++) {
+        const bubble = new Bubble(
+          Math.random() * this.canvas.width,
+          Math.random() * this.canvas.height,
+          this.generateBalancedRadius(),
+          this.controls.getValue('theme') || 0.04
+        );
+        this.bubbles.push(bubble);
+      }
+    } else if (targetCount < currentCount) {
+      // Remove bubbles (remove from the end to avoid index issues)
+      this.bubbles.splice(targetCount);
+    }
+  }
+
 
   reset() {
-    this.initBubbles(250);
+    const bubbleCount = this.controls.getValue('bubbleCount') || 300;
+    this.initBubbles(bubbleCount); // Use current bubble count setting
     this.compressionActive = false;
     this.lastCompressionForce = 0;
   }

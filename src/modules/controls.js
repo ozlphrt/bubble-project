@@ -145,7 +145,16 @@ export class Controls {
         value: 0.8, // How much size varies (0 = all same size, 1 = full variation)
         min: 0.0,
         max: 1.0,
-        step: 0.1
+        step: 0.01 // Smaller step to allow reaching exactly 0.0
+      },
+      
+      // Bubble Count Control
+      bubbleCount: {
+        label: 'Bubble Count',
+        value: 300, // Default number of bubbles
+        min: 10,
+        max: 1000,
+        step: 10
       }
     };
     
@@ -296,6 +305,11 @@ export class Controls {
         Math.min(this.controls[key].max, value)
       );
       
+      // Debug logging for sizeVariation
+      if (key === 'sizeVariation') {
+        console.log(`setValue called for sizeVariation: ${oldValue} -> ${this.controls[key].value}`);
+      }
+      
       // Trigger callback if defined
       if (this.controls[key].onChange) {
         this.controls[key].onChange(this.controls[key].value);
@@ -329,5 +343,6 @@ export class Controls {
     this.controls.plateauForceStrength.value = 0.2;
     this.controls.averageSize.value = 1.0;
     this.controls.sizeVariation.value = 0.8;
+    this.controls.bubbleCount.value = 300;
   }
 }

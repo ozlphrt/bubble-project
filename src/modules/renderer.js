@@ -246,7 +246,8 @@ export class Renderer {
       'Coalescence Rate': 'Coalesce',
       'Plateau Borders': 'Plateau',
       'Average Size': 'Avg Size',
-      'Size Variation': 'Size Var'
+      'Size Variation': 'Size Var',
+      'Bubble Count': 'Bubble Count'
     };
     return shortLabels[label] || label;
   }

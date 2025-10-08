@@ -9,7 +9,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.path = '/index.html'
         return super().do_GET()
 
-PORT = 3000
+PORT = 3001
 
 with socketserver.TCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
     print(f"Server running at http://localhost:{PORT}/")
