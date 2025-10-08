@@ -198,15 +198,15 @@ export class Bubble {
         'rgb(240, 248, 255)',  // #f0f8ff
         'rgb(255, 255, 255)'   // #ffffff
       ],
-      'pastels': [
-        'rgb(255, 179, 186)',  // #FFB3BA
-        'rgb(255, 223, 186)',  // #FFDFBA
-        'rgb(255, 255, 186)',  // #FFFFBA
-        'rgb(186, 255, 201)',  // #BAFFC9
-        'rgb(186, 225, 255)',  // #BAE1FF
-        'rgb(220, 198, 224)',  // #DCC6E0
-        'rgb(255, 200, 221)',  // #FFC8DD
-        'rgb(206, 237, 199)'   // #CEEDC7
+      'neon': [
+        'rgb(255, 16, 240)',   // #FF10F0 - Hot pink/magenta
+        'rgb(0, 240, 255)',    // #00F0FF - Bright cyan
+        'rgb(255, 255, 0)',    // #FFFF00 - Pure yellow
+        'rgb(0, 255, 65)',     // #00FF41 - Bright green
+        'rgb(255, 0, 255)',    // #FF00FF - Pure magenta
+        'rgb(0, 255, 255)',    // #00FFFF - Pure cyan
+        'rgb(255, 128, 0)',    // #FF8000 - Bright orange
+        'rgb(128, 255, 0)'     // #80FF00 - Lime green
       ],
       'sunset': [
         'rgb(255, 107, 107)',  // #FF6B6B
@@ -228,25 +228,25 @@ export class Bubble {
         'rgb(202, 240, 248)',  // #CAF0F8
         'rgb(3, 169, 244)'     // #03A9F4
       ],
-      'forest': [
-        'rgb(45, 106, 79)',    // #2D6A4F
-        'rgb(64, 145, 108)',   // #40916C
-        'rgb(82, 183, 136)',   // #52B788
-        'rgb(116, 198, 157)',  // #74C69D
-        'rgb(149, 213, 178)',  // #95D5B2
-        'rgb(180, 228, 200)',  // #B4E4C8
-        'rgb(212, 241, 223)',  // #D4F1DF
-        'rgb(87, 171, 127)'    // #57AB7F
+      'candy': [
+        'rgb(255, 20, 147)',   // #FF1493 - Deep pink
+        'rgb(255, 105, 180)',  // #FF69B4 - Hot pink
+        'rgb(0, 206, 209)',    // #00CED1 - Turquoise
+        'rgb(127, 255, 0)',    // #7FFF00 - Chartreuse
+        'rgb(255, 0, 255)',    // #FF00FF - Magenta
+        'rgb(0, 255, 255)',    // #00FFFF - Cyan
+        'rgb(255, 215, 0)',    // #FFD700 - Gold
+        'rgb(138, 43, 226)'    // #8A2BE2 - Blue violet
       ],
-      'purple': [
-        'rgb(107, 91, 149)',   // #6B5B95
-        'rgb(139, 122, 184)',  // #8B7AB8
-        'rgb(167, 153, 183)',  // #A799B7
-        'rgb(195, 177, 225)',  // #C3B1E1
-        'rgb(148, 103, 189)',  // #9467BD
-        'rgb(174, 129, 255)',  // #AE81FF
-        'rgb(155, 89, 182)',   // #9B59B6
-        'rgb(142, 68, 173)'    // #8E44AD
+      'electric': [
+        'rgb(157, 0, 255)',    // #9D00FF - Electric purple
+        'rgb(255, 0, 255)',    // #FF00FF - Electric magenta
+        'rgb(0, 255, 255)',    // #00FFFF - Electric cyan
+        'rgb(0, 255, 0)',      // #00FF00 - Electric green
+        'rgb(255, 0, 128)',    // #FF0080 - Electric pink
+        'rgb(0, 128, 255)',    // #0080FF - Electric blue
+        'rgb(255, 255, 0)',    // #FFFF00 - Electric yellow
+        'rgb(128, 0, 255)'     // #8000FF - Deep electric purple
       ],
       'rainbow': [
         'rgb(255, 107, 107)',  // #FF6B6B (Red)
@@ -267,6 +267,16 @@ export class Bubble {
         'rgb(238, 238, 238)',  // #EEEEEE
         'rgb(158, 158, 158)',  // #9E9E9E
         'rgb(117, 117, 117)'   // #757575
+      ],
+      'fire': [
+        'rgb(255, 0, 0)',      // #FF0000 - Pure red
+        'rgb(255, 69, 0)',     // #FF4500 - Orange red
+        'rgb(255, 140, 0)',    // #FF8C00 - Dark orange
+        'rgb(255, 215, 0)',    // #FFD700 - Gold
+        'rgb(255, 99, 71)',    // #FF6347 - Tomato
+        'rgb(255, 165, 0)',    // #FFA500 - Orange
+        'rgb(255, 255, 0)',    // #FFFF00 - Yellow
+        'rgb(255, 127, 80)'    // #FF7F50 - Coral
       ]
     };
     
