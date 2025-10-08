@@ -65,8 +65,8 @@ export class Simulation {
     // Initialize control panel immediately
     this.renderer.ensureControlPanelExists(this.controls);
     
-    // Initialize pin icon state
-    this.interactions.updatePinIcon();
+    // Initialize pin button after control panel is created
+    this.interactions.initializePinButton();
     
     this.animate();
   }

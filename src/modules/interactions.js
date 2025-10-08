@@ -126,9 +126,11 @@ export class Interactions {
       }
     });
     
-    // Pin toggle button event listener
+    // Pin toggle button event listener - use event delegation
     document.addEventListener('click', (e) => {
-      if (e.target && e.target.id === 'pinToggleBtn') {
+      // Check if clicked element or its parent is the pin button
+      const pinBtn = e.target.closest('#pinToggleBtn');
+      if (pinBtn) {
         console.log('Pin button clicked, current autoHideEnabled:', this.autoHideEnabled);
         this.autoHideEnabled = !this.autoHideEnabled;
         console.log('New autoHideEnabled:', this.autoHideEnabled);
@@ -518,6 +520,31 @@ export class Interactions {
       }
     } else {
       console.log('Pin icon element not found!');
+    }
+  }
+
+  /**
+   * Initialize pin button after control panel is created
+   */
+  initializePinButton() {
+    const pinBtn = document.getElementById('pinToggleBtn');
+    console.log('Initializing pin button:', pinBtn);
+    if (pinBtn) {
+      // Add direct event listener as backup
+      pinBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Direct pin button click handler triggered');
+        this.autoHideEnabled = !this.autoHideEnabled;
+        this.updatePinIcon();
+        if (!this.autoHideEnabled) {
+          this.showControlPanel();
+        }
+      });
+      // Update initial state
+      this.updatePinIcon();
+    } else {
+      console.log('Pin button not found during initialization');
     }
   }
 
