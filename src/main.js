@@ -123,8 +123,8 @@ export class Simulation {
     const randomVariation = (Math.random() - 0.5) * 2; // -1 to 1
     const finalSize = categorySize + (randomVariation * variationRange);
     
-    // Ensure minimum size
-    return Math.max(finalSize, this.targetRadius * 0.1);
+    // Ensure minimum size - prevent tiny "nail" bubbles
+    return Math.max(finalSize, this.targetRadius * 0.3); // Increased from 0.1 to 0.3
   }
 
   // Update existing bubble sizes based on current size controls
@@ -168,7 +168,7 @@ export class Simulation {
       }
       
       // Ensure minimum size and maximum size to prevent physics errors
-      newRadius = Math.max(newRadius, this.targetRadius * 0.1);
+      newRadius = Math.max(newRadius, this.targetRadius * 0.3); // Increased from 0.1 to 0.3
       newRadius = Math.min(newRadius, this.targetRadius * 20); // Max 20x base size
       
       // Ensure the value is finite

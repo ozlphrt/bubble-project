@@ -490,7 +490,7 @@ export class Interactions {
     
     this.hideTimeout = setTimeout(() => {
       this.hideControlPanel();
-    }, 3000); // Hide after 3 seconds of no mouse movement
+    }, 2000); // Hide after 2 seconds of no mouse movement
   }
 
   /**
