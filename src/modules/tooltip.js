@@ -4,6 +4,8 @@
 export class TooltipManager {
   constructor() {
     this.tooltipElement = null;
+    this.mouseX = 0;
+    this.mouseY = 0;
     this.init();
   }
 
@@ -17,6 +19,13 @@ export class TooltipManager {
       console.warn('Custom tooltip element not found');
       return;
     }
+
+    // Track mouse position
+    document.addEventListener('mousemove', (e) => {
+      this.mouseX = e.clientX;
+      this.mouseY = e.clientY;
+      this.updatePosition();
+    });
 
     // Add event delegation for all elements with data-tooltip
     document.addEventListener('mouseover', (e) => {
@@ -52,6 +61,19 @@ export class TooltipManager {
     
     console.log('Hiding tooltip');
     this.tooltipElement.classList.remove('visible');
+  }
+
+  updatePosition() {
+    if (!this.tooltipElement || !this.tooltipElement.classList.contains('visible')) return;
+    
+    // Position tooltip near the mouse cursor
+    // Offset by 20px right and 20px down to avoid blocking the cursor
+    const offsetX = 20;
+    const offsetY = 20;
+    
+    this.tooltipElement.style.left = (this.mouseX + offsetX) + 'px';
+    this.tooltipElement.style.top = (this.mouseY + offsetY) + 'px';
+    this.tooltipElement.style.transform = 'none'; // Remove center transform
   }
 }
 
