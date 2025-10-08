@@ -152,7 +152,7 @@ export class Renderer {
     html += '🖨️';
     html += '</button>';
     html += '<button id="pinToggleBtn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 4px 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 28px; height: 24px;" title="Pin control panel (disable auto-hide)">';
-    html += '<span id="pinIcon" style="color: rgba(255,255,255,0.5);">📌</span>';
+    html += '<span id="pinIcon" style="color: rgba(255,255,255,0.7);">📌</span>';
     html += '</button>';
     html += '</div>';
     html += '</div>';

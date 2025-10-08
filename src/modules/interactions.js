@@ -503,12 +503,12 @@ export class Interactions {
     const pinIcon = document.getElementById('pinIcon');
     if (pinIcon) {
       if (!this.autoHideEnabled) {
-        // Pinned (auto-hide disabled) - bright pin
+        // Pinned (auto-hide disabled) - solid pin
         pinIcon.style.color = 'rgba(255,255,255,1)';
-        pinIcon.textContent = '📌';
+        pinIcon.textContent = '📍';
       } else {
-        // Unpinned (auto-hide enabled) - dim pin
-        pinIcon.style.color = 'rgba(255,255,255,0.5)';
+        // Unpinned (auto-hide enabled) - round pin
+        pinIcon.style.color = 'rgba(255,255,255,0.7)';
         pinIcon.textContent = '📌';
       }
     }
