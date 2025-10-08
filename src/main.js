@@ -4,6 +4,7 @@ import { Renderer } from './modules/renderer.js';
 import { Interactions } from './modules/interactions.js';
 import { Controls } from './modules/controls.js';
 import { TooltipManager } from './modules/tooltip.js';
+import { MergeEffects } from './modules/mergeEffects.js';
 
 export class Simulation {
   constructor() {
@@ -15,6 +16,7 @@ export class Simulation {
     this.interactions = new Interactions(this.canvas, this); // Pass 'this' for callbacks
     this.controls = new Controls();
     this.tooltipManager = new TooltipManager();
+    this.mergeEffects = new MergeEffects();
 
     this.lastFrameTime = performance.now();
     this.fps = 0;
@@ -412,9 +414,9 @@ export class Simulation {
       bubble.updateContactDurations(contacts);
     });
     
-    // Process coalescence (bubble merging)
+    // Process coalescence (bubble merging) with visual effects
     const coalescenceRate = this.controls.getValue('coalescenceRate') ?? 0.01;
-    this.bubbles = this.physics.processCoalescence(this.bubbles, coalescenceRate);
+    this.bubbles = this.physics.processCoalescence(this.bubbles, coalescenceRate, this.mergeEffects);
     
     // Apply Plateau forces to push junctions toward 120° angles
     this.currentJunctions = this.physics.detectPlateauBorders(this.bubbles);
@@ -429,6 +431,9 @@ export class Simulation {
     
     // Draw bubbles (including merge animations)
     this.renderer.renderBubbles(this.bubbles, this.physics);
+    
+    // Render merge effects (particles, ripples, glows)
+    this.mergeEffects.render(this.ctx);
     
     // Render Plateau borders (use cached junctions from update)
     this.renderer.renderPlateauBorders(this.currentJunctions || [], this.controls);
@@ -451,6 +456,7 @@ export class Simulation {
     this.fps = Math.round(1000 / averageDt);
 
     this.update(dt);
+    this.mergeEffects.update(); // Update merge effect animations
     this.render();
 
     requestAnimationFrame(this.animate.bind(this));
