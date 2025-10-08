@@ -160,8 +160,15 @@ export class Simulation {
         newRadius = categorySize + (randomVariation * variationRange);
       }
       
-      // Ensure minimum size
+      // Ensure minimum size and maximum size to prevent physics errors
       newRadius = Math.max(newRadius, this.targetRadius * 0.1);
+      newRadius = Math.min(newRadius, this.targetRadius * 10); // Max 10x base size
+      
+      // Ensure the value is finite
+      if (!isFinite(newRadius) || isNaN(newRadius)) {
+        console.warn('Invalid radius calculated, using base size:', newRadius);
+        newRadius = baseSize;
+      }
       
       bubble.radius = newRadius;
       bubble.targetRadius = newRadius;

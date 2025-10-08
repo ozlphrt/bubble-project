@@ -93,12 +93,18 @@ export class Bubble {
     const radiusChange = this.surfaceTensionForce * dt * 15.0;
     const newRadius = this.radius + radiusChange;
     
-    // Clamp radius to prevent it from becoming negative or too small
-    this.radius = Math.max(5, newRadius); // Minimum radius of 5 pixels
+    // Clamp radius to prevent it from becoming negative, too small, or too large
+    this.radius = Math.max(5, Math.min(newRadius, 200)); // Min 5px, Max 200px
     
     // If radius is getting too far from target, reset it
     if (Math.abs(this.radius - this.targetRadius) > this.targetRadius * 2) {
       this.radius = this.targetRadius;
+    }
+    
+    // Additional safety check for non-finite values
+    if (!isFinite(this.radius) || isNaN(this.radius)) {
+      console.warn('Non-finite radius detected in update, resetting to targetRadius');
+      this.radius = this.targetRadius || 20;
     }
     
     // Apply velocity with time-based scaling for smoother motion
@@ -303,6 +309,12 @@ export class Bubble {
         ctx.lineTo(points[i].x, points[i].y);
       }
       ctx.closePath();
+    }
+    
+    // Safety check: ensure radius is finite before drawing
+    if (!isFinite(this.radius) || isNaN(this.radius) || this.radius <= 0) {
+      console.warn('Invalid bubble radius detected:', this.radius, 'Resetting to targetRadius:', this.targetRadius);
+      this.radius = this.targetRadius || 20;
     }
     
     // Create radial gradient for glassmorphism effect
