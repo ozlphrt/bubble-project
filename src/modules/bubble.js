@@ -336,7 +336,6 @@ export class Bubble {
     const visualEffectsEnabled = controls?.getValue('visualEffects') ?? 1;
     if (visualEffectsEnabled >= 0.5) {
       this.drawBubbleHighlight(ctx, displayRadius);
-      this.drawBubbleRim(ctx, displayRadius);
     }
   }
 
