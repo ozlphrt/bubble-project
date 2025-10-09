@@ -2,7 +2,7 @@
 
 An interactive physics simulation exploring soap bubbles, surface tension, and foam dynamics with real-time controls and beautiful visualizations.
 
-![Version](https://img.shields.io/badge/version-vf7cffdb-blue)
+![Version](https://img.shields.io/badge/version-vfabdf44-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## 🌟 Features
@@ -183,7 +183,7 @@ This simulator demonstrates:
 
 ## 📝 Version History
 
-- **vf7cffdb** (Current) - Project cleanup, comprehensive README, clickable version link
+- **vfabdf44** (Current) - Simplified project name to "Bubble Project"
 - **v680e8e2** - Coalescence audio, palette cleanup
 - **v65f9b1a** - Preset updates, visual styles
 - **Earlier** - Core physics, UI, performance optimizations
@@ -202,4 +202,4 @@ Built with inspiration from real soap bubble physics and foam dynamics research.
 
 ---
 
-**Current Version**: vf7cffdb | **Status**: Active Development | **Performance**: 60 FPS @ 500+ bubbles
+**Current Version**: vfabdf44 | **Status**: Active Development | **Performance**: 60 FPS @ 500+ bubbles
