@@ -276,7 +276,7 @@ Click+drag: draw pipe
 Ctrl+click pivot: move pivot point
 Right-click: remove obstacle
 Ctrl+right-click: adjust rotation angle">🚧 OBSTACLES</button>
-            <button id="audio-toggle" class="control-button" data-tooltip="Toggle sound effects">🔊 SOUND</button>
+            <button id="audio-toggle" class="control-button" style="background: rgba(100, 255, 100, 0.3) !important; border-color: rgba(100, 255, 100, 0.5) !important;" data-tooltip="Toggle sound effects">🔊 SOUND</button>
     </div>
     
     <div class="control-panel" id="controlPanel">
@@ -366,6 +366,18 @@ Ctrl+right-click: adjust rotation angle">🚧 OBSTACLES</button>
         
         // Also update every 5 minutes in case of updates
         setInterval(updateVersionDisplay, 5 * 60 * 1000);
+        
+        // Debug: Check if audio button exists
+        document.addEventListener('DOMContentLoaded', () => {
+            const audioBtn = document.getElementById('audio-toggle');
+            if (audioBtn) {
+                console.log('✅ Audio button found:', audioBtn);
+                audioBtn.style.display = 'block';
+                audioBtn.style.visibility = 'visible';
+            } else {
+                console.error('❌ Audio button not found!');
+            }
+        });
     </script>
 </body>
 </html>
