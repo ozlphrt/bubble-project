@@ -276,7 +276,7 @@ Click+drag: draw pipe
 Ctrl+click pivot: move pivot point
 Right-click: remove obstacle
 Ctrl+right-click: adjust rotation angle">🚧 OBSTACLES</button>
-            <button id="audio-toggle" class="control-button" style="background: rgba(100, 255, 100, 0.3) !important; border-color: rgba(100, 255, 100, 0.5) !important;" data-tooltip="Toggle sound effects">🔊 SOUND</button>
+            <button id="audio-toggle" class="control-button" style="background: rgba(100, 255, 100, 0.5) !important; border-color: rgba(100, 255, 100, 0.7) !important; display: block !important; visibility: visible !important; opacity: 1 !important;" data-tooltip="Toggle sound effects">🔊 SOUND</button>
     </div>
     
     <div class="control-panel" id="controlPanel">
@@ -324,7 +324,18 @@ Ctrl+right-click: adjust rotation angle">🚧 OBSTACLES</button>
         <button id="preset-soap" class="preset-button">Soap</button>
         </div>
 
-    <script type="module" src="src/main.js?v=282cdce"></script>
+    <script type="module" src="src/main.js?v=bba8520"></script>
+    
+    <!-- Test if modules are loading -->
+    <script type="module">
+        console.log('🔍 Testing module loading...');
+        try {
+            const { AudioManager } = await import('./src/modules/audio.js');
+            console.log('✅ AudioManager loaded successfully:', AudioManager);
+        } catch (error) {
+            console.error('❌ Failed to load AudioManager:', error);
+        }
+    </script>
     
     <!-- Auto-update version display -->
     <script>
@@ -367,15 +378,31 @@ Ctrl+right-click: adjust rotation angle">🚧 OBSTACLES</button>
         // Also update every 5 minutes in case of updates
         setInterval(updateVersionDisplay, 5 * 60 * 1000);
         
-        // Debug: Check if audio button exists
+        // Debug: Check if audio button exists and force it to be visible
         document.addEventListener('DOMContentLoaded', () => {
             const audioBtn = document.getElementById('audio-toggle');
             if (audioBtn) {
                 console.log('✅ Audio button found:', audioBtn);
                 audioBtn.style.display = 'block';
                 audioBtn.style.visibility = 'visible';
+                audioBtn.style.opacity = '1';
+                audioBtn.style.position = 'relative';
+                audioBtn.style.zIndex = '1001';
             } else {
                 console.error('❌ Audio button not found!');
+                // Try to create the button if it doesn't exist
+                const controlsDiv = document.querySelector('.controls');
+                if (controlsDiv) {
+                    const newAudioBtn = document.createElement('button');
+                    newAudioBtn.id = 'audio-toggle';
+                    newAudioBtn.className = 'control-button';
+                    newAudioBtn.style.background = 'rgba(100, 255, 100, 0.3) !important';
+                    newAudioBtn.style.borderColor = 'rgba(100, 255, 100, 0.5) !important';
+                    newAudioBtn.textContent = '🔊 SOUND';
+                    newAudioBtn.setAttribute('data-tooltip', 'Toggle sound effects');
+                    controlsDiv.appendChild(newAudioBtn);
+                    console.log('✅ Created audio button dynamically');
+                }
             }
         });
     </script>
