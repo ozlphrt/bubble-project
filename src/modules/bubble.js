@@ -221,26 +221,6 @@ export class Bubble {
         'rgb(255, 0, 255)',    // #FF00FF - Magenta
         'rgb(255, 0, 127)'     // #FF007F - Rose
       ],
-      'neon': [
-        'rgb(255, 0, 255)',    // #FF00FF - Magenta
-        'rgb(0, 255, 255)',    // #00FFFF - Cyan
-        'rgb(255, 255, 0)',    // #FFFF00 - Yellow
-        'rgb(57, 255, 20)',    // #39FF14 - Neon green
-        'rgb(255, 16, 240)',   // #FF10F0 - Neon pink
-        'rgb(0, 255, 127)',    // #00FF7F - Spring green
-        'rgb(255, 20, 147)',   // #FF1493 - Deep pink
-        'rgb(0, 191, 255)'     // #00BFFF - Deep sky blue
-      ],
-      'sunset': [
-        'rgb(255, 69, 0)',     // #FF4500 - Orange red
-        'rgb(255, 140, 0)',    // #FF8C00 - Dark orange
-        'rgb(255, 215, 0)',    // #FFD700 - Gold
-        'rgb(255, 99, 71)',    // #FF6347 - Tomato
-        'rgb(220, 20, 60)',    // #DC143C - Crimson
-        'rgb(255, 165, 0)',    // #FFA500 - Orange
-        'rgb(255, 127, 80)',   // #FF7F50 - Coral
-        'rgb(178, 34, 34)'     // #B22222 - Firebrick
-      ],
       'ocean': [
         'rgb(0, 0, 139)',      // #00008B - Dark blue
         'rgb(0, 128, 128)',    // #008080 - Teal

@@ -5,6 +5,7 @@ import { Interactions } from './modules/interactions.js';
 import { Controls } from './modules/controls.js';
 import { TooltipManager } from './modules/tooltip.js';
 import { ObstacleManager } from './modules/obstacles.js';
+import { AudioManager } from './modules/audio.js';
 
 export class Simulation {
   constructor() {
@@ -18,6 +19,7 @@ export class Simulation {
     this.controls = new Controls(this);
     this.tooltipManager = new TooltipManager();
     this.obstacleManager = new ObstacleManager();
+    this.audioManager = new AudioManager();
     
     // Initialize spatial partitioning for performance optimization
     this.physics.initializeSpatial(this.canvas.width, this.canvas.height);
@@ -379,29 +381,6 @@ export class Simulation {
         
         this.restart();
         break;
-        
-      case 'pearls':
-        // Rubber Pearls preset - smooth, elegant bubble behavior
-        this.controls.setValue('targetDist', 1.030000);
-        this.controls.setValue('separation', 0.390000);
-        this.controls.setValue('collisionStrength', 0.030000);
-        this.controls.setValue('wallBounce', 0.450000);
-        this.controls.setValue('deformationStrength', 1.470000);
-        this.controls.setValue('influenceThreshold', 0.100000);
-        this.controls.setValue('surfaceTension', 0.030000);
-        this.controls.setValue('plateauForceStrength', 0.020000);
-        this.controls.setValue('gravity', 0.040000);
-        this.controls.setValue('damping', 0.990000);
-        this.controls.setValue('coalescenceRate', 0.00012);
-        this.controls.setValue('bubbleCount', 300);
-        this.controls.setValue('averageSize', 1.000000);
-        this.controls.setValue('sizeVariation', 0.800000);
-        this.controls.setValue('compressionForce', 0.060000);
-        this.controls.setValue('interpolationFactor', 0.030000);
-        
-        this.restart();
-        this.compress();
-        break;
     }
   }
 
@@ -488,7 +467,10 @@ export class Simulation {
     
     // Process coalescence (bubble merging) with canvas for spawning new bubbles
     const coalescenceRate = this.controls.getValue('coalescenceRate') ?? 0.01;
-    this.bubbles = this.physics.processCoalescence(this.bubbles, coalescenceRate, this.canvas);
+    const audioCallback = (size1, size2, resultSize) => {
+      this.audioManager.playCoalescenceSound(size1, size2, resultSize);
+    };
+    this.bubbles = this.physics.processCoalescence(this.bubbles, coalescenceRate, this.canvas, audioCallback);
     
     // Apply Plateau forces to push junctions toward 120° angles
     this.currentJunctions = this.physics.detectPlateauBorders(this.bubbles);

@@ -467,7 +467,7 @@ export class Physics {
    * @param {HTMLCanvasElement} canvas - Canvas for spawning new bubble
    * @returns {Bubble} The merged bubble
    */
-  mergeBubbles(bubble1, bubble2, canvas = null) {
+  mergeBubbles(bubble1, bubble2, canvas = null, audioCallback = null) {
     // Safety check: ensure both bubbles have positive radius
     if (bubble1.radius <= 0 || bubble2.radius <= 0) {
       console.warn('Attempted to merge bubble with non-positive radius');
@@ -476,6 +476,11 @@ export class Physics {
     
     // Volume conservation: r_new = sqrt(r1² + r2²) for 2D area
     const newRadius = Math.sqrt(bubble1.radius * bubble1.radius + bubble2.radius * bubble2.radius);
+    
+    // Play coalescence sound if audio callback provided
+    if (audioCallback) {
+      audioCallback(bubble1.radius, bubble2.radius, newRadius);
+    }
     
     // Position: weighted center of mass
     const totalMass = bubble1.mass + bubble2.mass;
@@ -560,7 +565,7 @@ export class Physics {
    * @param {HTMLCanvasElement} canvas - Canvas for spawning new bubbles
    * @returns {Array<Bubble>} Updated array of bubbles
    */
-  processCoalescence(bubbles, coalescenceRate, canvas = null) {
+  processCoalescence(bubbles, coalescenceRate, canvas = null, audioCallback = null) {
     // Skip entirely if coalescence rate is zero
     if (coalescenceRate === 0) {
       return bubbles;
@@ -593,7 +598,7 @@ export class Physics {
           bubble1.mergeProgress = 0;
           
           // Merge bubbles and pass canvas for spawning
-          this.mergeBubbles(bubble1, bubble2, canvas);
+          this.mergeBubbles(bubble1, bubble2, canvas, audioCallback);
           bubblesToRemove.push(bubble1);
           break; // bubble1 is now marked for removal
         }

@@ -59,6 +59,17 @@ export class Interactions {
       }
     });
 
+    // Audio toggle button
+    document.getElementById('audio-toggle')?.addEventListener('click', () => {
+      const enabled = this.simulation.audioManager.toggle();
+      const btn = document.getElementById('audio-toggle');
+      if (btn) {
+        btn.textContent = enabled ? '🔊 SOUND' : '🔇 SOUND';
+        btn.style.backgroundColor = enabled ? 'rgba(100, 255, 100, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+        btn.style.borderColor = enabled ? 'rgba(100, 255, 100, 0.5)' : 'rgba(255, 255, 255, 0.2)';
+      }
+    });
+
     // Prevent context menu on canvas (for right-click obstacle removal)
     this.canvas.addEventListener('contextmenu', (e) => {
       if (this.simulation.obstacleManager.enabled) {
@@ -784,8 +795,6 @@ export class Interactions {
     const palettes = [
       { name: 'Blues', id: 'blues' },
       { name: 'Spectrum', id: 'spectrum' },
-      { name: 'Neon', id: 'neon' },
-      { name: 'Sunset', id: 'sunset' },
       { name: 'Ocean', id: 'ocean' },
       { name: 'Rainbow', id: 'rainbow' },
       { name: 'Mono', id: 'mono' },

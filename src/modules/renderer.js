@@ -247,8 +247,6 @@ export class Renderer {
     const palettes = [
       { name: 'Blues', colors: ['#4a9eff', '#6bb6ff', '#8cc8ff', '#a8d8ff'], id: 'blues' },
       { name: 'Spectrum', colors: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00'], id: 'spectrum' },
-      { name: 'Neon', colors: ['#FF00FF', '#00FFFF', '#FFFF00', '#39FF14'], id: 'neon' },
-      { name: 'Sunset', colors: ['#FF4500', '#FF8C00', '#FFD700', '#FF6347'], id: 'sunset' },
       { name: 'Ocean', colors: ['#00008B', '#008080', '#00BFFF', '#1E90FF'], id: 'ocean' },
       { name: 'Rainbow', colors: ['#FF6B6B', '#FFD93D', '#6BCF7F', '#4D96FF'], id: 'rainbow' },
       { name: 'Mono', colors: ['#E0E0E0', '#CCCCCC', '#B3B3B3', '#999999'], id: 'mono' },
