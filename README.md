@@ -1,6 +1,6 @@
-# Interactive Soap Foam Physics Simulator
+# Bubble Project
 
-An educational, web-based 2D simulation demonstrating the physics of soap bubbles and foam formation with interactive controls and beautiful visualizations.
+An interactive physics simulation exploring soap bubbles, surface tension, and foam dynamics with real-time controls and beautiful visualizations.
 
 ![Version](https://img.shields.io/badge/version-vf7cffdb-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
