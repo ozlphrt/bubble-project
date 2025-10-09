@@ -166,38 +166,38 @@ export class AudioManager {
   }
   
   /**
-   * Play bubble wrap pop sound for honeycomb preset
+   * Play higher-pitched rubber ball sound for honeycomb preset
    */
   playBubbleWrapSound(resultSize, now) {
-    // Create a short, sharp pop with slight metallic ring
+    // Create a higher-pitched version of the rubber ball sound
     const oscillator = this.audioContext.createOscillator();
-    oscillator.type = 'square';
+    oscillator.type = 'sine';
     
-    // Higher frequency for the "pop" character
-    const baseFrequency = 800 + (200 - resultSize) * 5;
-    const frequency = Math.max(400, Math.min(1200, baseFrequency));
+    // Higher frequency than rubber balls but same character
+    const baseFrequency = 200 + (100 - resultSize) * 4; // Higher than rubber balls (80-150Hz)
+    const frequency = Math.max(150, Math.min(400, baseFrequency));
     
     oscillator.frequency.setValueAtTime(frequency, now);
-    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.3, now + 0.08);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.4, now + 0.12);
     
-    // Sharp envelope for pop
+    // Similar envelope to rubber balls but slightly shorter
     const gainNode = this.audioContext.createGain();
     gainNode.gain.setValueAtTime(0, now);
-    gainNode.gain.linearRampToValueAtTime(0.4, now + 0.002);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+    gainNode.gain.linearRampToValueAtTime(0.4, now + 0.008);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
     
-    // Add slight metallic resonance
-    const filter = this.audioContext.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(frequency * 1.5, now);
-    filter.Q.value = 3;
+    // Similar low-pass filter but higher cutoff for brighter sound
+    const lowpass = this.audioContext.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.setValueAtTime(350, now); // Higher than rubber balls (200Hz)
+    lowpass.Q.value = 1;
     
-    oscillator.connect(filter);
-    filter.connect(gainNode);
+    oscillator.connect(lowpass);
+    lowpass.connect(gainNode);
     gainNode.connect(this.masterGain);
     
     oscillator.start(now);
-    oscillator.stop(now + 0.08);
+    oscillator.stop(now + 0.15);
   }
   
   /**
