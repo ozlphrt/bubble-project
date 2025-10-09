@@ -4,6 +4,7 @@ import { Renderer } from './modules/renderer.js';
 import { Interactions } from './modules/interactions.js';
 import { Controls } from './modules/controls.js';
 import { TooltipManager } from './modules/tooltip.js';
+import { ObstacleManager } from './modules/obstacles.js';
 
 export class Simulation {
   constructor() {
@@ -16,6 +17,7 @@ export class Simulation {
     this.interactions = new Interactions(this.canvas, this); // Pass 'this' for callbacks
     this.controls = new Controls(this);
     this.tooltipManager = new TooltipManager();
+    this.obstacleManager = new ObstacleManager();
     
     // Initialize spatial partitioning for performance optimization
     this.physics.initializeSpatial(this.canvas.width, this.canvas.height);
@@ -469,6 +471,15 @@ export class Simulation {
     this.physics.updatePositions(this.bubbles, dt, this.canvas, this.controls);
     this.physics.applyPressureForces(this.bubbles); // Re-enabled with subtle forces
     
+    // Update obstacle wave animations
+    this.obstacleManager.update(dt);
+    
+    // Apply obstacle collisions
+    const wallBounce = this.controls.getValue('wallBounce') ?? 0.7;
+    this.bubbles.forEach(bubble => {
+      this.obstacleManager.applyCollisions(bubble, wallBounce);
+    });
+    
     // Update contact durations for coalescence tracking
     this.bubbles.forEach(bubble => {
       const contacts = this.physics.findContacts(bubble, this.bubbles, this.physics.contactCacheFrame);
@@ -489,6 +500,9 @@ export class Simulation {
   render() {
     const theme = this.controls.getValue('theme') ?? 0;
     this.renderer.clear(theme);
+    
+    // Draw obstacles first (behind bubbles)
+    this.obstacleManager.drawAll(this.ctx);
     
     // Draw bubbles (including merge animations)
     this.renderer.renderBubbles(this.bubbles, this.physics, this.physics.contactCacheFrame, this.controls, this.performanceStats);

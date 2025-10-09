@@ -58,13 +58,44 @@ export class TooltipManager {
   updatePosition() {
     if (!this.tooltipElement || !this.tooltipElement.classList.contains('visible')) return;
     
-    // Position tooltip near the mouse cursor
-    // Offset by 20px right and 20px down to avoid blocking the cursor
-    const offsetX = 20;
-    const offsetY = 20;
+    // Get tooltip dimensions
+    const tooltipRect = this.tooltipElement.getBoundingClientRect();
+    const tooltipWidth = tooltipRect.width;
+    const tooltipHeight = tooltipRect.height;
     
-    this.tooltipElement.style.left = (this.mouseX + offsetX) + 'px';
-    this.tooltipElement.style.top = (this.mouseY + offsetY) + 'px';
+    // Get viewport dimensions
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Position tooltip near the mouse cursor with smart positioning
+    let offsetX = 20;
+    let offsetY = 20;
+    
+    let left = this.mouseX + offsetX;
+    let top = this.mouseY + offsetY;
+    
+    // Check if tooltip would go off the right edge
+    if (left + tooltipWidth > viewportWidth) {
+      left = this.mouseX - tooltipWidth - 10; // Position to the left instead
+    }
+    
+    // Check if tooltip would go off the bottom edge
+    if (top + tooltipHeight > viewportHeight) {
+      top = this.mouseY - tooltipHeight - 10; // Position above instead
+    }
+    
+    // Check if tooltip would go off the left edge
+    if (left < 0) {
+      left = 10; // Keep some margin from edge
+    }
+    
+    // Check if tooltip would go off the top edge
+    if (top < 0) {
+      top = 10; // Keep some margin from edge
+    }
+    
+    this.tooltipElement.style.left = left + 'px';
+    this.tooltipElement.style.top = top + 'px';
     this.tooltipElement.style.transform = 'none'; // Remove center transform
   }
 }

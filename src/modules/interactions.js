@@ -23,6 +23,12 @@ export class Interactions {
     this.autoHideEnabled = true; // Auto-hide enabled by default
     this.hideTimeout = null;
     this.initialAutoHideScheduled = false; // Track if initial auto-hide has been scheduled
+    
+    // Obstacle drawing state
+    this.isDrawingObstacles = false;
+    this.lastObstaclePos = null;
+    this.obstacleDrawSpacing = 30; // Minimum distance between drawn obstacles
+    
     this.setupEventListeners();
   }
 
@@ -43,6 +49,22 @@ export class Interactions {
       this.simulation.resetToDefaults();
     });
 
+    // Obstacles toggle button
+    document.getElementById('obstacles-toggle')?.addEventListener('click', () => {
+      const enabled = this.simulation.obstacleManager.toggle();
+      const btn = document.getElementById('obstacles-toggle');
+      if (btn) {
+        btn.style.backgroundColor = enabled ? 'rgba(100, 200, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+        btn.style.borderColor = enabled ? 'rgba(100, 200, 255, 0.5)' : 'rgba(255, 255, 255, 0.2)';
+      }
+    });
+
+    // Prevent context menu on canvas (for right-click obstacle removal)
+    this.canvas.addEventListener('contextmenu', (e) => {
+      if (this.simulation.obstacleManager.enabled) {
+        e.preventDefault();
+      }
+    });
 
     // Mouse events for drag interactions and bubble creation
     this.canvas.addEventListener('mousedown', (e) => {
@@ -193,6 +215,41 @@ export class Interactions {
   handleMouseDown(e) {
     const pos = this.getMousePosition(e);
     
+    // If obstacle mode is enabled, add/remove obstacles instead of dragging bubbles
+    if (this.simulation.obstacleManager.enabled) {
+      // Ctrl+Right-click to adjust rotation angle
+      if (e.ctrlKey && e.button === 2) {
+        const foundPivot = this.simulation.obstacleManager.startAdjustingAngle(pos.x, pos.y);
+        if (foundPivot) {
+          this.isDragging = true;
+          this.canvas.style.cursor = 'grab';
+          return;
+        }
+      }
+      
+      // Ctrl+Left-click to move pivot point
+      if (e.ctrlKey && e.button === 0) {
+        const foundPivot = this.simulation.obstacleManager.startDraggingPivot(pos.x, pos.y);
+        if (foundPivot) {
+          this.isDragging = true; // Use isDragging flag for pivot dragging
+          this.canvas.style.cursor = 'move';
+          return;
+        }
+      }
+      
+      // Right click or Shift+click to remove
+      if (e.button === 2 || e.shiftKey) {
+        this.simulation.obstacleManager.removeObstacleAt(pos.x, pos.y);
+      } else if (e.button === 0) {
+        // Left click to start drawing a pipe
+        this.isDrawingObstacles = true;
+        this.simulation.obstacleManager.startPipe(pos.x, pos.y, 8); // Thin pipe
+        this.lastObstaclePos = { x: pos.x, y: pos.y };
+        this.canvas.style.cursor = 'crosshair';
+      }
+      return;
+    }
+    
     // Find bubble at mouse position
     const bubble = this.findBubbleAt(pos.x, pos.y);
     
@@ -213,6 +270,32 @@ export class Interactions {
    */
   handleMouseMove(e) {
     const pos = this.getMousePosition(e);
+    
+    // If adjusting rotation angle, update it
+    if (this.simulation.obstacleManager.enabled && this.simulation.obstacleManager.adjustingAngle) {
+      this.simulation.obstacleManager.updateRotationAngle(pos.x, pos.y);
+      return;
+    }
+    
+    // If dragging a pivot point, update its position
+    if (this.simulation.obstacleManager.enabled && this.simulation.obstacleManager.draggedPivot) {
+      this.simulation.obstacleManager.updateDraggedPivot(pos.x, pos.y);
+      return;
+    }
+    
+    // If drawing obstacles, add points to the current pipe
+    if (this.isDrawingObstacles && this.lastObstaclePos) {
+      const dx = pos.x - this.lastObstaclePos.x;
+      const dy = pos.y - this.lastObstaclePos.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      // Add points at regular intervals for smooth rendering
+      if (distance > 10) { // Add point every 10 pixels
+        this.simulation.obstacleManager.addPointToPipe(pos.x, pos.y);
+        this.lastObstaclePos = { x: pos.x, y: pos.y };
+      }
+      return;
+    }
     
     if (this.isDragging && this.draggedBubble) {
       // Move the bubble to mouse position
@@ -239,6 +322,31 @@ export class Interactions {
    * @param {MouseEvent} e - Mouse event
    */
   handleMouseUp(e) {
+    // Stop adjusting angle
+    if (this.simulation.obstacleManager.adjustingAngle) {
+      this.simulation.obstacleManager.stopAdjustingAngle();
+      this.isDragging = false;
+      this.canvas.style.cursor = 'crosshair';
+      return;
+    }
+    
+    // Stop dragging pivot
+    if (this.simulation.obstacleManager.draggedPivot) {
+      this.simulation.obstacleManager.stopDraggingPivot();
+      this.isDragging = false;
+      this.canvas.style.cursor = 'crosshair';
+      return;
+    }
+    
+    // Stop drawing obstacles and finish the pipe
+    if (this.isDrawingObstacles) {
+      this.isDrawingObstacles = false;
+      this.lastObstaclePos = null;
+      this.simulation.obstacleManager.finishPipe();
+      this.canvas.style.cursor = 'crosshair';
+      return;
+    }
+    
     if (this.isDragging && this.draggedBubble) {
       // Release the bubble with some momentum
       const pos = this.getMousePosition(e);
