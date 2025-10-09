@@ -88,13 +88,13 @@ export class AudioManager {
         break;
         
       case 'tight-pack': // Rubber Balls
-        // Duffled, bassy, rubbery sound
-        this.playRubberBallSound(resultSize, now);
+        // Very short pop-up sound
+        this.playSoapPopSound(resultSize, now);
         break;
         
       case 'soap':
-        // Very short pop-up sound
-        this.playSoapPopSound(resultSize, now);
+        // Duffled, bassy, rubbery sound
+        this.playRubberBallSound(resultSize, now);
         break;
         
       case 'rubber-pearls':
