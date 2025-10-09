@@ -107,16 +107,17 @@
         .control-button {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            border-radius: 20px;
             color: white;
-            padding: 12px 20px;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 8px 16px;
             cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            min-width: 120px;
+            min-width: 100px;
         }
 
         .control-button:hover {
@@ -128,6 +129,7 @@
         .control-button:active {
             transform: translateY(0);
         }
+
 
         .status {
             position: fixed;
@@ -143,9 +145,9 @@
         }
 
         .status-item {
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 3px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .status-item:last-child {
@@ -207,9 +209,15 @@
         /* Responsive design */
         @media (max-width: 768px) {
             .controls {
-                bottom: 10px;
-                left: 10px;
-                gap: 8px;
+                bottom: 10px !important;
+                right: 10px !important;
+                left: auto !important;
+            }
+
+            .control-button {
+                min-width: 90px;
+                padding: 7px 14px;
+                font-size: 10px;
             }
 
             .control-panel {
@@ -234,7 +242,7 @@
             }
 
             .status-item {
-                font-size: 12px;
+                font-size: 10px;
             }
 
             .preset-buttons {
@@ -254,9 +262,9 @@
     <canvas id="canvas"></canvas>
     
     <div class="controls">
-        <button id="compress" class="control-button">Shuffle</button>
-        <button id="restart" class="control-button">Restart</button>
-        <button id="reset" class="control-button">Reset to Defaults</button>
+            <button id="compress" class="control-button" title="Shuffle bubbles">SHUFFLE</button>
+            <button id="restart" class="control-button" title="Restart simulation">RESTART</button>
+            <button id="reset" class="control-button" title="Reset to defaults">DEFAULT</button>
     </div>
     
     <div class="control-panel" id="controlPanel">
@@ -293,9 +301,8 @@
         <h4 style="margin: 0 0 10px 0; font-size: 14px; color: white;">Presets</h4>
         <button id="preset-honeycomb" class="preset-button">Honeycomb</button>
         <button id="preset-pebbles" class="preset-button">Pebbles</button>
-        <button id="preset-bouncy-foam" class="preset-button">Bouncy Foam</button>
-            <button id="preset-tight-pack" class="preset-button">Rubber Balls</button>
-            <button id="preset-soap" class="preset-button">Soap</button>
+        <button id="preset-tight-pack" class="preset-button">Rubber Balls</button>
+        <button id="preset-soap" class="preset-button">Soap</button>
             <button id="preset-pearls" class="preset-button">Rubber Pearls</button>
         </div>
 

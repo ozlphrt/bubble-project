@@ -17,10 +17,6 @@
  * from the working prototype and enhanced with proper documentation.
  */
 export class Bubble {
-  // Static gradient cache to avoid recreating gradients
-  static gradientCache = new Map();
-  static maxCacheSize = 100;
-  
   /**
    * Create a bubble
    * @param {number} x - X position in pixels
@@ -411,7 +407,7 @@ export class Bubble {
     // Enhanced bubble rendering with visual effects
     this.drawBubbleBody(ctx, displayRadius, controls, performanceStats);
     
-    // Draw white highlight in Glossy (2), Ethereal (3), and Ghost (4) modes
+    // Draw white highlight in Glossy (2) mode
     const visualStyle = controls?.getValue('visualEffects') ?? 2;
     if (visualStyle >= 2) {
       this.drawBubbleHighlight(ctx, displayRadius);
@@ -422,14 +418,8 @@ export class Bubble {
    * Get or create a cached gradient
    */
   static getCachedGradient(ctx, x, y, radius, color, visualStyle, opacity, performanceStats = null) {
-    const cacheKey = `${Math.round(x/10)}_${Math.round(y/10)}_${Math.round(radius)}_${color}_${visualStyle}_${opacity}`;
-    
-    if (Bubble.gradientCache.has(cacheKey)) {
-      if (performanceStats) {
-        performanceStats.gradientCacheHits++;
-      }
-      return Bubble.gradientCache.get(cacheKey);
-    }
+    // Don't cache gradients - they are position-dependent and caching causes flickering
+    // as bubbles move. The performance gain isn't worth the visual artifact.
     
     if (performanceStats) {
       performanceStats.gradientCreations++;
@@ -441,10 +431,10 @@ export class Bubble {
       // FLAT: No gradient needed
       return null;
     } else if (visualStyle === 1) {
-      // NATURAL: Centered gradient
+      // MATTE: Centered gradient
       gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
     } else {
-      // GLOSSY/ETHEREAL: Offset gradient
+      // GLOSSY: Offset gradient
       gradient = ctx.createRadialGradient(x - radius * 0.3, y - radius * 0.3, 0, x, y, radius);
     }
     
@@ -459,13 +449,6 @@ export class Bubble {
       gradient.addColorStop(1, `rgba(${color}, ${(opacity*0.3)/255})`);
     }
     
-    // Cache the gradient (with size limit)
-    if (Bubble.gradientCache.size >= Bubble.maxCacheSize) {
-      const firstKey = Bubble.gradientCache.keys().next().value;
-      Bubble.gradientCache.delete(firstKey);
-    }
-    Bubble.gradientCache.set(cacheKey, gradient);
-    
     return gradient;
   }
 
@@ -473,7 +456,7 @@ export class Bubble {
    * Draw the main bubble body with size-based colors and transparency
    */
   drawBubbleBody(ctx, displayRadius, controls = null, performanceStats = null) {
-    // Check visual style: 0 = Flat, 1 = Natural, 2 = Glossy, 3 = Ethereal
+    // Check visual style: 0 = Flat, 1 = Matte, 2 = Glossy
     const visualStyle = controls?.getValue('visualEffects') ?? 2;
     
     // Convert RGB color to RGBA with opacity (no color modification to preserve true colors)
@@ -511,8 +494,8 @@ export class Bubble {
       // FLAT: Solid flat color (no gradient, very opaque)
       ctx.fillStyle = colorWithOpacity(240); // Nearly opaque (240/255 ≈ 94% opacity)
     } else {
-      // Use cached gradient for NATURAL, GLOSSY, and ETHEREAL styles
-      const opacity = visualStyle === 1 ? 200 : (visualStyle === 2 ? 180 : 80);
+      // Use cached gradient for MATTE and GLOSSY styles
+      const opacity = visualStyle === 1 ? 200 : 180;
       const gradient = Bubble.getCachedGradient(ctx, this.x, this.y, displayRadius, `${r}, ${g}, ${b}`, visualStyle, opacity, performanceStats);
       
       if (gradient) {

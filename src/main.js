@@ -261,31 +261,42 @@ export class Simulation {
   }
 
   // Preset configurations for different foam behaviors
-  applyPreset(presetName) {
+  async applyPreset(presetName) {
     switch(presetName) {
       case 'honeycomb':
-        // Anti-pinching honeycomb formation with smooth, round bubbles
-        this.controls.setValue('targetDist', 0.574770);
-        this.controls.setValue('separation', 0.556450);
-        this.controls.setValue('collisionStrength', 0.057769);
-        this.controls.setValue('wallBounce', 0.502908);
-        this.controls.setValue('deformationStrength', 1.031620);
-        this.controls.setValue('influenceThreshold', 0.432122);
-        this.controls.setValue('surfaceTension', 1.227440); // Much higher for better shape maintenance
-        this.controls.setValue('plateauForceStrength', 0.204726);
+        // Honeycomb formation with hexagonal deformation and minimal pinching
+        this.controls.setValue('targetDist', 0.880000);
+        this.controls.setValue('separation', 0.320000);
+        this.controls.setValue('collisionStrength', 0.045000);
+        this.controls.setValue('wallBounce', 0.503000);
+        this.controls.setValue('deformationStrength', 1.000000);
+        this.controls.setValue('influenceThreshold', 0.380000);
+        this.controls.setValue('surfaceTension', 0.750000);
+        this.controls.setValue('plateauForceStrength', 0.240000);
         this.controls.setValue('gravity', 0.000000);
-        this.controls.setValue('damping', 0.011384);
+        this.controls.setValue('damping', 0.015325);
         this.controls.setValue('coalescenceRate', 0.000171);
-        this.controls.setValue('bubbleCount', 133);
-        this.controls.setValue('averageSize', 3.440144);
+        this.controls.setValue('bubbleCount', 98);
+        this.controls.setValue('averageSize', 3.440000);
         this.controls.setValue('sizeVariation', 0.000000);
+        
+        // Set fire palette for both display and spawning (await to ensure it's set before restart)
+        const bubbleModule = await import('./modules/bubble.js');
+        bubbleModule.Bubble.currentPalette = 'fire';
+        
+        // Set spawn color mode to use blues palette
+        this.physics.spawnColorMode = 'palette';
+        this.physics.spawnPaletteMode = 'blues';
+        
+        // Restart with new settings
+        this.restart();
         this.compress();
         break;
         
       case 'pebbles':
         // Small, compact bubbles like smooth pebbles
-        this.controls.setValue('targetDist', 0.810763);
-        this.controls.setValue('separation', 0.300000);
+        this.controls.setValue('targetDist', 1.012430);
+        this.controls.setValue('separation', 0.116645);
         this.controls.setValue('collisionStrength', 0.030000);
         this.controls.setValue('wallBounce', 0.450000);
         this.controls.setValue('deformationStrength', 1.096074);
@@ -293,69 +304,78 @@ export class Simulation {
         this.controls.setValue('surfaceTension', 0.305453);
         this.controls.setValue('plateauForceStrength', 0.200000);
         this.controls.setValue('gravity', 0.040000);
-        this.controls.setValue('damping', 0.990000);
+        this.controls.setValue('damping', 0.020000);
         this.controls.setValue('coalescenceRate', 0.000119);
         this.controls.setValue('bubbleCount', 325);
         this.controls.setValue('averageSize', 1.658752);
-        this.controls.setValue('sizeVariation', 0.045951);
-        this.compress();
-        break;
+        this.controls.setValue('sizeVariation', 0.432122);
         
-      case 'bouncy-foam':
-        // Active, bouncy bubbles
-        this.controls.setValue('targetDist', 1.03);
-        this.controls.setValue('separation', 0.35);
-        this.controls.setValue('collisionStrength', 0.06);
-        this.controls.setValue('influenceThreshold', 0.1);
-        this.controls.setValue('deformationStrength', 1.8);
-        this.controls.setValue('wallBounce', 0.6);
-        this.controls.setValue('damping', 0.995);
-        this.controls.setValue('surfaceTension', 0.2); // Lower for more bounce
-        this.controls.setValue('plateauForceStrength', 0.03);
-        this.controls.setValue('coalescenceRate', 0.00012);
-        this.controls.setValue('compressionForce', 0.08);
-        this.controls.setValue('gravity', 0.06);
-        this.compress();
+        // Set mono palette for both display and spawning (await to ensure it's set before restart)
+        const bubbleModule2 = await import('./modules/bubble.js');
+        bubbleModule2.Bubble.currentPalette = 'mono';
+        
+        // Set spawn color mode to use ocean palette
+        this.physics.spawnColorMode = 'palette';
+        this.physics.spawnPaletteMode = 'ocean';
+        
+        // Restart with new settings
+        this.restart();
         break;
         
       case 'tight-pack':
-        // Rubber balls - bouncy dense pack
-        this.controls.setValue('targetDist', 0.943777);
-        this.controls.setValue('separation', 0.475998);
-        this.controls.setValue('collisionStrength', 0.030000);
-        this.controls.setValue('wallBounce', 0.530000);
-        this.controls.setValue('deformationStrength', 1.061032);
-        this.controls.setValue('influenceThreshold', 0.284815);
-        this.controls.setValue('surfaceTension', 0.255393);
-        this.controls.setValue('plateauForceStrength', 0.270000);
-        this.controls.setValue('gravity', 0.040000);
-        this.controls.setValue('damping', 0.990000);
+        // Rubber balls - bouncy dense pack with minimal deformation
+        this.controls.setValue('targetDist', 0.866543);
+        this.controls.setValue('separation', 0.406273);
+        this.controls.setValue('collisionStrength', 0.080000);
+        this.controls.setValue('wallBounce', 0.359882);
+        this.controls.setValue('deformationStrength', 1.030000);
+        this.controls.setValue('influenceThreshold', 0.000000);
+        this.controls.setValue('surfaceTension', 1.500000);
+        this.controls.setValue('plateauForceStrength', 0.123201);
+        this.controls.setValue('gravity', 0.198183);
+        this.controls.setValue('damping', 0.018000);
         this.controls.setValue('coalescenceRate', 0.000120);
-        this.controls.setValue('bubbleCount', 466);
-        this.controls.setValue('averageSize', 1.000000);
+        this.controls.setValue('bubbleCount', 240);
+        this.controls.setValue('averageSize', 1.457085);
         this.controls.setValue('sizeVariation', 0.800000);
-        this.compress();
+        
+        // Set rainbow palette for display and ocean for spawning
+        const bubbleModule3 = await import('./modules/bubble.js');
+        bubbleModule3.Bubble.currentPalette = 'rainbow';
+        
+        // Set spawn color mode to use ocean palette
+        this.physics.spawnColorMode = 'palette';
+        this.physics.spawnPaletteMode = 'ocean';
+        
+        this.restart();
         break;
         
       case 'soap':
         // Realistic soap bubble behavior
-        this.controls.setValue('targetDist', 0.760000);
+        this.controls.setValue('targetDist', 0.862252);
         this.controls.setValue('separation', 0.180000);
         this.controls.setValue('collisionStrength', 0.030000);
         this.controls.setValue('wallBounce', 0.530000);
-        this.controls.setValue('deformationStrength', 1.210000);
-        this.controls.setValue('influenceThreshold', 0.230000);
-        this.controls.setValue('surfaceTension', 0.500000);
+        this.controls.setValue('deformationStrength', 1.031620);
+        this.controls.setValue('influenceThreshold', 0.138919);
+        this.controls.setValue('surfaceTension', 0.873450);
         this.controls.setValue('plateauForceStrength', 0.270000);
         this.controls.setValue('gravity', 0.040000);
-        this.controls.setValue('damping', 0.990000);
-        this.controls.setValue('coalescenceRate', 0.00012);
-        this.controls.setValue('bubbleCount', 300);
+        this.controls.setValue('damping', 0.020000);
+        this.controls.setValue('coalescenceRate', 0.000120);
+        this.controls.setValue('bubbleCount', 431);
         this.controls.setValue('averageSize', 1.000000);
-        this.controls.setValue('sizeVariation', 0.800000);
-        this.controls.setValue('compressionForce', 0.060000);
-        this.controls.setValue('interpolationFactor', 0.030000);
-        this.compress();
+        this.controls.setValue('sizeVariation', 0.846899);
+        
+        // Set blues palette for display and fire for spawning
+        const bubbleModule4 = await import('./modules/bubble.js');
+        bubbleModule4.Bubble.currentPalette = 'blues';
+        
+        // Set spawn color mode to use fire palette
+        this.physics.spawnColorMode = 'palette';
+        this.physics.spawnPaletteMode = 'fire';
+        
+        this.restart();
         break;
         
       case 'pearls':
@@ -376,6 +396,8 @@ export class Simulation {
         this.controls.setValue('sizeVariation', 0.800000);
         this.controls.setValue('compressionForce', 0.060000);
         this.controls.setValue('interpolationFactor', 0.030000);
+        
+        this.restart();
         this.compress();
         break;
     }

@@ -185,14 +185,14 @@ export class Controls {
       // Visual Effects Toggle
       visualEffects: {
         label: 'Visual Style',
-        tooltip: 'Flat = solid, Natural = depth, Glossy = shine, Ethereal = transparent',
+        tooltip: 'Flat = solid, Matte = depth, Glossy = shine',
         value: 2, // Glossy by default
         min: 0,
-        max: 3,
+        max: 2,
         step: 1,
         default: 2,
         isToggle: false,
-        options: ['Flat', 'Natural', 'Glossy', 'Ethereal']
+        options: ['Flat', 'Matte', 'Glossy']
       }
     };
     
@@ -474,7 +474,7 @@ export class Controls {
     // Add additional parameters not in controls
     if (this.simulation) {
       // Visual style name
-      const visualStyleNames = ['Flat', 'Natural', 'Glossy', 'Ethereal'];
+      const visualStyleNames = ['Flat', 'Matte', 'Glossy'];
       values.visualStyleName = visualStyleNames[values.visualEffects] || 'Unknown';
       
       // Spawn color settings
@@ -529,7 +529,7 @@ export class Controls {
           
           // Special formatting for visual effects
           if (key === 'visualEffects') {
-            const visualStyleNames = ['Flat', 'Natural', 'Glossy', 'Ethereal'];
+            const visualStyleNames = ['Flat', 'Matte', 'Glossy'];
             formattedValue = `${visualStyleNames[value] || 'Unknown'} (${value})`;
           } else {
             formattedValue = typeof value === 'number' ? value.toFixed(6) : value;
