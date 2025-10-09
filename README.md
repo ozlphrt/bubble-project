@@ -1,122 +1,205 @@
-# Soap Bubble Simulation
+# Interactive Soap Foam Physics Simulator
 
-An interactive, educational web-based simulation demonstrating the physics of soap bubbles and foam formation. This project showcases real foam physics including Plateau's laws, surface tension, coalescence, and bursting mechanics through interactive visualization.
+An educational, web-based 2D simulation demonstrating the physics of soap bubbles and foam formation with interactive controls and beautiful visualizations.
 
-## 🫧 Features
+![Version](https://img.shields.io/badge/version-v49c12ee-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-- **Real Physics**: Implements surface tension, Plateau's laws, and bubble dynamics
-- **Interactive Controls**: Adjust physics parameters with hover + drag interface
-- **Educational**: Learn foam physics through play and experimentation
-- **Performance**: Handles 500+ bubbles at 60 FPS
-- **Modular Architecture**: Clean, maintainable code ready for 3D expansion
+## 🌟 Features
 
-## 🚀 Quick Start
+### Physics Simulation
+- **Surface Tension Modeling** - Bubbles maintain spherical shapes using Young-Laplace principles
+- **Coalescence Dynamics** - Realistic bubble merging with volume conservation
+- **Plateau Borders** - Triple junctions automatically form 120° angles (honeycomb structure)
+- **Collision Detection** - Spatial partitioning (Quadtree) for efficient O(n log n) performance
+- **Deformable Bubbles** - Bubbles squish and morph when pressed together
+- **Gravity & Friction** - Customizable environmental forces
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/[username]/soap-bubble-simulation.git
-   cd soap-bubble-simulation
-   ```
+### Interactive Controls
+- **Real-time Sliders** - Adjust 14+ physics parameters on the fly
+- **Preset Configurations** - Honeycomb, Pebbles, Rubber Balls, Soap
+- **Visual Styles** - Flat, Matte, Glossy rendering modes
+- **Color Palettes** - 6 beautiful color schemes (Blues, Spectrum, Ocean, Rainbow, Mono, Fire)
+- **Obstacle Drawing** - Draw rotating pipes that bubbles navigate around
+- **Audio Feedback** - Size-adaptive coalescence sounds
 
-2. Open `index.html` in a modern web browser
-
-3. Start experimenting:
-   - Click to add bubbles
-   - Use controls to adjust physics parameters
-   - Watch bubbles form hexagonal patterns under compression
-
-## 🎯 Educational Value
-
-This simulation demonstrates key physics concepts:
-
-- **Plateau's Laws**: Three films meet at 120° angles
-- **Surface Tension**: Minimizes surface area and affects deformation
-- **Coalescence**: Bubbles merge when films rupture
-- **Bursting**: Pressure-based fragmentation into smaller bubbles
-
-## 🛠️ Technology Stack
-
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Graphics**: Canvas 2D API
-- **Physics**: Custom implementation with academic references
-- **Deployment**: GitHub Pages with automated CI/CD
-
-## 📚 Documentation
-
-- [Project Overview & PRD](project-overview-prd.md)
-- [Technical Specifications](technical-specs.md)
-- [Detailed Task List](detailed-task-list.md)
-- [Test Procedures](test-procedures.md)
-- [Git Workflow](git-workflow.md)
-
-## 🧪 Physics Implementation
-
-### Tier 1 (Core Physics)
-- Surface tension modeling with Young-Laplace equation
-- Plateau border visualization (120° angles)
-- Contact detection and deformation
-
-### Tier 2 (Advanced Dynamics)
-- Coalescence with volume conservation
-- Pressure-based bursting mechanics
-- Fragmentation into smaller bubbles
-
-### Tier 3 (Enhanced Effects)
-- Marangoni effect (surface tension gradients)
-- Liquid drainage simulation
-- Gas pressure calculations
+### Visual Features
+- **Multiple Rendering Styles** - From flat solid colors to glossy gradients
+- **Color Palettes** - Vibrant, themed color schemes
+- **Performance Optimized** - Runs at 60 FPS with 500+ bubbles
+- **Mobile Responsive** - Touch controls for tablets and phones
+- **Auto-hide UI** - Panels slide away for unobstructed viewing
 
 ## 🎮 Controls
 
-- **Mouse Click**: Add bubble at cursor position
-- **Hover + Drag**: Adjust physics parameters
-- **Action Buttons**: Add bubbles, compress, shake, reset
+### Basic Interactions
+- **Left-click + drag** - Drag and throw bubbles
+- **Mouse hover (edges)** - Reveal control panels
+- **Pin button** (📌) - Toggle auto-hide panels
 
-## 📊 Performance
+### Bottom-Right Buttons
+- **SHUFFLE** ⚡ - Apply compression force to pack bubbles
+- **RESTART** 🔄 - Restart simulation with current settings
+- **DEFAULT** ⚙️ - Reset all controls to default values
+- **OBSTACLES** 🚧 - Toggle obstacle drawing mode
+- **SOUND** 🔊 - Toggle audio effects
 
-- **Target**: 60 FPS with 500 bubbles
-- **Optimization**: Quadtree spatial partitioning
-- **Monitoring**: Real-time FPS and performance stats
+### Obstacle Mode Controls
+When OBSTACLES mode is enabled:
+- **Click + drag** - Draw continuous rotating pipes
+- **Ctrl + click pivot** - Move rotation pivot point along pipe
+- **Ctrl + right-click pivot** - Adjust rotation angle (distance = amplitude)
+- **Right-click** or **Shift+click** - Remove obstacle/pipe
 
-## 🔬 Research References
+### Physics Parameters
 
-This simulation is based on established physics research:
+#### Bubble Behavior
+- **Separation** - Distance between bubble centers
+- **Separation Force** - How strongly bubbles push apart
+- **Collision Strength** - Bounciness of collisions
+- **Wall Bounce** - Energy retention on wall impacts
 
-- Plateau, J. (1873). "Statique expérimentale et théorique des liquides"
-- Weaire, D., & Hutzler, S. (1999). "The Physics of Foams"
-- Young, T. (1805). "An Essay on the Cohesion of Fluids"
+#### Shape & Tension
+- **Morphing Strength** - How much bubbles deform when pressed
+- **Morphing Threshold** - Distance at which deformation starts
+- **Surface Tension** - Force maintaining round shapes
+- **Plateau Force** - Strength of 120° angle formation
 
-## 🤝 Contributing
+#### Environment
+- **Gravity** - Downward pull on bubbles
+- **Friction** - Energy loss from air resistance
+- **Coalescence Rate** - How quickly bubbles merge
 
-This is an educational project. Contributions are welcome:
+#### Appearance
+- **Bubble Count** - Total number of bubbles (10-1000)
+- **Average Size** - Base bubble radius
+- **Size Variation** - Diversity in bubble sizes
 
-1. Fork the repository
-2. Create a feature branch
-3. Follow the coding standards
-4. Add tests for new features
-5. Submit a pull request
+### Spawn Color Options
+Click the faucet button (💧) to choose:
+- **Custom Color** - Pick any color from color wheel
+- **Different Palette** - Select from available palettes
+- **Current Palette** - Use active display palette
 
-## 📄 License
+## 🎨 Presets
 
-This project is open source and available under the [MIT License](LICENSE).
+### Honeycomb 🍯
+Large uniform bubbles forming perfect hexagonal patterns with Plateau borders. Uses Fire palette display with Blues spawning.
+
+### Pebbles 🪨
+Medium-sized varied bubbles with gentle collisions. Mono (grayscale) palette with Ocean spawns.
+
+### Rubber Balls 🎾
+Dense pack of varied-size bubbles with high gravity and bounciness. Rainbow display with Ocean spawns. Deep bass audio.
+
+### Soap 🫧
+Realistic soap bubble behavior with high surface tension and varied sizes. Blues display with Fire spawns.
+
+## 🔧 Technical Details
+
+### Architecture
+- **Modular Design** - Separated concerns (Physics, Renderer, Controls, Interactions, Audio, Obstacles)
+- **ES6 Modules** - Modern JavaScript with import/export
+- **Performance Optimized** - Quadtree spatial partitioning, gradient rendering optimization
+- **No Dependencies** - Pure vanilla JavaScript, HTML5 Canvas, Web Audio API
+
+### Performance
+- **Target**: 60 FPS with 500+ bubbles
+- **Optimization**: Spatial partitioning reduces collision detection from O(n²) to O(n log n)
+- **Monitoring**: Real-time FPS counter and bubble count display
+
+### Browser Support
+- Chrome/Edge (recommended)
+- Firefox
+- Safari
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## 📁 Project Structure
+
+```
+bubble-project/
+├── index.html              # Main HTML file
+├── src/
+│   ├── main.js            # Simulation orchestrator
+│   └── modules/
+│       ├── bubble.js      # Bubble class and color palettes
+│       ├── physics.js     # Physics engine (collisions, merging, forces)
+│       ├── renderer.js    # Canvas rendering and UI generation
+│       ├── controls.js    # Interactive controls and parameter management
+│       ├── interactions.js # Mouse/touch event handling
+│       ├── tooltip.js     # Custom tooltip system
+│       ├── obstacles.js   # Rotating obstacle pipes
+│       ├── audio.js       # Sound effects and audio management
+│       └── spatial.js     # Quadtree spatial partitioning
+├── archieve/              # Documentation and specs
+├── external model/        # 3D assets (future use)
+└── README.md             # This file
+```
+
+## 🚀 Getting Started
+
+### Running Locally
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/ozlphrt/bubble-project.git
+   cd bubble-project
+   ```
+
+2. **Start a local server**
+   ```bash
+   # Using Python 3
+   python -m http.server 3001
+   
+   # Or using Node.js
+   npx http-server -p 3001
+   ```
+
+3. **Open in browser**
+   ```
+   http://localhost:3001
+   ```
+
+### GitHub Pages
+Live demo: `https://ozlphrt.github.io/bubble-project/`
 
 ## 🎓 Educational Use
 
-Perfect for:
-- Physics education (surface tension, fluid dynamics)
-- Interactive demonstrations
-- Student projects and research
-- Understanding emergent behavior in complex systems
+This simulator demonstrates:
+- **Plateau's Laws** - Soap films meet at 120° angles
+- **Young-Laplace Equation** - Pressure difference across curved interfaces
+- **Surface Tension** - Minimization of surface energy
+- **Coalescence** - Bubble merging with conservation laws
+- **Emergent Behavior** - Complex patterns from simple rules
 
-## 🔮 Future Roadmap
+## 🎯 Future Enhancements
 
-- **Phase 2**: 3D simulation with WebGL
-- **Enhancements**: VR support, multi-user collaboration
-- **Advanced Physics**: Turbulence, temperature effects
+- [ ] 3D visualization with Three.js/WebGL
+- [ ] Additional audio layers (collisions, ambient)
+- [ ] Save/load custom configurations
+- [ ] Video recording of simulations
+- [ ] Advanced physics (Marangoni effects, drainage)
+- [ ] VR/AR support
+
+## 📝 Version History
+
+- **v49c12ee** (Current) - Audio system, obstacle pipes, improved presets
+- **v680e8e2** - Coalescence audio, palette cleanup
+- **v65f9b1a** - Preset updates, visual styles
+- **Earlier** - Core physics, UI, performance optimizations
+
+## 👥 Contributing
+
+This is an educational project. Suggestions and improvements welcome!
+
+## 📄 License
+
+MIT License - See project documentation for details.
+
+## 🙏 Acknowledgments
+
+Built with inspiration from real soap bubble physics and foam dynamics research.
 
 ---
 
-**Live Demo**: [https://[username].github.io/soap-bubble-simulation/](https://[username].github.io/soap-bubble-simulation/)
-
-**Status**: Phase 1 (2D Simulation) - In Development
-
+**Current Version**: v49c12ee | **Status**: Active Development | **Performance**: 60 FPS @ 500+ bubbles

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modular Version</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0a0a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #canvas {
+            border: 1px solid #333;
+            background: #0a0a0a;
+        }
+        .controls {
+            margin: 10px 0;
+        }
+        button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Modular Version</h1>
+    <div class="controls">
+        <button id="compress">Compress</button>
+        <button id="reset">Reset</button>
+        <button id="addBubble">Add Bubble</button>
+    </div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <div id="status">Loading...</div>
+
+    <script type="module">
+        console.log('Starting modular test...');
+        
+        try {
+            // Test if modules can be imported
+            const { Bubble } = await import('./src/modules/bubble.js');
+            console.log('Bubble module loaded successfully');
+            
+            const { Physics } = await import('./src/modules/physics.js');
+            console.log('Physics module loaded successfully');
+            
+            const { Renderer } = await import('./src/modules/renderer.js');
+            console.log('Renderer module loaded successfully');
+            
+            const { Interactions } = await import('./src/modules/interactions.js');
+            console.log('Interactions module loaded successfully');
+            
+            // Initialize simple test
+            const canvas = document.getElementById('canvas');
+            const status = document.getElementById('status');
+            
+            const bubbles = [];
+            const physics = new Physics();
+            const renderer = new Renderer(canvas);
+            
+            // Create a few test bubbles
+            for (let i = 0; i < 5; i++) {
+                bubbles.push(new Bubble(
+                    Math.random() * 700 + 50,
+                    Math.random() * 500 + 50,
+                    20 + Math.random() * 30
+                ));
+            }
+            
+            // Simple animation loop
+            function animate() {
+                // Update physics
+                physics.updatePositions(bubbles, 16);
+                physics.detectCollisions(bubbles);
+                
+                // Render
+                renderer.clear();
+                renderer.renderBubbles(bubbles, physics);
+                
+                // Update status
+                status.textContent = `Bubbles: ${bubbles.length}`;
+                
+                requestAnimationFrame(animate);
+            }
+            
+            // Button handlers
+            document.getElementById('compress').onclick = () => {
+                physics.applyCompressionForces(bubbles, 0.01, canvas);
+            };
+            
+            document.getElementById('reset').onclick = () => {
+                bubbles.length = 0;
+                for (let i = 0; i < 5; i++) {
+                    bubbles.push(new Bubble(
+                        Math.random() * 700 + 50,
+                        Math.random() * 500 + 50,
+                        20 + Math.random() * 30
+                    ));
+                }
+            };
+            
+            document.getElementById('addBubble').onclick = () => {
+                bubbles.push(new Bubble(
+                    Math.random() * 700 + 50,
+                    Math.random() * 500 + 50,
+                    20 + Math.random() * 30
+                ));
+            };
+            
+            status.textContent = 'All modules loaded successfully!';
+            animate();
+            
+        } catch (error) {
+            console.error('Error loading modules:', error);
+            document.getElementById('status').textContent = `Error: ${error.message}`;
+        }
+    </script>
+</body>
+</html>
+
