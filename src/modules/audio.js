@@ -62,27 +62,55 @@ export class AudioManager {
   }
   
   /**
-   * Play coalescence sound - sharp burst click with bass emphasis for larger bubbles
+   * Play coalescence sound based on current preset and bubble characteristics
    * @param {number} size1 - Radius of first bubble
    * @param {number} size2 - Radius of second bubble
    * @param {number} resultSize - Radius of merged bubble
+   * @param {string} currentPreset - Current active preset ('honeycomb', 'pebbles', 'tight-pack', 'soap')
    */
-  playCoalescenceSound(size1, size2, resultSize) {
+  playCoalescenceSound(size1, size2, resultSize, currentPreset = 'default') {
     if (!this.enabled || !this.audioContext) return;
     
     this.resume();
     
     const now = this.audioContext.currentTime;
     
-    // Determine sound character based on bubble size
-    const isLargeBubble = resultSize > 30; // Rubber balls and large soap bubbles
-    
-    if (isLargeBubble) {
-      // LARGE BUBBLES: Deep bass thump for rubber balls
-      this.playLargeBubbleSound(resultSize, now);
-    } else {
-      // SMALL/MEDIUM BUBBLES: Crisp click (original sound, but adjusted)
-      this.playSmallBubbleSound(resultSize, now);
+    // Play preset-specific sounds
+    switch (currentPreset) {
+      case 'honeycomb':
+        // Bubble wrap pop sound
+        this.playBubbleWrapSound(resultSize, now);
+        break;
+        
+      case 'pebbles':
+        // Pebble click sound
+        this.playPebbleClickSound(resultSize, now);
+        break;
+        
+      case 'tight-pack': // Rubber Balls
+        // Duffled, bassy, rubbery sound
+        this.playRubberBallSound(resultSize, now);
+        break;
+        
+      case 'soap':
+        // Very short pop-up sound
+        this.playSoapPopSound(resultSize, now);
+        break;
+        
+      case 'rubber-pearls':
+        // Billiard balls sound
+        this.playBilliardSound(resultSize, now);
+        break;
+        
+      default:
+        // Fallback to size-based sound
+        const isLargeBubble = resultSize > 30;
+        if (isLargeBubble) {
+          this.playLargeBubbleSound(resultSize, now);
+        } else {
+          this.playSmallBubbleSound(resultSize, now);
+        }
+        break;
     }
   }
   
@@ -138,7 +166,180 @@ export class AudioManager {
   }
   
   /**
-   * Play crisp click for small/medium bubbles
+   * Play bubble wrap pop sound for honeycomb preset
+   */
+  playBubbleWrapSound(resultSize, now) {
+    // Create a short, sharp pop with slight metallic ring
+    const oscillator = this.audioContext.createOscillator();
+    oscillator.type = 'square';
+    
+    // Higher frequency for the "pop" character
+    const baseFrequency = 800 + (200 - resultSize) * 5;
+    const frequency = Math.max(400, Math.min(1200, baseFrequency));
+    
+    oscillator.frequency.setValueAtTime(frequency, now);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.3, now + 0.08);
+    
+    // Sharp envelope for pop
+    const gainNode = this.audioContext.createGain();
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.4, now + 0.002);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+    
+    // Add slight metallic resonance
+    const filter = this.audioContext.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(frequency * 1.5, now);
+    filter.Q.value = 3;
+    
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(this.masterGain);
+    
+    oscillator.start(now);
+    oscillator.stop(now + 0.08);
+  }
+  
+  /**
+   * Play pebble click sound for pebbles preset
+   */
+  playPebbleClickSound(resultSize, now) {
+    // Create a sharp, dry click like pebbles hitting
+    const bufferSize = this.audioContext.sampleRate * 0.02; // 20ms buffer
+    const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    // Generate a sharp click with slight low-end emphasis
+    for (let i = 0; i < bufferSize; i++) {
+      const t = i / this.audioContext.sampleRate;
+      const decay = Math.exp(-t * 100); // Very fast decay
+      const click = (Math.random() * 2 - 1) * decay;
+      data[i] = click;
+    }
+    
+    const noiseSource = this.audioContext.createBufferSource();
+    noiseSource.buffer = buffer;
+    
+    // High-pass filter for sharp click
+    const highpass = this.audioContext.createBiquadFilter();
+    highpass.type = 'highpass';
+    highpass.frequency.setValueAtTime(1200, now);
+    highpass.Q.value = 1;
+    
+    // Low-pass filter to add slight warmth
+    const lowpass = this.audioContext.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.setValueAtTime(3000, now);
+    lowpass.Q.value = 0.5;
+    
+    noiseSource.connect(highpass);
+    highpass.connect(lowpass);
+    lowpass.connect(this.masterGain);
+    
+    noiseSource.start(now);
+  }
+  
+  /**
+   * Play rubber ball sound for tight-pack preset
+   */
+  playRubberBallSound(resultSize, now) {
+    // Create a duffled, bassy, rubbery sound
+    const oscillator = this.audioContext.createOscillator();
+    oscillator.type = 'sine';
+    
+    // Lower frequency for rubbery feel
+    const baseFrequency = 80 + (40 - resultSize) * 2;
+    const frequency = Math.max(60, Math.min(150, baseFrequency));
+    
+    oscillator.frequency.setValueAtTime(frequency, now);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.4, now + 0.15);
+    
+    // Duffled envelope
+    const gainNode = this.audioContext.createGain();
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.5, now + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    
+    // Heavy low-pass filter for muffled sound
+    const lowpass = this.audioContext.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.setValueAtTime(200, now);
+    lowpass.Q.value = 1;
+    
+    oscillator.connect(lowpass);
+    lowpass.connect(gainNode);
+    gainNode.connect(this.masterGain);
+    
+    oscillator.start(now);
+    oscillator.stop(now + 0.2);
+  }
+  
+  /**
+   * Play soap pop sound for soap preset
+   */
+  playSoapPopSound(resultSize, now) {
+    // Create a very short, crisp pop
+    const oscillator = this.audioContext.createOscillator();
+    oscillator.type = 'sine';
+    
+    // High frequency for crisp pop
+    const baseFrequency = 1000 + (300 - resultSize) * 8;
+    const frequency = Math.max(600, Math.min(1500, baseFrequency));
+    
+    oscillator.frequency.setValueAtTime(frequency, now);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.2, now + 0.03);
+    
+    // Very short envelope
+    const gainNode = this.audioContext.createGain();
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.3, now + 0.001);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.025);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(this.masterGain);
+    
+    oscillator.start(now);
+    oscillator.stop(now + 0.03);
+  }
+  
+  /**
+   * Play billiard ball sound for rubber pearls preset
+   */
+  playBilliardSound(resultSize, now) {
+    // Create a solid, resonant "clack" like billiard balls
+    const oscillator = this.audioContext.createOscillator();
+    oscillator.type = 'sine';
+    
+    // Mid-range frequency for solid clack
+    const baseFrequency = 400 + (100 - resultSize) * 3;
+    const frequency = Math.max(200, Math.min(800, baseFrequency));
+    
+    oscillator.frequency.setValueAtTime(frequency, now);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.6, now + 0.1);
+    
+    // Solid envelope with slight sustain
+    const gainNode = this.audioContext.createGain();
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.4, now + 0.005);
+    gainNode.gain.linearRampToValueAtTime(0.3, now + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+    
+    // Band-pass filter for resonant clack
+    const filter = this.audioContext.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(frequency, now);
+    filter.Q.value = 2;
+    
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(this.masterGain);
+    
+    oscillator.start(now);
+    oscillator.stop(now + 0.15);
+  }
+
+  /**
+   * Play crisp click for small/medium bubbles (fallback)
    */
   playSmallBubbleSound(resultSize, now) {
     // Create noise burst for click sound

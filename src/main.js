@@ -13,6 +13,7 @@ export class Simulation {
     this.ctx = this.canvas.getContext('2d');
     this.bubbles = [];
     this.physics = new Physics();
+    this.currentPreset = 'default'; // Track current preset for audio
     this.renderer = new Renderer(this.canvas, this.ctx);
     this.renderer.simulation = this; // Pass simulation reference for spatial manager updates
     this.interactions = new Interactions(this.canvas, this); // Pass 'this' for callbacks
@@ -269,6 +270,7 @@ export class Simulation {
     switch(presetName) {
       case 'honeycomb':
         // Honeycomb formation with hexagonal deformation and minimal pinching
+        this.currentPreset = 'honeycomb';
         this.controls.setValue('targetDist', 0.880000);
         this.controls.setValue('separation', 0.320000);
         this.controls.setValue('collisionStrength', 0.045000);
@@ -299,6 +301,7 @@ export class Simulation {
         
       case 'pebbles':
         // Small, compact bubbles like smooth pebbles
+        this.currentPreset = 'pebbles';
         this.controls.setValue('targetDist', 1.012430);
         this.controls.setValue('separation', 0.116645);
         this.controls.setValue('collisionStrength', 0.030000);
@@ -328,6 +331,7 @@ export class Simulation {
         
       case 'tight-pack':
         // Rubber balls - bouncy dense pack with minimal deformation
+        this.currentPreset = 'tight-pack';
         this.controls.setValue('targetDist', 0.866543);
         this.controls.setValue('separation', 0.406273);
         this.controls.setValue('collisionStrength', 0.080000);
@@ -356,6 +360,7 @@ export class Simulation {
         
       case 'soap':
         // Realistic soap bubble behavior
+        this.currentPreset = 'soap';
         this.controls.setValue('targetDist', 0.862252);
         this.controls.setValue('separation', 0.180000);
         this.controls.setValue('collisionStrength', 0.030000);
@@ -468,7 +473,7 @@ export class Simulation {
     // Process coalescence (bubble merging) with canvas for spawning new bubbles
     const coalescenceRate = this.controls.getValue('coalescenceRate') ?? 0.01;
     const audioCallback = (size1, size2, resultSize) => {
-      this.audioManager.playCoalescenceSound(size1, size2, resultSize);
+      this.audioManager.playCoalescenceSound(size1, size2, resultSize, this.currentPreset);
     };
     this.bubbles = this.physics.processCoalescence(this.bubbles, coalescenceRate, this.canvas, audioCallback);
     
