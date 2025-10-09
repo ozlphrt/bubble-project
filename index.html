@@ -324,16 +324,39 @@ Ctrl+right-click: adjust rotation angle">🚧 OBSTACLES</button>
         <button id="preset-soap" class="preset-button">Soap</button>
         </div>
 
-    <script type="module" src="src/main.js?v=bba8520"></script>
+    <script type="module" src="src/main.js?v=2fa391a"></script>
     
     <!-- Test if modules are loading -->
     <script type="module">
-        console.log('🔍 Testing module loading...');
+        console.log('🔍 Testing all module loading...');
+        
+        const modules = [
+            './src/modules/audio.js',
+            './src/modules/bubble.js', 
+            './src/modules/controls.js',
+            './src/modules/interactions.js',
+            './src/modules/obstacles.js',
+            './src/modules/physics.js',
+            './src/modules/renderer.js',
+            './src/modules/spatial.js',
+            './src/modules/tooltip.js'
+        ];
+        
+        for (const modulePath of modules) {
+            try {
+                const module = await import(modulePath);
+                console.log(`✅ ${modulePath} loaded successfully:`, Object.keys(module));
+            } catch (error) {
+                console.error(`❌ Failed to load ${modulePath}:`, error);
+            }
+        }
+        
+        // Test main simulation
         try {
-            const { AudioManager } = await import('./src/modules/audio.js');
-            console.log('✅ AudioManager loaded successfully:', AudioManager);
+            const { Simulation } = await import('./src/main.js');
+            console.log('✅ Main Simulation loaded successfully:', Simulation);
         } catch (error) {
-            console.error('❌ Failed to load AudioManager:', error);
+            console.error('❌ Failed to load main Simulation:', error);
         }
     </script>
     
