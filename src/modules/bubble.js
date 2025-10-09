@@ -17,6 +17,10 @@
  * from the working prototype and enhanced with proper documentation.
  */
 export class Bubble {
+  // Static gradient cache to avoid recreating gradients
+  static gradientCache = new Map();
+  static maxCacheSize = 100;
+  
   /**
    * Create a bubble
    * @param {number} x - X position in pixels
@@ -91,7 +95,7 @@ export class Bubble {
     const gravity = controls?.getValue('gravity') || 0;
     const massScale = Math.sqrt(this.mass / (Math.PI * 20 * 20)); // Normalize to radius=20
     const gravityAccel = gravity / Math.max(0.5, massScale); // Larger bubbles fall slower due to air resistance
-    this.vy += gravityAccel * dt * 0.1; // Much smaller scale for reasonable effect
+    this.vy += gravityAccel * dt * 0.03; // Reduced from 0.1 to 0.03 for gentler gravity
     
     // Apply surface tension force to radius with safety checks
     const radiusChange = this.surfaceTensionForce * dt * 15.0;
@@ -140,9 +144,11 @@ export class Bubble {
       this.y = canvas.height - this.radius;
     }
 
-    // Dynamic damping
-    this.vx *= damping;
-    this.vy *= damping;
+    // Dynamic damping (inverted for intuitive slider: higher = more friction)
+    // damping slider is 0.001-0.02, we need to convert to velocity retention (0.98-0.999)
+    const velocityRetention = 1.0 - damping;
+    this.vx *= velocityRetention;
+    this.vy *= velocityRetention;
     this.age++;
   }
   
@@ -205,15 +211,19 @@ export class Bubble {
         'rgb(240, 248, 255)',  // #f0f8ff
         'rgb(255, 255, 255)'   // #ffffff
       ],
-      'cherry': [
-        'rgb(220, 20, 60)',    // #DC143C - Crimson
-        'rgb(255, 0, 127)',    // #FF007F - Rose
-        'rgb(199, 21, 133)',   // #C71585 - Medium violet red
-        'rgb(255, 20, 147)',   // #FF1493 - Deep pink
-        'rgb(255, 105, 180)',  // #FF69B4 - Hot pink
-        'rgb(219, 112, 147)',  // #DB7093 - Pale violet red
-        'rgb(255, 182, 193)',  // #FFB6C1 - Light pink
-        'rgb(176, 48, 96)'     // #B03060 - Maroon
+      'spectrum': [
+        'rgb(255, 0, 0)',      // #FF0000 - Red
+        'rgb(255, 127, 0)',    // #FF7F00 - Orange
+        'rgb(255, 255, 0)',    // #FFFF00 - Yellow
+        'rgb(127, 255, 0)',    // #7FFF00 - Chartreuse
+        'rgb(0, 255, 0)',      // #00FF00 - Green
+        'rgb(0, 255, 127)',    // #00FF7F - Spring green
+        'rgb(0, 255, 255)',    // #00FFFF - Cyan
+        'rgb(0, 127, 255)',    // #007FFF - Azure
+        'rgb(0, 0, 255)',      // #0000FF - Blue
+        'rgb(127, 0, 255)',    // #7F00FF - Violet
+        'rgb(255, 0, 255)',    // #FF00FF - Magenta
+        'rgb(255, 0, 127)'     // #FF007F - Rose
       ],
       'neon': [
         'rgb(255, 0, 255)',    // #FF00FF - Magenta
@@ -244,16 +254,6 @@ export class Bubble {
         'rgb(70, 130, 180)',   // #4682B4 - Steel blue
         'rgb(0, 105, 148)',    // #006994 - Strong blue
         'rgb(25, 25, 112)'     // #191970 - Midnight blue
-      ],
-      'toxic': [
-        'rgb(0, 255, 0)',      // #00FF00 - Lime
-        'rgb(127, 255, 0)',    // #7FFF00 - Chartreuse
-        'rgb(50, 205, 50)',    // #32CD32 - Lime green
-        'rgb(0, 250, 154)',    // #00FA9A - Medium spring green
-        'rgb(173, 255, 47)',   // #ADFF2F - Green yellow
-        'rgb(124, 252, 0)',    // #7CFC00 - Lawn green
-        'rgb(0, 255, 127)',    // #00FF7F - Spring green
-        'rgb(34, 139, 34)'     // #228B22 - Forest green
       ],
       'rainbow': [
         'rgb(255, 107, 107)',  // #FF6B6B (Red)
@@ -307,7 +307,7 @@ export class Bubble {
    * @param {CanvasRenderingContext2D} ctx - Canvas context
    * @param {Array<Bubble>} contacts - Bubbles in contact for deformation
    */
-  draw(ctx, contacts, controls = null) {
+  draw(ctx, contacts, controls = null, performanceStats = null) {
     // Safety check: don't draw bubbles with invalid radius
     if (this.radius <= 0) {
       console.warn('Attempted to draw bubble with non-positive radius:', this.radius);
@@ -409,24 +409,72 @@ export class Bubble {
     }
     
     // Enhanced bubble rendering with visual effects
-    this.drawBubbleBody(ctx, displayRadius);
+    this.drawBubbleBody(ctx, displayRadius, controls, performanceStats);
     
-    // Only draw visual effects if enabled
-    const visualEffectsEnabled = controls?.getValue('visualEffects') ?? 1;
-    if (visualEffectsEnabled >= 0.5) {
+    // Draw white highlight in Glossy (2), Ethereal (3), and Ghost (4) modes
+    const visualStyle = controls?.getValue('visualEffects') ?? 2;
+    if (visualStyle >= 2) {
       this.drawBubbleHighlight(ctx, displayRadius);
     }
   }
 
   /**
+   * Get or create a cached gradient
+   */
+  static getCachedGradient(ctx, x, y, radius, color, visualStyle, opacity, performanceStats = null) {
+    const cacheKey = `${Math.round(x/10)}_${Math.round(y/10)}_${Math.round(radius)}_${color}_${visualStyle}_${opacity}`;
+    
+    if (Bubble.gradientCache.has(cacheKey)) {
+      if (performanceStats) {
+        performanceStats.gradientCacheHits++;
+      }
+      return Bubble.gradientCache.get(cacheKey);
+    }
+    
+    if (performanceStats) {
+      performanceStats.gradientCreations++;
+    }
+    
+    // Create new gradient
+    let gradient;
+    if (visualStyle === 0) {
+      // FLAT: No gradient needed
+      return null;
+    } else if (visualStyle === 1) {
+      // NATURAL: Centered gradient
+      gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    } else {
+      // GLOSSY/ETHEREAL: Offset gradient
+      gradient = ctx.createRadialGradient(x - radius * 0.3, y - radius * 0.3, 0, x, y, radius);
+    }
+    
+    // Add color stops based on visual style
+    if (visualStyle === 1) {
+      gradient.addColorStop(0, `rgba(${color}, ${opacity/255})`);
+      gradient.addColorStop(0.6, `rgba(${color}, ${(opacity*0.7)/255})`);
+      gradient.addColorStop(1, `rgba(${color}, ${(opacity*0.4)/255})`);
+    } else {
+      gradient.addColorStop(0, `rgba(${color}, ${(opacity*0.9)/255})`);
+      gradient.addColorStop(0.6, `rgba(${color}, ${(opacity*0.6)/255})`);
+      gradient.addColorStop(1, `rgba(${color}, ${(opacity*0.3)/255})`);
+    }
+    
+    // Cache the gradient (with size limit)
+    if (Bubble.gradientCache.size >= Bubble.maxCacheSize) {
+      const firstKey = Bubble.gradientCache.keys().next().value;
+      Bubble.gradientCache.delete(firstKey);
+    }
+    Bubble.gradientCache.set(cacheKey, gradient);
+    
+    return gradient;
+  }
+
+  /**
    * Draw the main bubble body with size-based colors and transparency
    */
-  drawBubbleBody(ctx, displayRadius) {
-    // Create radial gradient for glassmorphism effect
-    const gradient = ctx.createRadialGradient(
-      this.x - displayRadius * 0.3, this.y - displayRadius * 0.3, 0,
-      this.x, this.y, displayRadius
-    );
+  drawBubbleBody(ctx, displayRadius, controls = null, performanceStats = null) {
+    // Check visual style: 0 = Flat, 1 = Natural, 2 = Glossy, 3 = Ethereal
+    const visualStyle = controls?.getValue('visualEffects') ?? 2;
     
     // Convert RGB color to RGBA with opacity (no color modification to preserve true colors)
     const colorWithOpacity = (opacity) => {
@@ -444,12 +492,37 @@ export class Bubble {
       return this.color + opacity.toString(16).padStart(2, '0');
     };
     
-    // Enhanced gradient with better transparency
-    gradient.addColorStop(0, colorWithOpacity(80)); // Brighter center
-    gradient.addColorStop(0.6, colorWithOpacity(40)); // Transparent middle
-    gradient.addColorStop(1, colorWithOpacity(20)); // Very transparent edge
+    // Extract RGB values for gradient caching
+    let r, g, b;
+    if (this.color.startsWith('rgb(')) {
+      const rgbMatch = this.color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (rgbMatch) {
+        r = parseInt(rgbMatch[1]);
+        g = parseInt(rgbMatch[2]);
+        b = parseInt(rgbMatch[3]);
+      } else {
+        r = g = b = 128; // fallback
+      }
+    } else {
+      r = g = b = 128; // fallback
+    }
     
-    ctx.fillStyle = gradient;
+    if (visualStyle === 0) {
+      // FLAT: Solid flat color (no gradient, very opaque)
+      ctx.fillStyle = colorWithOpacity(240); // Nearly opaque (240/255 ≈ 94% opacity)
+    } else {
+      // Use cached gradient for NATURAL, GLOSSY, and ETHEREAL styles
+      const opacity = visualStyle === 1 ? 200 : (visualStyle === 2 ? 180 : 80);
+      const gradient = Bubble.getCachedGradient(ctx, this.x, this.y, displayRadius, `${r}, ${g}, ${b}`, visualStyle, opacity, performanceStats);
+      
+      if (gradient) {
+        ctx.fillStyle = gradient;
+      } else {
+        // Fallback to direct color if gradient creation failed
+        ctx.fillStyle = colorWithOpacity(opacity);
+      }
+    }
+    
     ctx.fill();
   }
 
@@ -564,4 +637,4 @@ export class Bubble {
 Bubble.nextId = 0;
 
 // Static current palette
-Bubble.currentPalette = 'blues';
+Bubble.currentPalette = 'rainbow';

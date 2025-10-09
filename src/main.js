@@ -12,13 +12,25 @@ export class Simulation {
     this.bubbles = [];
     this.physics = new Physics();
     this.renderer = new Renderer(this.canvas, this.ctx);
+    this.renderer.simulation = this; // Pass simulation reference for spatial manager updates
     this.interactions = new Interactions(this.canvas, this); // Pass 'this' for callbacks
-    this.controls = new Controls();
+    this.controls = new Controls(this);
     this.tooltipManager = new TooltipManager();
+    
+    // Initialize spatial partitioning for performance optimization
+    this.physics.initializeSpatial(this.canvas.width, this.canvas.height);
 
     this.lastFrameTime = performance.now();
     this.fps = 0;
     this.frameTimes = [];
+    
+    // Performance monitoring
+    this.performanceStats = {
+      collisionChecks: 0,
+      gradientCreations: 0,
+      gradientCacheHits: 0,
+      lastStatsTime: performance.now()
+    };
 
     this.compressionActive = false;
     this.compressionStartTime = 0;
@@ -70,6 +82,9 @@ export class Simulation {
     this.interactions.initializePaletteButtons();
     this.interactions.initializeFaucetButton();
     
+    // Schedule initial auto-hide after 3 seconds
+    this.interactions.scheduleInitialAutoHide();
+    
     this.animate();
   }
 
@@ -103,28 +118,34 @@ export class Simulation {
     }
     
     // Weighted size distribution for better visual balance
+    // Scale the multiplier ranges by sizeVariation
     const random = Math.random() * 100;
     
     let sizeMultiplier;
     if (random < 65) {
-      // Small bubbles: 65% of bubbles, 0.3-0.8x base size
-      sizeMultiplier = 0.3 + Math.random() * 0.5;
+      // Small bubbles: 65% of bubbles
+      // At sizeVariation=0: all 1.0x, at sizeVariation=1: 0.3-0.8x
+      const minMult = 1.0 - (0.7 * sizeVariation); // 1.0 → 0.3
+      const maxMult = 1.0 - (0.2 * sizeVariation); // 1.0 → 0.8
+      sizeMultiplier = minMult + Math.random() * (maxMult - minMult);
     } else if (random < 90) {
-      // Medium bubbles: 25% of bubbles, 0.8-1.5x base size
-      sizeMultiplier = 0.8 + Math.random() * 0.7;
+      // Medium bubbles: 25% of bubbles
+      // At sizeVariation=0: all 1.0x, at sizeVariation=1: 0.8-1.5x
+      const minMult = 1.0 - (0.2 * sizeVariation); // 1.0 → 0.8
+      const maxMult = 1.0 + (0.5 * sizeVariation); // 1.0 → 1.5
+      sizeMultiplier = minMult + Math.random() * (maxMult - minMult);
     } else {
-      // Large bubbles: 10% of bubbles, 1.5-3.0x base size
-      sizeMultiplier = 1.5 + Math.random() * 1.5;
+      // Large bubbles: 10% of bubbles
+      // At sizeVariation=0: all 1.0x, at sizeVariation=1: 1.5-3.0x
+      const minMult = 1.0 + (0.5 * sizeVariation); // 1.0 → 1.5
+      const maxMult = 1.0 + (2.0 * sizeVariation); // 1.0 → 3.0
+      sizeMultiplier = minMult + Math.random() * (maxMult - minMult);
     }
     
-    // Apply size variation to the category
-    const categorySize = baseSize * sizeMultiplier;
-    const variationRange = categorySize * sizeVariation * 0.3; // Reduced variation within categories
-    const randomVariation = (Math.random() - 0.5) * 2; // -1 to 1
-    const finalSize = categorySize + (randomVariation * variationRange);
+    const finalSize = baseSize * sizeMultiplier;
     
     // Ensure minimum size - prevent tiny "nail" bubbles
-    return Math.max(finalSize, this.targetRadius * 0.3); // Increased from 0.1 to 0.3
+    return Math.max(finalSize, this.targetRadius * 0.3);
   }
 
   // Update existing bubble sizes based on current size controls
@@ -145,26 +166,28 @@ export class Simulation {
         newRadius = baseSize;
       } else {
         sameSize = false;
-        // Weighted size distribution for better visual balance
+        // Weighted size distribution scaled by sizeVariation
         const random = Math.random() * 100;
         
         let sizeMultiplier;
         if (random < 65) {
-          // Small bubbles: 65% of bubbles, 0.3-0.8x base size
-          sizeMultiplier = 0.3 + Math.random() * 0.5;
+          // Small bubbles: 65% of bubbles
+          const minMult = 1.0 - (0.7 * sizeVariation);
+          const maxMult = 1.0 - (0.2 * sizeVariation);
+          sizeMultiplier = minMult + Math.random() * (maxMult - minMult);
         } else if (random < 90) {
-          // Medium bubbles: 25% of bubbles, 0.8-1.5x base size
-          sizeMultiplier = 0.8 + Math.random() * 0.7;
+          // Medium bubbles: 25% of bubbles
+          const minMult = 1.0 - (0.2 * sizeVariation);
+          const maxMult = 1.0 + (0.5 * sizeVariation);
+          sizeMultiplier = minMult + Math.random() * (maxMult - minMult);
         } else {
-          // Large bubbles: 10% of bubbles, 1.5-3.0x base size
-          sizeMultiplier = 1.5 + Math.random() * 1.5;
+          // Large bubbles: 10% of bubbles
+          const minMult = 1.0 + (0.5 * sizeVariation);
+          const maxMult = 1.0 + (2.0 * sizeVariation);
+          sizeMultiplier = minMult + Math.random() * (maxMult - minMult);
         }
         
-        // Apply size variation to the category
-        const categorySize = baseSize * sizeMultiplier;
-        const variationRange = categorySize * sizeVariation * 0.3; // Reduced variation within categories
-        const randomVariation = (Math.random() - 0.5) * 2; // -1 to 1
-        newRadius = categorySize + (randomVariation * variationRange);
+        newRadius = baseSize * sizeMultiplier;
       }
       
       // Ensure minimum size and maximum size to prevent physics errors
@@ -241,33 +264,33 @@ export class Simulation {
   applyPreset(presetName) {
     switch(presetName) {
       case 'honeycomb':
-        // Honeycomb formation with uniform bubble sizes
-        this.controls.setValue('targetDist', 0.660585);
-        this.controls.setValue('separation', 0.422363);
-        this.controls.setValue('collisionStrength', 0.030000);
-        this.controls.setValue('wallBounce', 0.450000);
-        this.controls.setValue('deformationStrength', 1.691778);
-        this.controls.setValue('influenceThreshold', 0.330368);
-        this.controls.setValue('surfaceTension', 0.248242);
-        this.controls.setValue('plateauForceStrength', 0.163963);
+        // Anti-pinching honeycomb formation with smooth, round bubbles
+        this.controls.setValue('targetDist', 0.574770);
+        this.controls.setValue('separation', 0.556450);
+        this.controls.setValue('collisionStrength', 0.057769);
+        this.controls.setValue('wallBounce', 0.502908);
+        this.controls.setValue('deformationStrength', 1.031620);
+        this.controls.setValue('influenceThreshold', 0.432122);
+        this.controls.setValue('surfaceTension', 1.227440); // Much higher for better shape maintenance
+        this.controls.setValue('plateauForceStrength', 0.204726);
         this.controls.setValue('gravity', 0.000000);
-        this.controls.setValue('damping', 0.950000);
-        this.controls.setValue('coalescenceRate', 0.000129);
-        this.controls.setValue('bubbleCount', 381);
-        this.controls.setValue('averageSize', 2.935977);
+        this.controls.setValue('damping', 0.011384);
+        this.controls.setValue('coalescenceRate', 0.000171);
+        this.controls.setValue('bubbleCount', 133);
+        this.controls.setValue('averageSize', 3.440144);
         this.controls.setValue('sizeVariation', 0.000000);
         this.compress();
         break;
         
       case 'pebbles':
         // Small, compact bubbles like smooth pebbles
-        this.controls.setValue('targetDist', 0.830000);
+        this.controls.setValue('targetDist', 0.810763);
         this.controls.setValue('separation', 0.300000);
         this.controls.setValue('collisionStrength', 0.030000);
         this.controls.setValue('wallBounce', 0.450000);
-        this.controls.setValue('deformationStrength', 1.540000);
-        this.controls.setValue('influenceThreshold', 0.100000);
-        this.controls.setValue('surfaceTension', 0.030000);
+        this.controls.setValue('deformationStrength', 1.096074);
+        this.controls.setValue('influenceThreshold', 0.417972);
+        this.controls.setValue('surfaceTension', 0.305453);
         this.controls.setValue('plateauForceStrength', 0.200000);
         this.controls.setValue('gravity', 0.040000);
         this.controls.setValue('damping', 0.990000);
@@ -296,19 +319,21 @@ export class Simulation {
         break;
         
       case 'tight-pack':
-        // Dense foam with heavy deformation
-        this.controls.setValue('targetDist', 1.01);
-        this.controls.setValue('separation', 0.5);
-        this.controls.setValue('collisionStrength', 0.02);
-        this.controls.setValue('influenceThreshold', 0.08);
-        this.controls.setValue('deformationStrength', 2.2);
-        this.controls.setValue('wallBounce', 0.35);
-        this.controls.setValue('damping', 0.98);
-        this.controls.setValue('surfaceTension', 0.3);
-        this.controls.setValue('plateauForceStrength', 0.1);
-        this.controls.setValue('coalescenceRate', 0.00012);
-        this.controls.setValue('compressionForce', 0.1);
-        this.controls.setValue('gravity', 0.05);
+        // Rubber balls - bouncy dense pack
+        this.controls.setValue('targetDist', 0.943777);
+        this.controls.setValue('separation', 0.475998);
+        this.controls.setValue('collisionStrength', 0.030000);
+        this.controls.setValue('wallBounce', 0.530000);
+        this.controls.setValue('deformationStrength', 1.061032);
+        this.controls.setValue('influenceThreshold', 0.284815);
+        this.controls.setValue('surfaceTension', 0.255393);
+        this.controls.setValue('plateauForceStrength', 0.270000);
+        this.controls.setValue('gravity', 0.040000);
+        this.controls.setValue('damping', 0.990000);
+        this.controls.setValue('coalescenceRate', 0.000120);
+        this.controls.setValue('bubbleCount', 466);
+        this.controls.setValue('averageSize', 1.000000);
+        this.controls.setValue('sizeVariation', 0.800000);
         this.compress();
         break;
         
@@ -436,7 +461,7 @@ export class Simulation {
     this.currentJunctions = this.physics.detectPlateauBorders(this.bubbles);
     this.physics.applyPlateauForces(this.currentJunctions, this.controls);
     
-    this.physics.detectCollisions(this.bubbles, this.controls);
+    this.physics.detectCollisions(this.bubbles, this.controls, this.performanceStats);
   }
 
   render() {
@@ -444,13 +469,13 @@ export class Simulation {
     this.renderer.clear(theme);
     
     // Draw bubbles (including merge animations)
-    this.renderer.renderBubbles(this.bubbles, this.physics, this.physics.contactCacheFrame);
+    this.renderer.renderBubbles(this.bubbles, this.physics, this.physics.contactCacheFrame, this.controls, this.performanceStats);
     
     // Render Plateau borders (use cached junctions from update)
     this.renderer.renderPlateauBorders(this.currentJunctions || [], this.controls);
     
     // Render UI
-    this.renderer.renderUI(this.fps, this.bubbles.length, this.compressionActive, this.lastCompressionForce, this.controls, this.bubbles);
+    this.renderer.renderUI(this.fps, this.bubbles.length, this.compressionActive, this.lastCompressionForce, this.controls, this.bubbles, this.performanceStats);
   }
 
   animate() {
@@ -469,6 +494,14 @@ export class Simulation {
     // Clear contact cache for new frame
     this.physics.contactCache.clear();
     this.physics.contactCacheFrame++;
+    
+    // Reset performance stats every second
+    if (currentTime - this.performanceStats.lastStatsTime >= 1000) {
+      this.performanceStats.collisionChecks = 0;
+      this.performanceStats.gradientCreations = 0;
+      this.performanceStats.gradientCacheHits = 0;
+      this.performanceStats.lastStatsTime = currentTime;
+    }
 
     this.update(dt);
     this.render();

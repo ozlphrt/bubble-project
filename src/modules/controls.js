@@ -13,55 +13,56 @@
  * Controls class for managing interactive parameter adjustments
  */
 export class Controls {
-  constructor() {
+  constructor(simulation = null) {
+    this.simulation = simulation;
     this.controls = {
       // Collision & Separation
       targetDist: {
         label: 'Separation',
         tooltip: 'How close bubbles can get to each other. Lower values = tighter packing.',
-        value: 0.83,
-        min: 0.5, // Adjusted min for better default positioning
+        value: 0.810763,
+        min: 0.5,
         max: 1.1,
         step: 0.01,
-        default: 0.83
+        default: 0.810763
       },
       separation: {
         label: 'Separation Force',
         tooltip: 'How strongly bubbles push each other apart. Higher = more repulsion.',
-        value: 0.30,
+        value: 0.181006,
         min: 0.05,
         max: 0.8,
         step: 0.01,
-        default: 0.30
+        default: 0.181006
       },
       collisionStrength: {
         label: 'Collision Strength',
         tooltip: 'How bouncy bubbles are when they collide. Higher = more bounce.',
-        value: 0.03,
+        value: 0.053264,
         min: 0.01,
         max: 0.08,
         step: 0.001,
-        default: 0.03
+        default: 0.053264
       },
       
       // Bubble Properties
       influenceThreshold: {
         label: 'Morphing Threshold',
         tooltip: 'How close bubbles need to be to start deforming each other.',
-        value: 0.1,
-        min: 0.01,
-        max: 0.5,
+        value: 0.353458,
+        min: 0.0,
+        max: 1.0,
         step: 0.01,
-        default: 0.1
+        default: 0.353458
       },
       deformationStrength: {
         label: 'Morphing Strength',
         tooltip: 'How much bubbles can deform when squished together.',
-        value: 1.54,
-        min: 0.1,
-        max: 5.0,
+        value: 1.031620,
+        min: 0.0,
+        max: 10.0,
         step: 0.1,
-        default: 1.54
+        default: 1.031620
       },
       wallBounce: {
         label: 'Wall Bounce',
@@ -73,19 +74,19 @@ export class Controls {
         default: 0.45
       },
       damping: {
-        label: 'Damping',
-        tooltip: 'How quickly bubbles slow down. Higher = more friction.',
-        value: 0.99,
-        min: 0.95,
-        max: 0.999,
+        label: 'Friction',
+        tooltip: 'How much friction bubbles experience. Higher = more friction, bubbles slow down faster.',
+        value: 0.005,
+        min: 0.001,
+        max: 0.02,
         step: 0.001,
-        default: 0.99
+        default: 0.005
       },
       
       // Force Parameters
       compressionForce: {
         label: 'Compression Force',
-        tooltip: 'How much force is applied when you press the Compress button.',
+        tooltip: 'How much force is applied when you press the Shuffle button.',
         value: 0.06,
         min: 0.02,
         max: 0.12,
@@ -109,44 +110,44 @@ export class Controls {
       gravity: {
         label: 'Gravity',
         tooltip: 'How strongly bubbles are pulled downward.',
-        value: 0.04, // Updated default gravity
+        value: 0.051581,
         min: 0,
         max: 0.5,
         step: 0.01,
-        default: 0.04
+        default: 0.051581
       },
       
       // Surface Tension Control
       surfaceTension: {
         label: 'Surface Tension',
         tooltip: 'How much bubbles try to maintain their round shape.',
-        value: 0.03,
+        value: 0.45,
         min: 0,
-        max: 0.5,
+        max: 1.5,
         step: 0.01,
-        default: 0.03
+        default: 0.45
       },
       
       // Coalescence Rate Control
       coalescenceRate: {
         label: 'Coalescence Rate',
         tooltip: 'How often bubbles merge together. Higher = more merging.',
-        value: 0.00012,
+        value: 0.000166,
         min: 0.0,
         max: 0.0002,
         step: 0.00001,
-        default: 0.00012
+        default: 0.000166
       },
       
       // Plateau Force Strength
       plateauForceStrength: {
         label: 'Plateau Force',
         tooltip: 'Force that pushes bubble junctions toward 120° angles (honeycomb effect).',
-        value: 0.2,
+        value: 0.236906,
         min: 0,
         max: 0.3, // Increased max
         step: 0.01,
-        default: 0.2
+        default: 0.236906
       },
       
       // Bubble Size Controls
@@ -183,14 +184,15 @@ export class Controls {
       
       // Visual Effects Toggle
       visualEffects: {
-        label: 'Visual Effects',
-        tooltip: 'Enable enhanced visual effects (highlights, rim lighting, size-based colors).',
-        value: 1, // Enabled by default
+        label: 'Visual Style',
+        tooltip: 'Flat = solid, Natural = depth, Glossy = shine, Ethereal = transparent',
+        value: 2, // Glossy by default
         min: 0,
-        max: 1,
+        max: 3,
         step: 1,
-        default: 1,
-        isToggle: true
+        default: 2,
+        isToggle: false,
+        options: ['Flat', 'Natural', 'Glossy', 'Ethereal']
       }
     };
     
@@ -216,6 +218,14 @@ export class Controls {
           this.setValue(key, e.target.checked ? 1 : 0);
         }
       }
+      
+      // Dropdown select events
+      if (e.target && e.target.id && e.target.id.startsWith('dropdown-')) {
+        const key = e.target.id.replace('dropdown-', '');
+        if (this.controls[key]) {
+          this.setValue(key, parseInt(e.target.value));
+        }
+      }
     });
     
     // Double-click to restore default values
@@ -229,13 +239,22 @@ export class Controls {
       }
     });
     
-    // Print values button
+    // Print values button and option buttons
     document.addEventListener('click', (e) => {
       if (e.target.id === 'printValuesBtn' || e.target.closest('#printValuesBtn')) {
         this.showValuesModal();
       }
       if (e.target.id === 'closeModalBtn') {
         this.hideValuesModal();
+      }
+      
+      // Option button events (for visual style buttons)
+      if (e.target && e.target.id && e.target.id.startsWith('option-')) {
+        const controlKey = e.target.getAttribute('data-control');
+        const value = e.target.getAttribute('data-value');
+        if (controlKey && value !== null && this.controls[controlKey]) {
+          this.setValue(controlKey, parseInt(value));
+        }
       }
     });
     
@@ -410,6 +429,29 @@ export class Controls {
         Math.min(this.controls[key].max, value)
       );
       
+      // Update option button highlighting if this control has options
+      if (this.controls[key].options) {
+        this.controls[key].options.forEach((option, index) => {
+          const btn = document.getElementById(`option-${key}-${index}`);
+          if (btn) {
+            const isSelected = this.controls[key].value === index;
+            if (isSelected) {
+              btn.style.background = 'rgba(100,200,255,0.4)';
+              btn.style.border = '2px solid rgba(100,200,255,1)';
+              btn.style.boxShadow = '0 0 10px rgba(100,200,255,0.5)';
+              btn.style.transform = 'scale(1.05)';
+              btn.style.fontWeight = '600';
+            } else {
+              btn.style.background = 'rgba(255,255,255,0.1)';
+              btn.style.border = '1px solid rgba(255,255,255,0.25)';
+              btn.style.boxShadow = 'none';
+              btn.style.transform = 'scale(1)';
+              btn.style.fontWeight = '400';
+            }
+          }
+        });
+      }
+      
       // Debug logging for sizeVariation
       if (key === 'sizeVariation') {
         console.log(`setValue called for sizeVariation: ${oldValue} -> ${this.controls[key].value}`);
@@ -428,6 +470,21 @@ export class Controls {
     for (const [key, control] of Object.entries(this.controls)) {
       values[key] = control.value;
     }
+    
+    // Add additional parameters not in controls
+    if (this.simulation) {
+      // Visual style name
+      const visualStyleNames = ['Flat', 'Natural', 'Glossy', 'Ethereal'];
+      values.visualStyleName = visualStyleNames[values.visualEffects] || 'Unknown';
+      
+      // Spawn color settings
+      if (this.simulation.physics) {
+        values.spawnColorMode = this.simulation.physics.spawnColorMode || 'current';
+        values.customSpawnColor = this.simulation.physics.customSpawnColor || 'rgb(255, 0, 0)';
+        values.spawnPaletteMode = this.simulation.physics.spawnPaletteMode || 'none';
+      }
+    }
+    
     return values;
   }
 
@@ -440,7 +497,7 @@ export class Controls {
     }
   }
 
-  showValuesModal() {
+  async showValuesModal() {
     const modal = document.getElementById('valuesModal');
     const content = document.getElementById('valuesContent');
     
@@ -448,6 +505,9 @@ export class Controls {
     
     // Generate formatted values
     let html = '<div style="color: rgba(100,200,255,0.9); font-weight: 600; margin-bottom: 10px;">Current Control Values:</div>';
+    
+    // Get all values including additional parameters
+    const values = this.getAllValues();
     
     // Group values by category
     const groups = {
@@ -465,7 +525,16 @@ export class Controls {
         const control = this.controls[key];
         if (control) {
           const value = control.value;
-          const formattedValue = typeof value === 'number' ? value.toFixed(6) : value;
+          let formattedValue;
+          
+          // Special formatting for visual effects
+          if (key === 'visualEffects') {
+            const visualStyleNames = ['Flat', 'Natural', 'Glossy', 'Ethereal'];
+            formattedValue = `${visualStyleNames[value] || 'Unknown'} (${value})`;
+          } else {
+            formattedValue = typeof value === 'number' ? value.toFixed(6) : value;
+          }
+          
           html += `<div style="margin-left: 10px; margin-bottom: 2px;">`;
           html += `<span style="color: rgba(255,255,255,0.9);">${control.label}:</span> `;
           html += `<span style="color: rgba(100,200,255,1); font-weight: 600;">${formattedValue}</span>`;
@@ -474,6 +543,44 @@ export class Controls {
       }
       html += `</div>`;
     }
+    
+    // Add additional parameters section
+    html += `<div style="margin-bottom: 15px;">`;
+    html += `<div style="color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px;">Additional Settings:</div>`;
+    
+    // Get current palette from bubble module
+    try {
+      const bubbleModule = await import('./bubble.js');
+      const currentPalette = bubbleModule.Bubble.currentPalette || 'rainbow';
+      html += `<div style="margin-left: 10px; margin-bottom: 2px;">`;
+      html += `<span style="color: rgba(255,255,255,0.9);">Current Palette:</span> `;
+      html += `<span style="color: rgba(100,200,255,1); font-weight: 600;">${currentPalette}</span>`;
+      html += `</div>`;
+    } catch (error) {
+      console.warn('Could not load bubble module for palette info:', error);
+    }
+    
+    // Spawn color settings
+    if (values.spawnColorMode) {
+      html += `<div style="margin-left: 10px; margin-bottom: 2px;">`;
+      html += `<span style="color: rgba(255,255,255,0.9);">Spawn Color Mode:</span> `;
+      html += `<span style="color: rgba(100,200,255,1); font-weight: 600;">${values.spawnColorMode}</span>`;
+      html += `</div>`;
+      
+      if (values.spawnColorMode === 'custom' && values.customSpawnColor) {
+        html += `<div style="margin-left: 10px; margin-bottom: 2px;">`;
+        html += `<span style="color: rgba(255,255,255,0.9);">Custom Spawn Color:</span> `;
+        html += `<span style="color: rgba(100,200,255,1); font-weight: 600;">${values.customSpawnColor}</span>`;
+        html += `</div>`;
+      } else if (values.spawnColorMode === 'palette' && values.spawnPaletteMode) {
+        html += `<div style="margin-left: 10px; margin-bottom: 2px;">`;
+        html += `<span style="color: rgba(255,255,255,0.9);">Spawn Palette:</span> `;
+        html += `<span style="color: rgba(100,200,255,1); font-weight: 600;">${values.spawnPaletteMode}</span>`;
+        html += `</div>`;
+      }
+    }
+    
+    html += `</div>`;
     
     content.innerHTML = html;
     modal.style.display = 'block';

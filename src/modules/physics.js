@@ -10,13 +10,14 @@
  */
 
 import { Bubble } from './bubble.js';
+import { SpatialManager } from './spatial.js';
 
 /**
  * Physics engine class for handling bubble interactions
  */
 export class Physics {
   constructor() {
-    this.quadtree = null;
+    this.spatialManager = null;
     this.coalescenceRate = 0.00001; // Very low default probability per frame per pair
     this.contactDurationThreshold = 300; // Frames before merge can occur (5 seconds at 60fps for rare, realistic merging)
     this.customSpawnColor = 'rgb(255, 0, 0)'; // Default to full red
@@ -25,17 +26,93 @@ export class Physics {
   }
 
   /**
+   * Initialize spatial manager with canvas dimensions
+   */
+  initializeSpatial(canvasWidth, canvasHeight) {
+    this.spatialManager = new SpatialManager(canvasWidth, canvasHeight);
+  }
+
+  /**
    * Detect and resolve collisions between bubbles
    * @param {Array<Bubble>} bubbles - Array of all bubbles
    */
-  detectCollisions(bubbles, controls = null) {
+  detectCollisions(bubbles, controls = null, performanceStats = null) {
     // Get control values or use defaults
     const targetDistMultiplier = controls?.getValue('targetDist') || 1.02;
     const separationMultiplier = controls?.getValue('separation') || 0.6;
     const collisionStrengthBase = controls?.getValue('collisionStrength') || 0.03;
     
-    // Single pass for better performance (was 3 passes)
-    for (let pass = 0; pass < 1; pass++) {
+    // Use spatial partitioning for O(n log n) collision detection
+    if (this.spatialManager) {
+      // Run collision detection multiple times per frame for better separation
+      // More passes when gravity is high to prevent overlapping
+      const gravity = controls?.getValue('gravity') || 0;
+      const passes = gravity > 0.05 ? 3 : 2; // Only extra pass for very high gravity
+      for (let pass = 0; pass < passes; pass++) {
+        this.spatialManager.rebuild(bubbles);
+        
+        // Get collision pairs using spatial partitioning (O(n log n) instead of O(n²))
+        const collisionPairs = this.spatialManager.getAllCollisionPairs(bubbles);
+        
+        // Track performance stats (only on first pass)
+        if (performanceStats && pass === 0) {
+          performanceStats.collisionChecks = collisionPairs.length;
+        }
+        
+        // Process only the potential collision pairs
+        for (const [bubble1, bubble2] of collisionPairs) {
+        const dx = bubble2.x - bubble1.x;
+        const dy = bubble2.y - bubble1.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const minDist = bubble1.radius + bubble2.radius;
+          
+        const targetDist = minDist * targetDistMultiplier;
+        if (dist < targetDist && dist > 0.1) { // Minimum distance to avoid division by zero
+          const overlap = targetDist - dist;
+          const nx = dx / dist;
+          const ny = dy / dist;
+          
+          // Mass-based separation: lighter bubbles move more
+          const totalMass = bubble1.mass + bubble2.mass;
+          const massRatio_1 = bubble2.mass / totalMass; // Inverse - lighter moves more
+          const massRatio_2 = bubble1.mass / totalMass;
+          
+          // Apply size-dependent separation force - much gentler for small bubbles
+          const avgRadius = (bubble1.radius + bubble2.radius) / 2;
+          const sizeFactor = Math.min(1.0, avgRadius / 15.0); // More gradual scaling
+          const gravity = controls?.getValue('gravity') || 0;
+          // Use sqrt for diminishing returns at high gravity (prevents jittering)
+          const gravityFactor = 1.0 + Math.sqrt(gravity) * 0.5;
+          const separation = overlap * separationMultiplier * (0.8 + sizeFactor * 1.2) * gravityFactor;
+          bubble1.x -= nx * separation * massRatio_1;
+          bubble1.y -= ny * separation * massRatio_1;
+          bubble2.x += nx * separation * massRatio_2;
+          bubble2.y += ny * separation * massRatio_2;
+          
+          const dvx = bubble2.vx - bubble1.vx;
+          const dvy = bubble2.vy - bubble1.vy;
+          const dvn = dvx * nx + dvy * ny;
+          
+          // Mass-based collision response: heavier bubbles transfer less momentum
+          const sizeRatio = Math.max(bubble1.radius, bubble2.radius) / Math.min(bubble1.radius, bubble2.radius);
+          const collisionStrength = collisionStrengthBase + (sizeRatio - 1) * 0.02;
+          
+          // Dampen collision response at high gravity to prevent jittering
+          const collisionDamping = gravity > 0.05 ? 0.7 : 1.0;
+          
+          // Apply impulse scaled by mass ratios
+          bubble1.vx += nx * dvn * collisionStrength * massRatio_1 * collisionDamping;
+          bubble1.vy += ny * dvn * collisionStrength * massRatio_1 * collisionDamping;
+          bubble2.vx -= nx * dvn * collisionStrength * massRatio_2 * collisionDamping;
+          bubble2.vy -= ny * dvn * collisionStrength * massRatio_2 * collisionDamping;
+        }
+        }
+      }
+    } else {
+      // Using O(n²) collision detection (spatial partitioning disabled for debugging)
+      if (performanceStats) {
+        performanceStats.collisionChecks = (bubbles.length * (bubbles.length - 1)) / 2;
+      }
       for (let i = 0; i < bubbles.length; i++) {
         for (let j = i + 1; j < bubbles.length; j++) {
           const dx = bubbles[j].x - bubbles[i].x;
@@ -44,17 +121,22 @@ export class Physics {
           const minDist = bubbles[i].radius + bubbles[j].radius;
             
           const targetDist = minDist * targetDistMultiplier;
-          if (dist < targetDist && dist > 0) {
+          if (dist < targetDist && dist > 0.1) {
             const overlap = targetDist - dist;
             const nx = dx / dist;
             const ny = dy / dist;
             
-            // Mass-based separation: lighter bubbles move more
             const totalMass = bubbles[i].mass + bubbles[j].mass;
-            const massRatio_i = bubbles[j].mass / totalMass; // Inverse - lighter moves more
+            const massRatio_i = bubbles[j].mass / totalMass;
             const massRatio_j = bubbles[i].mass / totalMass;
             
-            const separation = overlap * separationMultiplier;
+            // Apply size-dependent separation force - much gentler for small bubbles
+            const avgRadius = (bubbles[i].radius + bubbles[j].radius) / 2;
+            const sizeFactor = Math.min(1.0, avgRadius / 15.0); // More gradual scaling
+            const gravity = controls?.getValue('gravity') || 0;
+            // Use sqrt for diminishing returns at high gravity (prevents jittering)
+            const gravityFactor = 1.0 + Math.sqrt(gravity) * 0.5;
+            const separation = overlap * separationMultiplier * (0.8 + sizeFactor * 1.2) * gravityFactor;
             bubbles[i].x -= nx * separation * massRatio_i;
             bubbles[i].y -= ny * separation * massRatio_i;
             bubbles[j].x += nx * separation * massRatio_j;
@@ -64,15 +146,16 @@ export class Physics {
             const dvy = bubbles[j].vy - bubbles[i].vy;
             const dvn = dvx * nx + dvy * ny;
             
-            // Mass-based collision response: heavier bubbles transfer less momentum
             const sizeRatio = Math.max(bubbles[i].radius, bubbles[j].radius) / Math.min(bubbles[i].radius, bubbles[j].radius);
             const collisionStrength = collisionStrengthBase + (sizeRatio - 1) * 0.02;
             
-            // Apply impulse scaled by mass ratios
-            bubbles[i].vx += nx * dvn * collisionStrength * massRatio_i;
-            bubbles[i].vy += ny * dvn * collisionStrength * massRatio_i;
-            bubbles[j].vx -= nx * dvn * collisionStrength * massRatio_j;
-            bubbles[j].vy -= ny * dvn * collisionStrength * massRatio_j;
+            // Dampen collision response at high gravity to prevent jittering
+            const collisionDamping = gravity > 0.05 ? 0.7 : 1.0;
+            
+            bubbles[i].vx += nx * dvn * collisionStrength * massRatio_i * collisionDamping;
+            bubbles[i].vy += ny * dvn * collisionStrength * massRatio_i * collisionDamping;
+            bubbles[j].vx -= nx * dvn * collisionStrength * massRatio_j * collisionDamping;
+            bubbles[j].vy -= ny * dvn * collisionStrength * massRatio_j * collisionDamping;
           }
         }
       }
@@ -91,14 +174,27 @@ export class Physics {
       return this.contactCache.get(bubble.id);
     }
     
-    // Calculate contacts
-    const contacts = allBubbles.filter(other => {
-      if (other === bubble) return false;
-      const dx = other.x - bubble.x;
-      const dy = other.y - bubble.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      return dist < bubble.radius + other.radius * 1.05; // Allow closer contact for better deformation
-    });
+    // Use spatial partitioning for contact detection if available
+    let contacts;
+    if (this.spatialManager) {
+      const candidates = this.spatialManager.getCollisionCandidates(bubble);
+      contacts = candidates.filter(other => {
+        if (other === bubble) return false;
+        const dx = other.x - bubble.x;
+        const dy = other.y - bubble.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        return dist < bubble.radius + other.radius * 1.05; // Allow closer contact for better deformation
+      });
+    } else {
+      // Fallback to O(n) search
+      contacts = allBubbles.filter(other => {
+        if (other === bubble) return false;
+        const dx = other.x - bubble.x;
+        const dy = other.y - bubble.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        return dist < bubble.radius + other.radius * 1.05;
+      });
+    }
     
     // Cache the result
     if (this.contactCacheFrame === frameNumber) {
@@ -569,10 +665,18 @@ export class Physics {
     // Create new bubble at corner position
     const newBubble = new Bubble(x, y, radius, 0);
     
-    // Use custom spawn color if set, otherwise use current palette
-    if (this.customSpawnColor) {
+    // Apply spawn color based on mode
+    if (this.spawnColorMode === 'custom' && this.customSpawnColor) {
+      // Custom color from color picker
       newBubble.color = this.customSpawnColor;
+    } else if (this.spawnColorMode === 'palette' && this.spawnPaletteMode) {
+      // Different palette for spawned bubbles
+      import('./bubble.js').then(module => {
+        const colors = module.Bubble.getPaletteColors(this.spawnPaletteMode);
+        newBubble.color = colors[Math.floor(Math.random() * colors.length)];
+      });
     }
+    // else: use current palette (default behavior)
     
     // Give it a small downward and rightward velocity (scaled by size - smaller bubbles faster)
     const speedScale = Math.sqrt(20 / radius); // Smaller bubbles fall faster

@@ -23,6 +23,11 @@ export class Renderer {
   setFullScreen() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
+    
+    // Update spatial manager if available (for performance optimization)
+    if (this.simulation && this.simulation.physics && this.simulation.physics.spatialManager) {
+      this.simulation.physics.spatialManager.updateDimensions(this.canvas.width, this.canvas.height);
+    }
   }
 
   clear(theme = 0) {
@@ -40,7 +45,7 @@ export class Renderer {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  renderBubbles(bubbles, physics = null, frameNumber = 0) {
+  renderBubbles(bubbles, physics = null, frameNumber = 0, controls = null, performanceStats = null) {
     bubbles.forEach(bubble => {
       const contacts = physics ? physics.findContacts(bubble, bubbles, frameNumber) : [];
       
@@ -59,7 +64,7 @@ export class Renderer {
           this.ctx.scale(scale, scale);
           this.ctx.translate(-bubble.x, -bubble.y);
           
-          bubble.draw(this.ctx, contacts);
+          bubble.draw(this.ctx, contacts, controls, performanceStats);
           
           // Draw bright red border to indicate merging
           this.ctx.strokeStyle = `rgba(255, 0, 0, ${1.0 - bubble.mergeProgress})`;
@@ -82,12 +87,12 @@ export class Renderer {
         }
       } else {
         // Normal rendering
-        bubble.draw(this.ctx, contacts);
+        bubble.draw(this.ctx, contacts, controls, performanceStats);
       }
     });
   }
 
-  renderUI(fps, bubbleCount, compressionActive, lastCompressionForce, controls, bubbles = []) {
+  renderUI(fps, bubbleCount, compressionActive, lastCompressionForce, controls, bubbles = [], performanceStats = null) {
     // Render FPS
     const fpsElement = document.getElementById('fps');
     if (fpsElement) {
@@ -99,6 +104,8 @@ export class Renderer {
     if (bubbleCountElement) {
       bubbleCountElement.textContent = bubbleCount;
     }
+
+    // Performance stats removed from display
 
     // Render Compression Indicator
     const compressionIndicator = document.getElementById('compression');
@@ -147,10 +154,18 @@ export class Renderer {
     html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">';
     html += '<h3 style="margin: 0; font-size: 16px; color: rgba(255,255,255,0.95); font-weight: 600;">Physics Controls</h3>';
     html += '<div style="display: flex; align-items: center; gap: 10px;">';
+    html += '<div style="position: relative;">';
     html += '<button id="faucetBtn" style="background: linear-gradient(135deg, #ff0000, rgba(255,255,255,0.2)); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 4px 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 28px; height: 24px;" title="Choose bubble spawn color" data-tooltip="Choose spawn color">';
     html += '🚰';
     html += '</button>';
+    // Dropdown menu (hidden by default)
+    html += '<div id="faucetMenu" style="display: none; position: absolute; top: 30px; left: 0; background: rgba(10,10,15,0.95); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; z-index: 10000; min-width: 150px; backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.5);">';
+    html += '<button id="spawnOption-custom" style="width: 100%; padding: 6px 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; cursor: pointer; font-size: 12px; margin-bottom: 6px; text-align: left;">🎨 Custom Color</button>';
+    html += '<button id="spawnOption-palette" style="width: 100%; padding: 6px 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; cursor: pointer; font-size: 12px; margin-bottom: 6px; text-align: left;">🎭 Different Palette</button>';
+    html += '<button id="spawnOption-current" style="width: 100%; padding: 6px 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; cursor: pointer; font-size: 12px; text-align: left;">🌈 Current Palette</button>';
+    html += '</div>';
     html += '<input type="color" id="bubbleColorPicker" value="#ff0000" style="display: none;">';
+    html += '</div>';
     html += '<button id="printValuesBtn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 4px 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 28px; height: 24px;" title="Print all current values">';
     html += '🖨️';
     html += '</button>';
@@ -183,6 +198,17 @@ export class Renderer {
           html += `<input type="checkbox" id="toggle-${key}" ${isChecked ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">`;
           html += `<span id="value-${key}" style="margin-left: 10px; color: white;">${isChecked ? 'On' : 'Off'}</span>`;
           html += `</label>`;
+        } else if (control.options && control.options.length > 0) {
+          // Render as button group (like palettes)
+          html += `<div style="flex: 1; display: flex; gap: 3px; justify-content: space-between;">`;
+          control.options.forEach((option, index) => {
+            const isSelected = control.value === index;
+            const selectedStyle = isSelected 
+              ? 'background: rgba(100,200,255,0.4); border: 2px solid rgba(100,200,255,1); box-shadow: 0 0 10px rgba(100,200,255,0.5); transform: scale(1.05);' 
+              : 'background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);';
+            html += `<button id="option-${key}-${index}" data-control="${key}" data-value="${index}" style="flex: 1; padding: 4px 6px; ${selectedStyle} border-radius: 5px; color: white; cursor: pointer; font-size: 10px; transition: all 0.2s; white-space: nowrap; font-weight: ${isSelected ? '600' : '400'};" data-tooltip="${option}">${option}</button>`;
+          });
+          html += `</div>`;
         } else {
           // Enhanced slider with tooltip, default indicator, and extended range
           const normalizedValue = this.normalizeValue(control.value, control.min, control.max);
@@ -220,21 +246,20 @@ export class Renderer {
     // Define color palettes
     const palettes = [
       { name: 'Blues', colors: ['#4a9eff', '#6bb6ff', '#8cc8ff', '#a8d8ff'], id: 'blues' },
-      { name: 'Cherry', colors: ['#DC143C', '#FF007F', '#C71585', '#FF1493'], id: 'cherry' },
+      { name: 'Spectrum', colors: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00'], id: 'spectrum' },
       { name: 'Neon', colors: ['#FF00FF', '#00FFFF', '#FFFF00', '#39FF14'], id: 'neon' },
       { name: 'Sunset', colors: ['#FF4500', '#FF8C00', '#FFD700', '#FF6347'], id: 'sunset' },
       { name: 'Ocean', colors: ['#00008B', '#008080', '#00BFFF', '#1E90FF'], id: 'ocean' },
-      { name: 'Toxic', colors: ['#00FF00', '#7FFF00', '#32CD32', '#00FA9A'], id: 'toxic' },
       { name: 'Rainbow', colors: ['#FF6B6B', '#FFD93D', '#6BCF7F', '#4D96FF'], id: 'rainbow' },
       { name: 'Mono', colors: ['#E0E0E0', '#CCCCCC', '#B3B3B3', '#999999'], id: 'mono' },
       { name: 'Fire', colors: ['#FF0000', '#FF4500', '#FF8C00', '#FFD700'], id: 'fire' }
     ];
     
     palettes.forEach(palette => {
-      html += `<div class="color-palette-btn" data-palette="${palette.id}" style="cursor: pointer; padding: 4px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; transition: all 0.2s;" data-tooltip="${palette.name} palette" title="${palette.name}">`;
-      html += '<div style="display: flex; gap: 2px;">';
-      palette.colors.forEach(color => {
-        html += `<div style="width: 14px; height: 14px; background: ${color}; border-radius: 2px; opacity: 0.8;"></div>`;
+      html += `<div class="color-palette-btn" data-palette="${palette.id}" style="cursor: pointer; padding: 2px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; transition: all 0.2s; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;" data-tooltip="${palette.name} palette" title="${palette.name}">`;
+      html += '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; width: 100%; height: 100%;">';
+      palette.colors.slice(0, 4).forEach(color => {
+        html += `<div style="background: ${color}; border-radius: 1px;"></div>`;
       });
       html += '</div>';
       html += '</div>';
@@ -296,7 +321,7 @@ export class Renderer {
       'Morphing Strength': 'Morph Str',
       'Wall Bounce': 'Wall Bounce',
       'Damping': 'Damping',
-      'Compression Force': 'Compress',
+      'Compression Force': 'Shuffle',
       'Force Smoothing': 'Smoothing',
       'Theme': 'Theme',
       'Gravity': 'Gravity',

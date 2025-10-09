@@ -77,6 +77,28 @@
             -ms-user-select: none;
             overflow: visible; /* Prevent scrollbars */
         }
+        
+        /* Ensure dropdowns work properly */
+        .control-panel select {
+            position: relative;
+            z-index: 99999 !important;
+            user-select: auto;
+            -webkit-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+        }
+        
+        .control-panel select option {
+            background: #1a1a2e !important;
+            color: white !important;
+            padding: 8px;
+            font-size: 14px;
+        }
+        
+        /* Force dropdown list to appear above everything */
+        select:focus {
+            z-index: 99999 !important;
+        }
 
         .control-panel.hidden {
             left: -300px; /* Slide out when hidden */
@@ -232,7 +254,7 @@
     <canvas id="canvas"></canvas>
     
     <div class="controls">
-        <button id="compress" class="control-button">Compress</button>
+        <button id="compress" class="control-button">Shuffle</button>
         <button id="restart" class="control-button">Restart</button>
         <button id="reset" class="control-button">Reset to Defaults</button>
     </div>
@@ -272,7 +294,7 @@
         <button id="preset-honeycomb" class="preset-button">Honeycomb</button>
         <button id="preset-pebbles" class="preset-button">Pebbles</button>
         <button id="preset-bouncy-foam" class="preset-button">Bouncy Foam</button>
-            <button id="preset-tight-pack" class="preset-button">Tight Pack</button>
+            <button id="preset-tight-pack" class="preset-button">Rubber Balls</button>
             <button id="preset-soap" class="preset-button">Soap</button>
             <button id="preset-pearls" class="preset-button">Rubber Pearls</button>
         </div>

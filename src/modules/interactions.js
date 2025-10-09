@@ -22,6 +22,7 @@ export class Interactions {
     this.controlPanelVisible = true; // Start visible
     this.autoHideEnabled = true; // Auto-hide enabled by default
     this.hideTimeout = null;
+    this.initialAutoHideScheduled = false; // Track if initial auto-hide has been scheduled
     this.setupEventListeners();
   }
 
@@ -101,24 +102,33 @@ export class Interactions {
       this.handleKeyDown(e);
     });
 
-    // Preset button events
-    document.getElementById('preset-honeycomb')?.addEventListener('click', () => {
-      this.simulation.applyPreset('honeycomb');
-    });
-    document.getElementById('preset-pebbles')?.addEventListener('click', () => {
-      this.simulation.applyPreset('pebbles');
-    });
-    document.getElementById('preset-bouncy-foam')?.addEventListener('click', () => {
-      this.simulation.applyPreset('bouncy-foam');
-    });
-    document.getElementById('preset-tight-pack')?.addEventListener('click', () => {
-      this.simulation.applyPreset('tight-pack');
-    });
-    document.getElementById('preset-soap')?.addEventListener('click', () => {
-      this.simulation.applyPreset('soap');
-    });
-    document.getElementById('preset-pearls')?.addEventListener('click', () => {
-      this.simulation.applyPreset('pearls');
+    // Preset button events with highlighting
+    const presetButtons = [
+      { id: 'preset-honeycomb', name: 'honeycomb' },
+      { id: 'preset-pebbles', name: 'pebbles' },
+      { id: 'preset-bouncy-foam', name: 'bouncy-foam' },
+      { id: 'preset-tight-pack', name: 'tight-pack' },
+      { id: 'preset-soap', name: 'soap' },
+      { id: 'preset-pearls', name: 'pearls' }
+    ];
+    
+    presetButtons.forEach(preset => {
+      document.getElementById(preset.id)?.addEventListener('click', (e) => {
+        this.simulation.applyPreset(preset.name);
+        
+        // Highlight selected preset button
+        presetButtons.forEach(p => {
+          const btn = document.getElementById(p.id);
+          if (btn) {
+            btn.style.background = 'rgba(255, 255, 255, 0.1)';
+            btn.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+            btn.style.boxShadow = 'none';
+          }
+        });
+        e.target.style.background = 'rgba(100,200,255,0.3)';
+        e.target.style.border = '2px solid rgba(100,200,255,0.8)';
+        e.target.style.boxShadow = '0 0 10px rgba(100,200,255,0.4)';
+      });
     });
 
     // Global mouse move for left edge detection
@@ -547,6 +557,20 @@ export class Interactions {
   }
 
   /**
+   * Schedule initial auto-hide after simulation starts
+   */
+  scheduleInitialAutoHide() {
+    if (!this.initialAutoHideScheduled && this.autoHideEnabled) {
+      this.initialAutoHideScheduled = true;
+      setTimeout(() => {
+        if (this.autoHideEnabled && this.controlPanelVisible) {
+          this.hideControlPanel();
+        }
+      }, 3000); // Hide after 3 seconds
+    }
+  }
+
+  /**
    * Update pin icon to show current state
    */
   updatePinIcon() {
@@ -646,37 +670,127 @@ export class Interactions {
   }
 
   /**
-   * Initialize faucet button and color picker
+   * Show palette selection submenu
+   */
+  showPaletteSubmenu(faucetMenu, faucetBtn) {
+    const palettes = [
+      { name: 'Blues', id: 'blues' },
+      { name: 'Spectrum', id: 'spectrum' },
+      { name: 'Neon', id: 'neon' },
+      { name: 'Sunset', id: 'sunset' },
+      { name: 'Ocean', id: 'ocean' },
+      { name: 'Rainbow', id: 'rainbow' },
+      { name: 'Mono', id: 'mono' },
+      { name: 'Fire', id: 'fire' }
+    ];
+
+    // Create submenu HTML
+    let submenuHTML = '<div style="margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">';
+    submenuHTML += '<div style="font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 6px;">Choose Palette:</div>';
+    
+    palettes.forEach(palette => {
+      submenuHTML += `<button class="palette-option" data-palette="${palette.id}" style="width: 100%; padding: 4px 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 3px; color: white; cursor: pointer; font-size: 11px; margin-bottom: 3px; text-align: left;">${palette.name}</button>`;
+    });
+    
+    submenuHTML += '</div>';
+
+    // Replace or add submenu content
+    const existingSubmenu = faucetMenu.querySelector('.palette-submenu');
+    if (existingSubmenu) {
+      existingSubmenu.remove();
+    }
+    
+    faucetMenu.insertAdjacentHTML('beforeend', submenuHTML);
+
+    // Add event listeners to palette options
+    faucetMenu.querySelectorAll('.palette-option').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const paletteId = e.target.getAttribute('data-palette');
+        
+        this.simulation.physics.spawnColorMode = 'palette';
+        this.simulation.physics.spawnPaletteMode = paletteId;
+        
+        // Update faucet button to show palette colors
+        import('./bubble.js').then(module => {
+          const colors = module.Bubble.getPaletteColors(paletteId);
+          const color1 = colors[0] || 'rgb(255,0,0)';
+          faucetBtn.style.background = `linear-gradient(135deg, ${color1}, rgba(255,255,255,0.2))`;
+        });
+        
+        // Close menu
+        faucetMenu.style.display = 'none';
+      });
+    });
+  }
+
+  /**
+   * Initialize faucet button and spawn color options
    */
   initializeFaucetButton() {
     const faucetBtn = document.getElementById('faucetBtn');
+    const faucetMenu = document.getElementById('faucetMenu');
     const colorPicker = document.getElementById('bubbleColorPicker');
     
-    if (faucetBtn && colorPicker) {
-      // Clicking faucet button opens color picker
+    if (faucetBtn && faucetMenu) {
+      // Toggle dropdown menu on faucet button click
       faucetBtn.addEventListener('click', (e) => {
-        e.preventDefault();
         e.stopPropagation();
+        const isVisible = faucetMenu.style.display === 'block';
+        faucetMenu.style.display = isVisible ? 'none' : 'block';
+      });
+      
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!faucetMenu.contains(e.target) && e.target !== faucetBtn) {
+          faucetMenu.style.display = 'none';
+          // Also remove any submenu
+          const existingSubmenu = faucetMenu.querySelector('.palette-submenu');
+          if (existingSubmenu) {
+            existingSubmenu.remove();
+          }
+        }
+      });
+      
+      // Option 1: Custom Color
+      document.getElementById('spawnOption-custom')?.addEventListener('click', () => {
+        faucetMenu.style.display = 'none';
         colorPicker.click();
       });
       
-      // When color is chosen, update spawn color
-      colorPicker.addEventListener('change', (e) => {
-        const hexColor = e.target.value;
-        // Convert hex to rgb format
-        const r = parseInt(hexColor.slice(1, 3), 16);
-        const g = parseInt(hexColor.slice(3, 5), 16);
-        const b = parseInt(hexColor.slice(5, 7), 16);
-        const rgbColor = `rgb(${r}, ${g}, ${b})`;
-        
-        // Store chosen color for spawn
-        if (this.simulation && this.simulation.physics) {
-          this.simulation.physics.customSpawnColor = rgbColor;
-        }
-        
-        // Visual feedback - change faucet button background
-        faucetBtn.style.background = `linear-gradient(135deg, ${hexColor}, rgba(255,255,255,0.2))`;
+      // Option 2: Different Palette (show palette submenu)
+      document.getElementById('spawnOption-palette')?.addEventListener('click', () => {
+        this.showPaletteSubmenu(faucetMenu, faucetBtn);
       });
+      
+      // Option 3: Current Palette
+      document.getElementById('spawnOption-current')?.addEventListener('click', () => {
+        faucetMenu.style.display = 'none';
+        this.simulation.physics.spawnColorMode = 'current';
+        delete this.simulation.physics.customSpawnColor;
+        delete this.simulation.physics.spawnPaletteMode;
+        faucetBtn.style.background = 'rgba(100,200,255,0.3)';
+      });
+      
+      // Color picker change handler
+      if (colorPicker) {
+        colorPicker.addEventListener('change', (e) => {
+          const hexColor = e.target.value;
+          // Convert hex to rgb format
+          const r = parseInt(hexColor.slice(1, 3), 16);
+          const g = parseInt(hexColor.slice(3, 5), 16);
+          const b = parseInt(hexColor.slice(5, 7), 16);
+          const rgbColor = `rgb(${r}, ${g}, ${b})`;
+          
+          // Store chosen color for spawn
+          if (this.simulation && this.simulation.physics) {
+            this.simulation.physics.spawnColorMode = 'custom';
+            this.simulation.physics.customSpawnColor = rgbColor;
+          }
+          
+          // Visual feedback - change faucet button background
+          faucetBtn.style.background = `linear-gradient(135deg, ${hexColor}, rgba(255,255,255,0.2))`;
+        });
+      }
     }
   }
 
