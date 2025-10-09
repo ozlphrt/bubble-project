@@ -2,7 +2,7 @@
 
 An educational, web-based 2D simulation demonstrating the physics of soap bubbles and foam formation with interactive controls and beautiful visualizations.
 
-![Version](https://img.shields.io/badge/version-v49c12ee-blue)
+![Version](https://img.shields.io/badge/version-vf7cffdb-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## 🌟 Features
@@ -183,7 +183,7 @@ This simulator demonstrates:
 
 ## 📝 Version History
 
-- **v49c12ee** (Current) - Audio system, obstacle pipes, improved presets
+- **vf7cffdb** (Current) - Project cleanup, comprehensive README, clickable version link
 - **v680e8e2** - Coalescence audio, palette cleanup
 - **v65f9b1a** - Preset updates, visual styles
 - **Earlier** - Core physics, UI, performance optimizations
@@ -202,4 +202,4 @@ Built with inspiration from real soap bubble physics and foam dynamics research.
 
 ---
 
-**Current Version**: v49c12ee | **Status**: Active Development | **Performance**: 60 FPS @ 500+ bubbles
+**Current Version**: vf7cffdb | **Status**: Active Development | **Performance**: 60 FPS @ 500+ bubbles
